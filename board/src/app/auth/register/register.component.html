@@ -1,0 +1,107 @@
+<!-- src/app/auth/register/register.component.html -->
+<div class="form-container">
+  <div class="form-wrapper">
+    <div class="form-header">
+      <h1 class="form-title">Регистрация</h1>
+      <button class="close-btn" routerLink="/">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+        </svg>
+      </button>
+    </div>
+    
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      
+      <div class="form-group">
+        <input 
+          type="text" 
+          class="form-input"
+          placeholder="Имя"
+          formControlName="name"
+          required
+          [class.error]="name?.invalid && name?.touched">
+        <div class="validation-error" *ngIf="name?.invalid && name?.touched">
+          <span *ngIf="name?.errors?.['required']">Имя обязательно</span>
+          <span *ngIf="name?.errors?.['minlength']">Минимум 2 символа</span>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <input 
+          type="text" 
+          class="form-input"
+          placeholder="Логин"
+          formControlName="login"
+          required
+          [class.error]="login?.invalid && login?.touched">
+        <div class="validation-error" *ngIf="login?.invalid && login?.touched">
+          <span *ngIf="login?.errors?.['required']">Логин обязателен</span>
+          <span *ngIf="login?.errors?.['minlength']">Минимум 3 символа</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <input 
+          type="email" 
+          class="form-input"
+          placeholder="Email"
+          formControlName="email"
+          required
+          [class.error]="email?.invalid && email?.touched">
+        <div class="validation-error" *ngIf="email?.invalid && email?.touched">
+          <span *ngIf="email?.errors?.['required']">Email обязателен</span>
+          <span *ngIf="email?.errors?.['email']">Введите корректный email</span>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <input 
+          type="password" 
+          class="form-input"
+          placeholder="Пароль"
+          formControlName="password"
+          required
+          [class.error]="password?.invalid && password?.touched">
+        <div class="validation-error" *ngIf="password?.invalid && password?.touched">
+          <span *ngIf="password?.errors?.['required']">Пароль обязателен</span>
+          <span *ngIf="password?.errors?.['minlength']">Минимум 6 символов</span>
+        </div>
+      </div>
+      
+      <div class="alert-success" *ngIf="successMessage">
+        <div class="alert-content">
+          <span class="alert-icon">✅</span>
+          {{ successMessage }}
+        </div>
+      </div>
+      
+      <div class="alert-error" *ngIf="errorMessage">
+        <div class="alert-content">
+          <span class="alert-icon">❌</span>
+          {{ errorMessage }}
+        </div>
+      </div>
+      
+      <button 
+        type="submit" 
+        class="form-btn form-btn--primary form-btn--small"
+        [disabled]="registerForm.invalid || isLoading">
+        {{ isLoading ? 'Регистрация...' : 'Зарегистрироваться' }}
+      </button>
+    </form>
+    
+    <div class="form-footer">
+      <p class="form-footer-text">
+        Уже есть аккаунт? 
+        <a routerLink="/login" class="form-link">Войти</a>
+      </p>
+      
+      <a routerLink="/" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+        </svg>
+        Вернуться на главную
+      </a>
+    </div>
+  </div>
+</div>

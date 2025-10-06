@@ -1,0 +1,10 @@
+<!-- src/app/app.component.html -->
+@if (showHeader()) {
+  <app-header></app-header>
+  
+  <section class="content">
+    <router-outlet />
+  </section>
+} @else {
+  <router-outlet />
+}

@@ -1,0 +1,49 @@
+<!-- src/app/shared/components/category-selector/category-selector.component.html -->
+<div class="category-selector">
+  <button 
+    class="category-selector-btn"
+    (click)="toggleDropdown()">
+    Все категории ▼
+  </button>
+
+  <div class="category-dropdown" *ngIf="isOpen">
+    
+    <div class="loading-indicator" *ngIf="isLoading">
+      Загрузка категорий...
+    </div>
+
+    <div class="error-message" *ngIf="errorMessage && !isLoading">
+      {{ errorMessage }}
+    </div>
+
+    <div class="category-level" *ngIf="!isLoading && !errorMessage">
+      <div 
+        *ngFor="let category of parentCategories"
+        class="category-item"
+        (click)="onParentCategorySelect(category.id)"
+        [class.active]="selectedParentCategory === category.id">
+        {{ category.name }}
+        <span *ngIf="selectedParentCategory === category.id">▶</span>
+      </div>
+      
+      <div class="no-categories" *ngIf="parentCategories.length === 0">
+        Категории не найдены
+      </div>
+    </div>
+
+    <div class="category-level" *ngIf="selectedParentCategory && childCategories.length > 0">
+      <div 
+        *ngFor="let category of childCategories"
+        class="category-item child"
+        (click)="onCategorySelect(category.id)">
+        {{ category.name }}
+      </div>
+    </div>
+
+    <div class="category-level" *ngIf="selectedParentCategory && childCategories.length === 0">
+      <div class="category-item child" (click)="onCategorySelect(selectedParentCategory)">
+        Все в этой категории
+      </div>
+    </div>
+  </div>
+</div>

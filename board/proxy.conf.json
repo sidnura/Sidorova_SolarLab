@@ -1,0 +1,20 @@
+{
+  "/Advert": {
+    "target": "http://dzitskiy.ru:5000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/Categories": {
+    "target": "http://dzitskiy.ru:5000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/Auth": {
+    "target": "http://dzitskiy.ru:5000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

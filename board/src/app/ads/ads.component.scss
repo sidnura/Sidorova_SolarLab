@@ -1,0 +1,155 @@
+.delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(220, 53, 69, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.3s ease;
+  opacity: 0;
+}
+
+.delete-btn:hover {
+  background: #dc3545;
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+.ads__item {
+  position: relative;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+}
+
+.ads__item:hover .delete-btn {
+  opacity: 1;
+}
+
+.ads__item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+.recommendations {
+    margin-bottom: 12px;
+    padding: 8px 0;
+    margin-bottom: 12px;
+}
+
+.recommendations__title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    text-align: left;
+}
+
+.main__container {
+    width: 100%;
+}
+
+.ads {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    width: 100%;
+}
+
+.ads__image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover; 
+    display: block;
+    background: linear-gradient(135deg, #e3e3e3 0%, #c4c4c4 100%); 
+}
+
+.ads__content {
+    padding: 16px;
+}
+
+.ads__title {
+    font-weight: bold;
+    margin-bottom: 6px;
+    color: #0091eb;
+    font-size: 16px;
+    line-height: 1.3;
+}
+
+.ads__price {
+    color: #000000;
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+
+.ads__description {
+    color: #666;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.ads__image-container {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.no-image-placeholder {
+  width: 100%;
+  height: 200px;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.placeholder-content {
+  text-align: center;
+  color: #6c757d;
+}
+
+.placeholder-icon {
+  font-size: 24px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.placeholder-text {
+  font-size: 14px;
+}
+
+@media (max-width: 1200px) {
+    .ads {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .ads {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .ads {
+        grid-template-columns: 1fr;
+    }
+    
+    .delete-btn {
+        opacity: 1; 
+    }
+}

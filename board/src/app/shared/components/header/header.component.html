@@ -1,0 +1,50 @@
+<!-- src/app/shared/components/smart/header/header.component.html -->
+<!-- Верхняя синяя полоса -->
+<div class="header-top">
+  <div class="header-top__wrapper">
+    <!-- Кнопка "Добавить объявление" -->
+    <a 
+      routerLink="/add-ad" 
+      class="header-top__btn header-top__btn_add">
+      Добавить объявление
+      <span class="header-top__plus">+</span>
+    </a>
+    
+    <!-- Динамические кнопки в зависимости от авторизации -->
+    <div *ngIf="!isLoggedIn" class="auth-buttons">
+      <a routerLink="/login" class="header-top__btn header-top__btn_enter">
+        Войти
+      </a>
+    </div>
+    
+    <div *ngIf="isLoggedIn" class="user-menu">
+      <button class="header-top__btn header-top__btn_logout" (click)="onLogout()">
+        Выйти
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Белая полоса с меню -->
+<div class="header__nav">
+  <div class="header__nav-container">
+    <!-- Логотип с ссылкой на главную -->
+    <a routerLink="/" class="header__title">
+      Доска объявлений
+    </a>
+    
+    <app-category-selector 
+      (categorySelected)="onCategorySelect($event)">
+    </app-category-selector>
+    
+    <div class="header__search">
+      <input 
+        type="text" 
+        placeholder="Поиск объявлений..." 
+        class="header__search-input">
+      <button class="header__search-btn">
+        Найти
+      </button>
+    </div>
+  </div>
+</div>
