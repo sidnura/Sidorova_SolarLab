@@ -1,0 +1,7 @@
+// src/app/layouts/base-layout/base-layout.component.scss
+.content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: calc(100vh - 140px);
+}
