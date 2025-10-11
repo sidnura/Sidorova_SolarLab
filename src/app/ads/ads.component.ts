@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AdService } from '../services/ad.service';
 import { AdSharingService } from '../services/ad-sharing.service';
-import { StorageService } from '../services/storage.service';
 import { AuthService } from '../services/auth.service'; // Добавляем AuthService
 import { Ad } from '../models/ad.model';
 import { Subscription } from 'rxjs';
@@ -17,7 +16,6 @@ import { Subscription } from 'rxjs';
 })
 export class AdsComponent implements OnInit, OnDestroy {
   apiAdvertisements: Ad[] = [];
-  localCreatedAds: Ad[] = [];
   
   isLoading = true;
   errorMessage = '';
@@ -26,42 +24,14 @@ export class AdsComponent implements OnInit, OnDestroy {
   private newAdSubscription!: Subscription;
   private authSubscription!: Subscription;
 
-  // Статические объявления
-  staticAdvertisements = [
-    { 
-      id: '1', 
-      name: 'Ноутбук MacBook Air M1', 
-      cost: 85000, 
-      image: 'assets/images/laptop1.png', 
-      location: 'Москва, Ленинский проспект', 
-      date: 'Сегодня 18:59',
-      createdAt: new Date().toISOString(),
-      isActive: true,
-      imagesIds: []
-    },
-    { 
-      id: '2', 
-      name: 'Умные часы Xiaomi', 
-      cost: 4000, 
-      image: 'assets/images/watch1.png', 
-      location: 'Москва, Ленинский проспект', 
-      date: 'Сегодня 18:59',
-      createdAt: new Date().toISOString(),
-      isActive: true,
-      imagesIds: []
-    }
-  ];
-
   constructor(
     private adService: AdService,
     private adSharingService: AdSharingService,
-    private storageService: StorageService,
     private authService: AuthService // Добавляем AuthService
   ) {}
 
   ngOnInit(): void {
     this.loadAdvertisements();
-    this.loadLocalCreatedAds();
     this.setupNewAdListener();
     this.setupAuthListener(); // Добавляем слушатель авторизации
   }
@@ -90,7 +60,6 @@ export class AdsComponent implements OnInit, OnDestroy {
     this.newAdSubscription = this.adSharingService.newAd$.subscribe(newAd => {
       if (newAd) {
         console.log('🔄 Получено новое объявление:', newAd);
-        this.addNewAd(newAd);
         this.adSharingService.clearNewAd();
       }
     });
@@ -115,26 +84,6 @@ export class AdsComponent implements OnInit, OnDestroy {
         this.apiAdvertisements = [];
       }
     });
-  }
-
-  private loadLocalCreatedAds(): void {
-    this.localCreatedAds = this.storageService.getLocalAds();
-    console.log('📁 Загружены локальные объявления:', this.localCreatedAds);
-  }
-
-  private saveLocalCreatedAds(): void {
-    this.storageService.saveLocalAds(this.localCreatedAds);
-  }
-
-  addNewAd(ad: Ad): void {
-    console.log('➕ Добавление нового объявления:', ad);
-    
-    const existingAd = this.localCreatedAds.find(item => item.id === ad.id);
-    if (!existingAd) {
-      this.localCreatedAds.unshift(ad);
-      this.saveLocalCreatedAds();
-      console.log('✅ Новое объявление добавлено');
-    }
   }
 
   deleteAd(adId: string, event?: Event): void {
@@ -179,22 +128,7 @@ export class AdsComponent implements OnInit, OnDestroy {
       hasImage: this.hasImage(ad)
     }));
 
-    const localAdsFormatted = this.localCreatedAds.map(ad => ({
-      id: ad.id,
-      name: ad.name,
-      cost: ad.cost,
-      location: ad.location,
-      image: this.getImageUrl(ad),
-      date: this.formatDate(ad.createdAt),
-      hasImage: this.hasImage(ad)
-    }));
-
-    const staticAdsFormatted = this.staticAdvertisements.map(ad => ({
-      ...ad,
-      hasImage: true
-    }));
-
-    return [...localAdsFormatted, ...apiAdsFormatted, ...staticAdsFormatted];
+    return apiAdsFormatted;
   }
 
   private hasImage(ad: Ad): boolean {
@@ -241,10 +175,5 @@ export class AdsComponent implements OnInit, OnDestroy {
       `;
       parent.appendChild(placeholder);
     }
-  }
-
-  refreshAds(): void {
-    this.loadAdvertisements();
-    this.loadLocalCreatedAds();
   }
 }
