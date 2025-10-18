@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AdService } from '../../services/ad.service';
+import { AuthService } from '../../services/auth.service';
+import { CommentsComponent } from '../../shared/components/comments/comments.component';
 import { Ad } from '../../models/ad.model';
 
 @Component({
   selector: 'app-ad-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CommentsComponent],
   templateUrl: './ad-detail.component.html',
   styleUrl: './ad-detail.component.scss'
 })
@@ -18,15 +20,23 @@ export class AdDetailComponent implements OnInit {
   errorMessage = '';
   currentImageUrl: string | null = null;
   hasAdvertisementImage: boolean = false;
+  allImageUrls: string[] = [];
+  currentImageIndex: number = 0;
+  isOwner = false;
+  currentUserId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
-    private adService: AdService
+    private adService: AdService,
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit() {
     const adId = this.route.snapshot.paramMap.get('id');
+    this.currentUserId = this.authService.getUserId();
     console.log('🔄 Loading ad with ID:', adId);
+    console.log('👤 Current user ID:', this.currentUserId);
     
     if (adId) {
       this.loadAdvertisement(adId);
@@ -49,54 +59,42 @@ export class AdDetailComponent implements OnInit {
         this.isLoading = false;
         this.advertisement = ad;
         this.hasAdvertisementImage = this.hasImage(ad);
-        this.currentImageUrl = this.getImageUrl(ad);
+        this.allImageUrls = this.getAllImageUrls(ad);
+        this.currentImageUrl = this.getCurrentImageUrl();
+        
+        // Проверяем, является ли текущий пользователь владельцем
+        this.isOwner = this.checkIfOwner(ad);
+        
         console.log('📦 Found advertisement:', ad);
-        console.log('🖼️ Image info - hasImage:', this.hasAdvertisementImage, 'imageUrl:', this.currentImageUrl);
+        console.log('👤 Is owner:', this.isOwner);
+        console.log('🖼️ Image info - hasImage:', this.hasAdvertisementImage, 'imageUrls:', this.allImageUrls);
       },
       error: (error: any) => {
         this.isLoading = false;
         console.error('❌ Error loading advertisement:', error);
-        this.errorMessage = 'Ошибка загрузки объявления';
         
-        // Временные данные для демонстрации
-        this.advertisement = this.getMockAd(id);
-        if (this.advertisement) {
-          this.hasAdvertisementImage = this.hasImage(this.advertisement);
-          this.currentImageUrl = this.getImageUrl(this.advertisement);
+        if (error.status === 404) {
+          this.errorMessage = 'Объявление не найдено';
+        } else if (error.status === 500) {
+          this.errorMessage = 'Ошибка сервера. Попробуйте позже.';
+        } else {
+          this.errorMessage = 'Ошибка загрузки объявления';
         }
+        
+        this.advertisement = null;
       }
     });
   }
 
-  // Временные моковые данные на случай ошибки
-  private getMockAd(id: string): any {
-    const mockAds: {[key: string]: any} = {
-      '1': { 
-        id: '1', 
-        name: 'Ноутбук MacBook Air M1', 
-        cost: 85000, 
-        location: 'Москва, Ленинский проспект', 
-        createdAt: new Date().toISOString(),
-        isActive: true,
-        imagesIds: ['1'],
-        description: 'Отличное состояние, используется 1 год. Полная комплектация: оригинальная коробка, зарядное устройство, документы. Батарея держит 8-10 часов. Никаких дефектов, царапин или вмятин. Продаю в связи с переходом на новую модель.',
-        phone: '+7 (999) 123-45-67',
-        email: 'seller@example.com'
-      },
-      '2': { 
-        id: '2', 
-        name: 'Умные часы Xiaomi', 
-        cost: 4000, 
-        location: 'Москва, Ленинский проспект', 
-        createdAt: new Date().toISOString(),
-        isActive: true,
-        imagesIds: [],
-        description: 'Новые умные часы с полной комплектацией. Не использовались, в оригинальной упаковке. Все функции работают отлично.',
-        phone: '+7 (999) 987-65-43'
-      }
-    };
-    
-    return mockAds[id] || null;
+  checkIfOwner(ad: Ad): boolean {
+    if (!this.currentUserId || !ad.user) return false;
+    return ad.user.id === this.currentUserId;
+  }
+
+  onEdit(): void {
+    if (this.advertisement) {
+      this.router.navigate(['/edit-ad', this.advertisement.id]);
+    }
   }
 
   togglePhone() {
@@ -107,14 +105,29 @@ export class AdDetailComponent implements OnInit {
     return !!(ad.imagesIds && ad.imagesIds.length > 0);
   }
 
-  getImageUrl(ad: Ad): string | null {
-    if (this.hasImage(ad)) {
-      // Здесь должен быть реальный URL для получения изображения
-      // Например: return `${environment.baseApiURL}/images/${ad.imagesIds[0]}`;
-      // Временно возвращаем null для демонстрации
-      return null;
+  getAllImageUrls(ad: Ad): string[] {
+    return this.adService.getAllImageUrls(ad);
+  }
+
+  getCurrentImageUrl(): string | null {
+    if (this.allImageUrls.length > 0) {
+      return this.allImageUrls[this.currentImageIndex];
     }
     return null;
+  }
+
+  nextImage(): void {
+    if (this.allImageUrls.length > 0) {
+      this.currentImageIndex = (this.currentImageIndex + 1) % this.allImageUrls.length;
+      this.currentImageUrl = this.getCurrentImageUrl();
+    }
+  }
+
+  prevImage(): void {
+    if (this.allImageUrls.length > 0) {
+      this.currentImageIndex = (this.currentImageIndex - 1 + this.allImageUrls.length) % this.allImageUrls.length;
+      this.currentImageUrl = this.getCurrentImageUrl();
+    }
   }
 
   onImageError(event: any): void {
@@ -138,5 +151,9 @@ export class AdDetailComponent implements OnInit {
 
   getPhoneNumber(): string {
     return this.advertisement?.phone || '+7 (999) 123-45-67';
+  }
+
+  hasMultipleImages(): boolean {
+    return this.allImageUrls.length > 1;
   }
 }

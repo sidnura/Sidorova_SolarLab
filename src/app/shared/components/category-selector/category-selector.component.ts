@@ -17,6 +17,7 @@ export class CategorySelectorComponent implements OnInit {
   isOpen = false;
   isLoading = false;
   errorMessage = '';
+  hoverTimeout: any;
 
   @Output() categorySelected = new EventEmitter<string>();
 
@@ -58,18 +59,57 @@ export class CategorySelectorComponent implements OnInit {
     });
   }
 
-  onParentCategorySelect(parentId: string): void {
-    console.log('Выбрана родительская категория:', parentId);
+  onButtonMouseEnter(): void {
+    // Очищаем предыдущий таймер
+    if (this.hoverTimeout) {
+      clearTimeout(this.hoverTimeout);
+    }
+
+    console.log('Наведение на кнопку "Все категории"');
+    if (!this.isOpen) {
+      this.isOpen = true;
+      if (this.parentCategories.length === 0) {
+        this.loadParentCategories();
+      }
+    }
+  }
+
+  onParentCategoryHover(parentId: string): void {
+    // Очищаем предыдущий таймер
+    if (this.hoverTimeout) {
+      clearTimeout(this.hoverTimeout);
+    }
+
+    console.log('Наведение на родительскую категорию:', parentId);
     this.selectedParentCategory = parentId;
     this.loadChildCategories(parentId);
+  }
+
+  onDropdownMouseEnter(): void {
+    // Отменяем закрытие при наведении на выпадающее меню
+    if (this.hoverTimeout) {
+      clearTimeout(this.hoverTimeout);
+    }
+  }
+
+  onDropdownMouseLeave(): void {
+    // Закрываем меню при отведении курсора с задержкой
+    this.hoverTimeout = setTimeout(() => {
+      this.closeDropdown();
+    }, 300);
+  }
+
+  onButtonMouseLeave(): void {
+    // Закрываем меню при отведении от кнопки с задержкой
+    this.hoverTimeout = setTimeout(() => {
+      this.closeDropdown();
+    }, 300);
   }
 
   onCategorySelect(categoryId: string): void {
     console.log('Выбрана категория для навигации:', categoryId);
     this.categorySelected.emit(categoryId);
-    this.isOpen = false;
-    this.selectedParentCategory = '';
-    this.childCategories = [];
+    this.closeDropdown();
   }
 
   toggleDropdown(): void {
@@ -80,8 +120,16 @@ export class CategorySelectorComponent implements OnInit {
       this.loadParentCategories();
     }
     if (!this.isOpen) {
-      this.selectedParentCategory = '';
-      this.childCategories = [];
+      this.closeDropdown();
+    }
+  }
+
+  private closeDropdown(): void {
+    this.isOpen = false;
+    this.selectedParentCategory = '';
+    this.childCategories = [];
+    if (this.hoverTimeout) {
+      clearTimeout(this.hoverTimeout);
     }
   }
 }

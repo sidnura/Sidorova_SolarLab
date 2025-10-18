@@ -1,22 +1,26 @@
 <main>
     <div class="container">
-        <!-- Состояние загрузки -->
         <div *ngIf="isLoading" class="loading-state">
             <div class="spinner"></div>
             <p>Загрузка объявления...</p>
         </div>
 
-        <!-- Сообщение об ошибке -->
         <div *ngIf="errorMessage && !isLoading" class="error-state">
             <p>❌ {{ errorMessage }}</p>
         </div>
 
-        <!-- Объявление не найдено -->
         <div *ngIf="!advertisement && !isLoading" class="not-found-state">
             Объявление не найдено! ID: {{ getAdId() }}
         </div>
 
         <div *ngIf="advertisement && !isLoading" class="ad-container">
+            
+            <div class="ad-actions" *ngIf="isOwner">
+                <button class="btn-edit" (click)="onEdit()" title="Редактировать объявление">
+                    Редактировать объявление
+                </button>
+            </div>
+
             <div class="ad-header">
                 <h1 class="ad-title">{{ advertisement.name }}</h1>
                 <p class="ad-price">{{ advertisement.cost | number }} ₽</p>
@@ -30,6 +34,12 @@
                                  [alt]="advertisement.name" 
                                  (error)="onImageError($event)"
                                  class="ad-image__img">
+                            
+                            <div *ngIf="hasMultipleImages()" class="image-navigation">
+                                <button class="nav-btn prev-btn" (click)="prevImage()">‹</button>
+                                <span class="image-counter">{{ currentImageIndex + 1 }} / {{ allImageUrls.length }}</span>
+                                <button class="nav-btn next-btn" (click)="nextImage()">›</button>
+                            </div>
                         </div>
                         <ng-template #noPhotoTemplate>
                             <div class="no-image-placeholder">
@@ -64,12 +74,19 @@
                                 <div *ngIf="advertisement.email">
                                     <p><strong>Email:</strong> {{ advertisement.email }}</p>
                                 </div>
-                                <p><strong>Дата публикации:</strong> {{ advertisement.createdAt | date:'dd.MM.yyyy HH:mm' }}</p>
                                 <p><strong>Статус:</strong> {{ advertisement.isActive ? 'Активно' : 'Не активно' }}</p>
+                                
+                                <div *ngIf="advertisement.category">
+                                    <p><strong>Категория:</strong> {{ advertisement.category.name }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="comments-section-wrapper">
+                <app-comments [adId]="advertisement.id"></app-comments>
             </div>
         </div>
     </div>

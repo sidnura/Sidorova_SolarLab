@@ -1,3 +1,4 @@
+// models/ad.model.ts
 export interface Ad {
   id: string;
   name: string;
@@ -9,6 +10,20 @@ export interface Ad {
   description?: string;
   email?: string;
   phone?: string;
+  
+  user?: {
+    id: string;
+    name: string;
+    login: string;
+  };
+  
+  category?: {
+    id: string;
+    parentId: string;
+    name: string;
+  };
+  
+  created?: string;
 }
 
 export interface CreateAdRequest {
@@ -22,21 +37,30 @@ export interface CreateAdRequest {
   categoryId: string;
 }
 
-export interface Category {
-  id: string;
-  parentId: string;
+export interface UpdateAdRequest {
   name: string;
-  children?: Category[];
+  description?: string;
+  cost: number;
+  email?: string;
+  phone: string;
+  location: string;
+  categoryId: string;
 }
 
-export interface ApiResponse<T> {
-  data: T;
-  message: string;
-  success: boolean;
+export interface ShortAdDto {
+  id: string;
+  name: string;
+  location: string;
+  createdAt: string;
+  isActive: boolean;
+  imagesIds: string[];
+  cost: number;
 }
 
-export interface ErrorResponse {
-  errorCode: string;
-  userMessage: string;
-  internalErrors: string[];
+export interface AdSearchRequestDto {
+  search?: string;
+  showNonActive?: boolean;
+  category?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }

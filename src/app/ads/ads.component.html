@@ -1,6 +1,17 @@
+<!-- ads.component.html -->
 <section class="recommendations">
   <div class="container">
-    <h2 class="recommendations__title">Рекомендации для вас</h2>
+    <div class="recommendations-header">
+      <h2 class="recommendations__title">Рекомендации для вас</h2>
+      
+      <!-- Кнопка сброса фильтров (только при выборе категории) -->
+      <button 
+        *ngIf="hasActiveCategoryFilter()"
+        class="reset-filters-btn"
+        (click)="resetCategoryFilters()">
+        ✕ Сбросить фильтры
+      </button>
+    </div>
   </div>
 </section>
 
@@ -22,7 +33,8 @@
              class="ads__image" 
              [src]="ad.image" 
              [alt]="ad.name" 
-             (error)="onImageError($event, ad)">
+             (error)="onImageError($event, ad)"
+             loading="lazy">
         
         <div *ngIf="!ad.hasImage || !ad.image" class="no-image-placeholder">
           <div class="placeholder-content">
@@ -40,9 +52,18 @@
     </li>
   </ul>
 
+  <!-- Изменено: "Объявлений пока нет" на "Объявления не найдены" -->
   <div *ngIf="!isLoading && getAllAds().length === 0" class="empty-state">
-    <h2>Объявлений пока нет</h2>
-    <p>Будьте первым, кто разместит объявление!</p>
-    <button class="btn-primary" routerLink="/add-ad">Разместить объявление</button>
+    <h2>Объявления не найдены!</h2>
+    <p>Попробуйте изменить параметры поиска или добавить новое объявление!</p>
+    <button class="btn-primary" routerLink="/add-ad">Добавить объявление</button>
+    
+    <!-- Кнопка сброса фильтров в пустом состоянии -->
+    <button 
+      *ngIf="hasActiveCategoryFilter()"
+      class="btn-secondary"
+      (click)="resetCategoryFilters()">
+      Сбросить фильтры
+    </button>
   </div>
 </div>

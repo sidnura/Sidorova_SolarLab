@@ -2,11 +2,17 @@
 <div class="category-selector">
   <button 
     class="category-selector-btn"
-    (click)="toggleDropdown()">
+    (click)="toggleDropdown()"
+    (mouseenter)="onButtonMouseEnter()"
+    (mouseleave)="onButtonMouseLeave()">
     Все категории ▼
   </button>
 
-  <div class="category-dropdown" *ngIf="isOpen">
+  <div 
+    class="category-dropdown" 
+    *ngIf="isOpen"
+    (mouseenter)="onDropdownMouseEnter()"
+    (mouseleave)="onDropdownMouseLeave()">
     
     <div class="loading-indicator" *ngIf="isLoading">
       Загрузка категорий...
@@ -20,10 +26,10 @@
       <div 
         *ngFor="let category of parentCategories"
         class="category-item"
-        (click)="onParentCategorySelect(category.id)"
+        (mouseenter)="onParentCategoryHover(category.id)"
         [class.active]="selectedParentCategory === category.id">
         {{ category.name }}
-        <span *ngIf="selectedParentCategory === category.id">▶</span>
+        <span *ngIf="selectedParentCategory === category.id" class="arrow">▶</span>
       </div>
       
       <div class="no-categories" *ngIf="parentCategories.length === 0">
@@ -31,17 +37,26 @@
       </div>
     </div>
 
-    <div class="category-level" *ngIf="selectedParentCategory && childCategories.length > 0">
+    <div class="category-level child-level" *ngIf="selectedParentCategory && childCategories.length > 0">
       <div 
         *ngFor="let category of childCategories"
         class="category-item child"
         (click)="onCategorySelect(category.id)">
         {{ category.name }}
       </div>
+      
+      <!-- Кнопка для выбора всей родительской категории -->
+      <div 
+        class="category-item child all-category"
+        (click)="onCategorySelect(selectedParentCategory)">
+        Все в этой категории
+      </div>
     </div>
 
-    <div class="category-level" *ngIf="selectedParentCategory && childCategories.length === 0">
-      <div class="category-item child" (click)="onCategorySelect(selectedParentCategory)">
+    <div class="category-level child-level" *ngIf="selectedParentCategory && childCategories.length === 0">
+      <div 
+        class="category-item child all-category"
+        (click)="onCategorySelect(selectedParentCategory)">
         Все в этой категории
       </div>
     </div>

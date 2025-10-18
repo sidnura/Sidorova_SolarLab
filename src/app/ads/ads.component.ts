@@ -1,9 +1,10 @@
+// ads.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { AdService } from '../services/ad.service';
-import { AdSharingService } from '../services/ad-sharing.service';
-import { AuthService } from '../services/auth.service'; // Добавляем AuthService
+import { AdSharingService, SearchParams } from '../services/ad-sharing.service';
+import { AuthService } from '../services/auth.service';
 import { Ad } from '../models/ad.model';
 import { Subscription } from 'rxjs';
 
@@ -16,24 +17,32 @@ import { Subscription } from 'rxjs';
 })
 export class AdsComponent implements OnInit, OnDestroy {
   apiAdvertisements: Ad[] = [];
+  filteredAdvertisements: Ad[] = [];
   
   isLoading = true;
   errorMessage = '';
-  isLoggedIn = false; // Добавляем статус авторизации
+  isLoggedIn = false;
+  hasActiveCategory = false;
 
   private newAdSubscription!: Subscription;
   private authSubscription!: Subscription;
+  private searchParamsSubscription!: Subscription;
+  private routeSubscription!: Subscription;
 
   constructor(
     private adService: AdService,
     private adSharingService: AdSharingService,
-    private authService: AuthService // Добавляем AuthService
+    private authService: AuthService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.loadAdvertisements();
     this.setupNewAdListener();
-    this.setupAuthListener(); // Добавляем слушатель авторизации
+    this.setupAuthListener();
+    this.setupSearchListener();
+    this.setupRouteListener();
   }
 
   ngOnDestroy(): void {
@@ -43,6 +52,12 @@ export class AdsComponent implements OnInit, OnDestroy {
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();
     }
+    if (this.searchParamsSubscription) {
+      this.searchParamsSubscription.unsubscribe();
+    }
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe();
+    }
   }
 
   private setupAuthListener(): void {
@@ -51,7 +66,6 @@ export class AdsComponent implements OnInit, OnDestroy {
       console.log('🔄 Статус авторизации в AdsComponent:', this.isLoggedIn);
     });
     
-    // Инициализируем начальное значение
     this.isLoggedIn = this.authService.isLoggedIn();
     console.log('🔐 Начальный статус авторизации:', this.isLoggedIn);
   }
@@ -61,6 +75,62 @@ export class AdsComponent implements OnInit, OnDestroy {
       if (newAd) {
         console.log('🔄 Получено новое объявление:', newAd);
         this.adSharingService.clearNewAd();
+        this.loadAdvertisements();
+      }
+    });
+  }
+
+  private setupSearchListener(): void {
+    this.searchParamsSubscription = this.adSharingService.searchParams$.subscribe(params => {
+      if (params) {
+        console.log('🔍 Получены параметры поиска:', params);
+        this.hasActiveCategory = !!params.category;
+        this.performSearch(params);
+        this.adSharingService.clearSearchParams();
+      }
+    });
+  }
+
+  private setupRouteListener(): void {
+    this.routeSubscription = this.route.queryParams.subscribe(params => {
+      const searchParam = params['search'];
+      const categoryParam = params['category'];
+      
+      if (searchParam || categoryParam) {
+        const searchParams: SearchParams = {
+          search: searchParam || '',
+          category: categoryParam || undefined,
+          showNonActive: false
+        };
+        console.log('🔍 Параметры поиска из URL:', searchParams);
+        this.hasActiveCategory = !!categoryParam;
+        this.performSearch(searchParams);
+      } else {
+        this.hasActiveCategory = false;
+      }
+    });
+  }
+
+  private performSearch(searchParams: SearchParams): void {
+    this.isLoading = true;
+    console.log('🔍 Выполнение поиска с параметрами:', searchParams);
+    
+    this.adService.searchAds(searchParams).subscribe({
+      next: (ads: Ad[]) => {
+        this.isLoading = false;
+        
+        const sortedAds = this.sortAdsByDate(ads);
+        
+        this.apiAdvertisements = sortedAds;
+        this.filteredAdvertisements = sortedAds;
+        console.log('✅ Результаты поиска загружены и отсортированы:', sortedAds);
+      },
+      error: (error: any) => {
+        this.isLoading = false;
+        console.error('❌ Ошибка поиска объявлений:', error);
+        this.errorMessage = 'Ошибка поиска объявлений';
+        this.apiAdvertisements = [];
+        this.filteredAdvertisements = [];
       }
     });
   }
@@ -74,15 +144,39 @@ export class AdsComponent implements OnInit, OnDestroy {
     this.adService.getAds().subscribe({
       next: (ads: Ad[]) => {
         this.isLoading = false;
-        this.apiAdvertisements = ads;
-        console.log('✅ API объявления загружены:', ads);
+        
+        const sortedAds = this.sortAdsByDate(ads);
+        
+        this.apiAdvertisements = sortedAds;
+        this.filteredAdvertisements = sortedAds;
+        console.log('✅ API объявления загружены и отсортированы:', sortedAds);
       },
       error: (error: any) => {
         this.isLoading = false;
         console.error('❌ Ошибка загрузки API объявлений:', error);
         this.errorMessage = 'Ошибка загрузки объявлений';
         this.apiAdvertisements = [];
+        this.filteredAdvertisements = [];
       }
+    });
+  }
+
+  hasActiveCategoryFilter(): boolean {
+    return this.hasActiveCategory;
+  }
+
+  resetCategoryFilters(): void {
+    console.log('🔄 Сброс фильтров категории');
+    this.hasActiveCategory = false;
+    this.loadAdvertisements();
+    this.router.navigate(['/ads'], { queryParams: {} });
+  }
+
+  private sortAdsByDate(ads: Ad[]): Ad[] {
+    return ads.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateB - dateA;
     });
   }
 
@@ -99,7 +193,7 @@ export class AdsComponent implements OnInit, OnDestroy {
         next: () => {
           console.log('✅ Объявление удалено');
           this.apiAdvertisements = this.apiAdvertisements.filter(ad => ad.id !== adId);
-          this.loadAdvertisements();
+          this.filteredAdvertisements = this.filteredAdvertisements.filter(ad => ad.id !== adId);
         },
         error: (error: any) => {
           console.error('❌ Ошибка удаления объявления:', error);
@@ -118,7 +212,9 @@ export class AdsComponent implements OnInit, OnDestroy {
   }
 
   getAllAds(): any[] {
-    const apiAdsFormatted = this.apiAdvertisements.map(ad => ({
+    const adsToShow = this.filteredAdvertisements.length > 0 ? this.filteredAdvertisements : this.apiAdvertisements;
+    
+    const apiAdsFormatted = adsToShow.map(ad => ({
       id: ad.id,
       name: ad.name,
       cost: ad.cost,
@@ -136,10 +232,7 @@ export class AdsComponent implements OnInit, OnDestroy {
   }
 
   getImageUrl(ad: Ad): string | null {
-    if (this.hasImage(ad)) {
-      return null;
-    }
-    return null;
+    return this.adService.getFirstImageUrl(ad);
   }
 
   formatDate(dateString: string): string {
@@ -169,8 +262,9 @@ export class AdsComponent implements OnInit, OnDestroy {
       const placeholder = document.createElement('div');
       placeholder.className = 'no-image-placeholder';
       placeholder.innerHTML = `
-        <div style="width: 100%; height: 200px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 14px; border-radius: 8px;">
-          📷 Нет фото
+        <div class="placeholder-content">
+          <span class="placeholder-icon">📷</span>
+          <span class="placeholder-text">Нет фото</span>
         </div>
       `;
       parent.appendChild(placeholder);

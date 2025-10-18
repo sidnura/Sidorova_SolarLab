@@ -38,13 +38,28 @@
     </app-category-selector>
     
     <div class="header__search">
-      <input 
-        type="text" 
-        placeholder="Поиск объявлений..." 
-        class="header__search-input">
-      <button class="header__search-btn">
-        Найти
-      </button>
+      <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="search-form">
+        <div class="search-input-container">
+          <input 
+            type="text" 
+            formControlName="searchQuery"
+            placeholder="Поиск объявлений..." 
+            class="header__search-input"
+            (keypress)="onSearchInputKeypress($event)">
+          <!-- Крестик для сброса поиска -->
+          <button 
+            *ngIf="hasSearchText()"
+            type="button" 
+            class="clear-search-btn"
+            (click)="clearSearch()"
+            title="Очистить поиск">
+            ×
+          </button>
+        </div>
+        <button type="submit" class="header__search-btn">
+          Найти
+        </button>
+      </form>
     </div>
   </div>
 </div>

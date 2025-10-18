@@ -4,6 +4,39 @@
     padding: 40px;
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.ad-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.btn-edit {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn-edit:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.btn-edit:active {
+    transform: translateY(0);
 }
 
 .ad-header {
@@ -47,13 +80,52 @@
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    position: relative;
 }
 
 .ad-image__img {
     width: 100%;
-    height: auto;
+    height: 400px;
     display: block;
     object-fit: cover;
+}
+
+.image-navigation {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: white;
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.image-counter {
+    font-size: 14px;
+    font-weight: 500;
 }
 
 .no-image-placeholder {
@@ -163,16 +235,11 @@
     margin-bottom: 12px;
 }
 
-.description-text ul {
-    margin-left: 20px;
-    margin-bottom: 12px;
+.comments-section-wrapper {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid #e9ecef;
 }
-
-.description-text li {
-    margin-bottom: 6px;
-    list-style-type: disc;
-}
-
 
 .loading-state {
     text-align: center;
@@ -237,29 +304,6 @@
     }
 }
 
-
-@media (max-width: 992px) {
-    .ad-container {
-        padding: 30px;
-    }
-    
-    .ad-content {
-        gap: 30px;
-    }
-    
-    .ad-title {
-        font-size: 28px;
-    }
-    
-    .ad-price {
-        font-size: 32px;
-    }
-
-    .no-image-placeholder {
-        height: 350px;
-    }
-}
-
 @media (max-width: 768px) {
     .ad-container {
         padding: 20px;
@@ -288,16 +332,26 @@
         max-width: 200px;
     }
 
+    .ad-actions {
+        justify-content: center;
+    }
+    
+    .btn-edit {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .ad-image__img {
+        height: 300px;
+    }
+
     .no-image-placeholder {
         height: 300px;
     }
-    
-    .placeholder-icon {
-        font-size: 36px;
-    }
-    
-    .placeholder-text {
-        font-size: 16px;
+
+    .comments-section-wrapper {
+        margin-top: 30px;
+        padding-top: 20px;
     }
 }
 
@@ -319,28 +373,24 @@
         max-width: 100%;
     }
 
+    .ad-image__img {
+        height: 250px;
+    }
+
     .no-image-placeholder {
         height: 250px;
     }
-    
+
     .placeholder-icon {
-        font-size: 32px;
-        margin-bottom: 12px;
+        font-size: 36px;
     }
-    
+
     .placeholder-text {
-        font-size: 14px;
+        font-size: 16px;
     }
 
-    .loading-state,
-    .error-state,
-    .not-found-state {
-        margin-top: 16px;
-        padding: 30px 15px;
-    }
-
-    .loading-state p,
-    .error-state p {
-        font-size: 14px;
+    .comments-section-wrapper {
+        margin-top: 20px;
+        padding-top: 16px;
     }
 }

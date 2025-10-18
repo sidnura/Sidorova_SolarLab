@@ -1,29 +1,34 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { AdService } from '../../services/ad.service';
 import { CategoryService } from '../../services/category.service';
 import { Category } from '../../services/category.service';
 import { AuthService } from '../../services/auth.service';
-import { AdSharingService } from '../../services/ad-sharing.service'; 
+import { Ad } from '../../models/ad.model';
 
 @Component({
-  selector: 'app-add-advertisement',
+  selector: 'app-edit-advertisement',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
-  templateUrl: './add-advertisement.component.html',
-  styleUrls: ['./add-advertisement.component.scss']
+  templateUrl: './edit-advertisement.component.html',
+  styleUrls: ['./edit-advertisement.component.scss']
 })
-export class AddAdvertisementComponent implements OnInit, OnDestroy {
+export class EditAdvertisementComponent implements OnInit, OnDestroy {
   adForm: FormGroup;
+  advertisement: Ad | null = null;
   parentCategories: Category[] = [];
   childCategories: Category[] = [];
   selectedParentCategory: string = '';
   selectedFiles: File[] = [];
   imageUrls: SafeUrl[] = [];
+  existingImageUrls: string[] = [];
+  imagesToDelete: string[] = [];
+  adId: string = '';
   isLoading = false;
+  isLoadingAd = true;
   errorMessage = '';
   successMessage = '';
 
@@ -32,20 +37,25 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
     private adService: AdService,
     private categoryService: CategoryService,
     private authService: AuthService,
-    public router: Router,
-    private sanitizer: DomSanitizer,
-    private adSharingService: AdSharingService 
+    private router: Router,
+    private route: ActivatedRoute,
+    private sanitizer: DomSanitizer
   ) {
     this.adForm = this.createForm();
-    console.log('🔐 Проверка авторизации при создании компонента:');
-    console.log(' - Токен:', this.authService.getToken() ? '***' + this.authService.getToken()!.slice(-10) : 'отсутствует');
-    console.log(' - UserId:', this.authService.getUserId() || 'отсутствует');
-    console.log(' - UserLogin:', this.authService.getUserLogin() || 'отсутствует');
   }
 
   ngOnInit(): void {
-    this.loadParentCategories();
-    this.setupCategoryChangeListener();
+    this.adId = this.route.snapshot.paramMap.get('id') || '';
+    console.log('🔄 Редактирование объявления ID:', this.adId);
+    
+    if (this.adId) {
+      this.loadAdvertisement();
+      this.loadParentCategories();
+      this.setupCategoryChangeListener();
+    } else {
+      this.errorMessage = 'ID объявления не указан';
+      this.isLoadingAd = false;
+    }
   }
 
   ngOnDestroy(): void {
@@ -60,183 +70,78 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
       email: ['', [Validators.email]],
       phone: ['', [
         Validators.required, 
-        Validators.minLength(10), // 10 цифр без +7
-        Validators.pattern(/^\d{10}$/) // Только 10 цифр
+        Validators.minLength(10),
+        Validators.pattern(/^\d{10}$/)
       ]],
       location: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
       parentCategoryId: ['', Validators.required],
-      categoryId: ['', Validators.required]
+      categoryId: ['']
     });
   }
 
-  // ФОРМАТИРОВАНИЕ ТЕЛЕФОНА - НОВЫЕ МЕТОДЫ
+  loadAdvertisement(): void {
+    this.isLoadingAd = true;
+    this.errorMessage = '';
 
-  // Форматирование телефонного номера
-  formatPhoneNumber(value: string): string {
-    // Удаляем все нецифровые символы, кроме возможного плюса в начале
-    const cleaned = value.replace(/\D/g, '');
-    
-    // Если номер начинается с 7 или 8, убираем первую цифру (префикс +7 фиксированный)
-    let RussianNumber = cleaned;
-    if (RussianNumber.startsWith('7') || RussianNumber.startsWith('8')) {
-      RussianNumber = RussianNumber.substring(1);
-    }
-    
-    // Ограничиваем длину (10 цифр после +7)
-    const limited = RussianNumber.substring(0, 10);
-    
-    if (limited.length === 0) {
-      return '';
-    }
-    
-    // Форматируем в вид: (999) 123-45-67
-    const match = limited.match(/^(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})$/);
-    if (match) {
-      let formatted = '';
-      if (match[1]) formatted += `(${match[1]}`;
-      if (match[2]) formatted += `) ${match[2]}`;
-      if (match[3]) formatted += `-${match[3]}`;
-      if (match[4]) formatted += `-${match[4]}`;
-      
-      return formatted;
-    }
-    
-    return limited;
-  }
-
-  // Обработчик ввода
-  onPhoneInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const cursorPosition = input.selectionStart;
-    
-    // Получаем текущее значение и форматируем
-    const formatted = this.formatPhoneNumber(input.value);
-    
-    // Устанавливаем отформатированное значение
-    input.value = formatted;
-    
-    // Восстанавливаем позицию курсора
-    const newCursorPosition = this.calculateNewCursorPosition(input.value, cursorPosition || 0);
-    input.setSelectionRange(newCursorPosition, newCursorPosition);
-    
-    // Обновляем значение в форме (только цифры)
-    const cleaned = this.cleanPhoneNumber(formatted);
-    this.adForm.patchValue({ phone: cleaned });
-  }
-
-  // Обработчик клавиш для улучшения UX
-  onPhoneKeydown(event: KeyboardEvent): void {
-    const input = event.target as HTMLInputElement;
-    const cursorPosition = input.selectionStart;
-    
-    // Разрешаем: Backspace, Delete, Tab, Escape, Enter, стрелки
-    if ([
-      'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
-      'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'
-    ].includes(event.key)) {
-      return;
-    }
-    
-    // Разрешаем только цифры и специальные клавиши
-    if (!/^\d$/.test(event.key) && !event.ctrlKey && !event.metaKey) {
-      event.preventDefault();
-    }
-    
-    // Автоматическое удаление при Backspace на определенных позициях
-    if (event.key === 'Backspace' && cursorPosition) {
-      const value = input.value;
-      const isAtSpecialPosition = [
-        1, 2, 6, 7, 11, 12, 15, 16
-      ].includes(cursorPosition);
-      
-      if (isAtSpecialPosition && value[cursorPosition - 1]?.match(/[\(\)\-\s]/)) {
-        // Перемещаем курсор назад через специальный символ
-        setTimeout(() => {
-          input.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
-        });
+    this.adService.getAdById(this.adId).subscribe({
+      next: (ad: Ad) => {
+        this.isLoadingAd = false;
+        this.advertisement = ad;
+        this.populateForm(ad);
+        this.loadExistingImages(ad);
+        console.log('📦 Объявление загружено для редактирования:', ad);
+      },
+      error: (error: any) => {
+        this.isLoadingAd = false;
+        console.error('❌ Ошибка загрузки объявления:', error);
+        
+        if (error.status === 404) {
+          this.errorMessage = 'Объявление не найдено';
+        } else if (error.status === 403) {
+          this.errorMessage = 'Нет прав для редактирования этого объявления';
+        } else {
+          this.errorMessage = 'Ошибка загрузки объявления';
+        }
       }
-    }
-  }
-
-  // Расчет новой позиции курсора после форматирования
-  calculateNewCursorPosition(newValue: string, oldCursorPosition: number): number {
-    if (oldCursorPosition === 0) return 0;
-    
-    const specialChars = ['(', ')', ' ', '-'];
-    let newPosition = oldCursorPosition;
-    
-    // Корректируем позицию на основе добавленных/удаленных специальных символов
-    for (let i = 0; i < Math.min(oldCursorPosition, newValue.length); i++) {
-      if (specialChars.includes(newValue[i])) {
-        newPosition++;
-      }
-    }
-    
-    return Math.min(newPosition, newValue.length);
-  }
-
-  // Очистка номера для отправки на бэкенд
-  cleanPhoneNumber(phone: string): string {
-    // Удаляем все нецифровые символы и добавляем префикс +7
-    const cleaned = phone.replace(/\D/g, '');
-    return cleaned; // Возвращаем только цифры (10 символов)
-  }
-
-  // Получение очищенного номера телефона для отправки
-  getCleanPhoneForBackend(): string {
-    const phoneValue = this.adForm.get('phone')?.value;
-    const cleaned = this.cleanPhoneNumber(phoneValue);
-    return '+7' + cleaned; // Добавляем префикс для бэкенда
-  }
-
-  // СУЩЕСТВУЮЩИЕ МЕТОДЫ
-
-  onFileSelected(event: any): void {
-    const files: FileList = event.target.files;
-    if (files.length > 0) {
-      const newFiles = Array.from(files);
-      newFiles.forEach(file => {
-        const blobUrl = URL.createObjectURL(file);
-        const safeUrl = this.sanitizer.bypassSecurityTrustUrl(blobUrl);
-        this.imageUrls.push(safeUrl);
-      });
-      this.selectedFiles = [...this.selectedFiles, ...newFiles];
-      event.target.value = '';
-    }
-  }
-
-  removeImage(index: number): void {
-    const url = this.imageUrls[index];
-    if (typeof url === 'string') {
-      URL.revokeObjectURL(url);
-    }
-    this.selectedFiles.splice(index, 1);
-    this.imageUrls.splice(index, 1);
-  }
-
-  onImageError(event: any, index: number): void {
-    console.error('❌ Ошибка загрузки изображения:', event);
-    event.target.style.display = 'none';
-    const imagePreview = event.target.closest('.image-preview');
-    if (imagePreview) {
-      const errorElement = document.createElement('div');
-      errorElement.className = 'image-error';
-      errorElement.innerHTML = `
-        <div style="text-align: center; color: #dc3545; font-size: 12px; padding: 10px;">
-          <div>❌ Ошибка загрузки</div>
-          <div>${this.selectedFiles[index]?.name || 'Изображение'}</div>
-        </div>
-      `;
-      imagePreview.appendChild(errorElement);
-    }
-  }
-
-  private cleanupImageUrls(): void {
-    this.imageUrls.forEach(url => {
-      if (typeof url === 'string') URL.revokeObjectURL(url);
     });
-    this.imageUrls = [];
-    this.selectedFiles = [];
+  }
+
+  populateForm(ad: Ad): void {
+    // Определяем parentCategoryId (если есть родительская категория, иначе используем саму категорию)
+    const parentCategoryId = ad.category?.parentId || ad.category?.id || '';
+    
+    this.adForm.patchValue({
+      name: ad.name,
+      description: ad.description || '',
+      cost: ad.cost,
+      email: ad.email || '',
+      phone: this.cleanPhoneForForm(ad.phone || ''),
+      location: ad.location,
+      parentCategoryId: parentCategoryId,
+      categoryId: ad.category?.id || ''
+    });
+
+    // Если есть родительская категория, загружаем дочерние категории
+    if (parentCategoryId) {
+      this.selectedParentCategory = parentCategoryId;
+      this.loadChildCategories(parentCategoryId);
+    }
+  }
+
+  cleanPhoneForForm(phone: string): string {
+    // Убираем префикс +7 и все нецифровые символы
+    let cleaned = phone.replace(/\D/g, '');
+    if (cleaned.startsWith('7')) {
+      cleaned = cleaned.substring(1);
+    }
+    return cleaned.substring(0, 10);
+  }
+
+  loadExistingImages(ad: Ad): void {
+    if (ad.imagesIds && ad.imagesIds.length > 0) {
+      this.existingImageUrls = this.adService.getAllImageUrls(ad);
+      console.log('🖼️ Существующие изображения:', this.existingImageUrls);
+    }
   }
 
   loadParentCategories(): void {
@@ -255,16 +160,15 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
     this.categoryService.getChildCategories(parentId).subscribe({
       next: (categories: Category[]) => {
         this.childCategories = categories;
+        // Если нет дочерних категорий, устанавливаем parentCategoryId как categoryId
         if (categories.length === 0) {
           this.adForm.patchValue({ categoryId: parentId });
-        } else {
-          this.adForm.patchValue({ categoryId: '' });
         }
       },
       error: (error: any) => {
         console.error('❌ Ошибка загрузки дочерних категорий:', error);
         this.childCategories = [];
-        this.adForm.patchValue({ categoryId: this.selectedParentCategory });
+        this.adForm.patchValue({ categoryId: parentId });
       }
     });
   }
@@ -288,13 +192,152 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
     return categoryId || parentId;
   }
 
-  onSubmit(): void {
-    console.log('🔐 Проверка авторизации перед отправкой:');
-    console.log(' - Токен:', this.authService.getToken() ? '***' + this.authService.getToken()!.slice(-10) : 'отсутствует');
-    console.log(' - UserId:', this.authService.getUserId() || 'отсутствует');
-    console.log(' - UserLogin:', this.authService.getUserLogin() || 'отсутствует');
+  // ФОРМАТИРОВАНИЕ ТЕЛЕФОНА
+  formatPhoneNumber(value: string): string {
+    const cleaned = value.replace(/\D/g, '');
+    let RussianNumber = cleaned;
+    if (RussianNumber.startsWith('7') || RussianNumber.startsWith('8')) {
+      RussianNumber = RussianNumber.substring(1);
+    }
+    const limited = RussianNumber.substring(0, 10);
+    
+    if (limited.length === 0) return '';
+    
+    const match = limited.match(/^(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})$/);
+    if (match) {
+      let formatted = '';
+      if (match[1]) formatted += `(${match[1]}`;
+      if (match[2]) formatted += `) ${match[2]}`;
+      if (match[3]) formatted += `-${match[3]}`;
+      if (match[4]) formatted += `-${match[4]}`;
+      return formatted;
+    }
+    return limited;
+  }
 
-    if (this.adForm.valid) {
+  onPhoneInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const cursorPosition = input.selectionStart;
+    const formatted = this.formatPhoneNumber(input.value);
+    input.value = formatted;
+    
+    const newCursorPosition = this.calculateNewCursorPosition(input.value, cursorPosition || 0);
+    input.setSelectionRange(newCursorPosition, newCursorPosition);
+    
+    const cleaned = this.cleanPhoneNumber(formatted);
+    this.adForm.patchValue({ phone: cleaned });
+  }
+
+  onPhoneKeydown(event: KeyboardEvent): void {
+    const input = event.target as HTMLInputElement;
+    const cursorPosition = input.selectionStart;
+    
+    if ([
+      'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+      'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'
+    ].includes(event.key)) {
+      return;
+    }
+    
+    if (!/^\d$/.test(event.key) && !event.ctrlKey && !event.metaKey) {
+      event.preventDefault();
+    }
+    
+    if (event.key === 'Backspace' && cursorPosition) {
+      const value = input.value;
+      const isAtSpecialPosition = [1, 2, 6, 7, 11, 12, 15, 16].includes(cursorPosition);
+      if (isAtSpecialPosition && value[cursorPosition - 1]?.match(/[\(\)\-\s]/)) {
+        setTimeout(() => {
+          input.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
+        });
+      }
+    }
+  }
+
+  calculateNewCursorPosition(newValue: string, oldCursorPosition: number): number {
+    if (oldCursorPosition === 0) return 0;
+    const specialChars = ['(', ')', ' ', '-'];
+    let newPosition = oldCursorPosition;
+    
+    for (let i = 0; i < Math.min(oldCursorPosition, newValue.length); i++) {
+      if (specialChars.includes(newValue[i])) {
+        newPosition++;
+      }
+    }
+    return Math.min(newPosition, newValue.length);
+  }
+
+  cleanPhoneNumber(phone: string): string {
+    const cleaned = phone.replace(/\D/g, '');
+    return cleaned;
+  }
+
+  getCleanPhoneForBackend(): string {
+    const phoneValue = this.adForm.get('phone')?.value;
+    const cleaned = this.cleanPhoneNumber(phoneValue);
+    return '+7' + cleaned;
+  }
+
+  // РАБОТА С ИЗОБРАЖЕНИЯМИ
+  onFileSelected(event: any): void {
+    const files: FileList = event.target.files;
+    if (files.length > 0) {
+      const newFiles = Array.from(files);
+      newFiles.forEach(file => {
+        const blobUrl = URL.createObjectURL(file);
+        const safeUrl = this.sanitizer.bypassSecurityTrustUrl(blobUrl);
+        this.imageUrls.push(safeUrl);
+      });
+      this.selectedFiles = [...this.selectedFiles, ...newFiles];
+      event.target.value = '';
+    }
+  }
+
+  removeImage(index: number): void {
+    const url = this.imageUrls[index];
+    if (typeof url === 'string') {
+      URL.revokeObjectURL(url);
+    }
+    this.selectedFiles.splice(index, 1);
+    this.imageUrls.splice(index, 1);
+  }
+
+  removeExistingImage(index: number): void {
+    const imageId = this.advertisement?.imagesIds?.[index];
+    if (imageId) {
+      this.imagesToDelete.push(imageId);
+      this.existingImageUrls.splice(index, 1);
+      console.log('🗑️ Изображение помечено для удаления:', imageId);
+    }
+  }
+
+  onImageError(event: any, index: number): void {
+    console.error('❌ Ошибка загрузки изображения:', event);
+    event.target.style.display = 'none';
+    const imagePreview = event.target.closest('.image-preview');
+    if (imagePreview) {
+      const errorElement = document.createElement('div');
+      errorElement.className = 'image-error';
+      errorElement.innerHTML = `
+        <div style="text-align: center; color: #dc3545; font-size: 12px; padding: 10px;">
+          <div>❌ Ошибка загрузки</div>
+          <div>Изображение ${index + 1}</div>
+        </div>
+      `;
+      imagePreview.appendChild(errorElement);
+    }
+  }
+
+  private cleanupImageUrls(): void {
+    this.imageUrls.forEach(url => {
+      if (typeof url === 'string') URL.revokeObjectURL(url);
+    });
+    this.imageUrls = [];
+    this.selectedFiles = [];
+  }
+
+  onSubmit(): void {
+    if (this.adForm.valid && this.advertisement) {
       const finalCategoryId = this.getFinalCategoryId();
       if (!finalCategoryId) {
         this.errorMessage = 'Выберите категорию';
@@ -308,7 +351,7 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
       const formData = new FormData();
       const formValue = this.adForm.value;
       
-      console.log('📤 Отправка объявления:', {
+      console.log('📤 Обновление объявления:', {
         name: formValue.name,
         cost: formValue.cost,
         phone: formValue.phone,
@@ -324,15 +367,23 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
         formData.append('Email', formValue.email);
       }
       
-      // ИСПОЛЬЗУЕМ ОЧИЩЕННЫЙ НОМЕР ТЕЛЕФОНА
       formData.append('Phone', this.getCleanPhoneForBackend());
       formData.append('Location', formValue.location);
       formData.append('CategoryId', finalCategoryId);
 
+      // Добавляем новые изображения
       this.selectedFiles.forEach(file => {
-        console.log('📁 Добавление файла:', file.name, file.type, file.size);
+        console.log('📁 Добавление нового файла:', file.name);
         formData.append('Images', file, file.name);
       });
+
+      // Указываем изображения для удаления (если нужно)
+      if (this.imagesToDelete.length > 0) {
+        console.log('🗑️ Изображения для удаления:', this.imagesToDelete);
+        this.imagesToDelete.forEach(imageId => {
+          formData.append('ImagesToDelete', imageId);
+        });
+      }
 
       console.log('📦 FormData содержимое:');
       for (let [key, value] of (formData as any).entries()) {
@@ -343,40 +394,32 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
         }
       }
 
-      this.adService.createAd(formData).subscribe({
+      this.adService.updateAdWithFormData(this.adId, formData).subscribe({
         next: (response: any) => {
           this.isLoading = false;
-          console.log('✅ Объявление создано:', response);
-          this.successMessage = 'Объявление успешно создано!';
+          console.log('✅ Объявление обновлено:', response);
+          this.successMessage = 'Объявление успешно обновлено!';
           
-          this.adSharingService.notifyNewAd(response);
-          
-          this.adForm.reset();
-          this.cleanupImageUrls();
-          this.childCategories = [];
-          this.selectedParentCategory = '';
           setTimeout(() => {
-            this.router.navigate(['/ads']);
+            this.router.navigate(['/ad', this.adId]);
           }, 2000);
         },
         error: (error: any) => {
           this.isLoading = false;
-          console.error('❌ Ошибка создания объявления:', error);
+          console.error('❌ Ошибка обновления объявления:', error);
           
           if (error.status === 401) {
-            this.errorMessage = 'Необходимо авторизоваться. Переходим на страницу входа...';
-            setTimeout(() => this.router.navigate(['/login']), 2000);
+            this.errorMessage = 'Необходимо авторизоваться';
+          } else if (error.status === 403) {
+            this.errorMessage = 'Нет прав для редактирования этого объявления';
+          } else if (error.status === 404) {
+            this.errorMessage = 'Объявление не найдено';
           } else if (error.status === 400) {
             this.errorMessage = 'Неверные данные. Проверьте заполнение полей.';
-            console.error('🔍 Детали ошибки 400:', error.error);
-          } else if (error.status === 404) {
-            this.errorMessage = 'Endpoint не найден. Проверьте подключение к серверу.';
-            console.error('🔍 Детали ошибки 404:', error.url);
           } else if (error.status === 422) {
             this.errorMessage = error.error?.userMessage || 'Произошёл конфликт бизнес-логики';
-            console.error('🔍 Детали ошибки 422:', error.error);
           } else {
-            this.errorMessage = error.error?.userMessage || 'Ошибка при создании объявления';
+            this.errorMessage = error.error?.userMessage || 'Ошибка при обновлении объявления';
           }
         }
       });
@@ -394,38 +437,16 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
 
   onCancel(): void {
     this.cleanupImageUrls();
-    this.router.navigate(['/ads']);
+    this.router.navigate(['/ad', this.adId]);
   }
 
-  get name() {
-    return this.adForm.get('name');
-  }
-
-  get description() {
-    return this.adForm.get('description');
-  }
-
-  get cost() {
-    return this.adForm.get('cost');
-  }
-
-  get email() {
-    return this.adForm.get('email');
-  }
-
-  get phone() {
-    return this.adForm.get('phone');
-  }
-
-  get location() {
-    return this.adForm.get('location');
-  }
-
-  get parentCategoryId() {
-    return this.adForm.get('parentCategoryId');
-  }
-
-  get categoryId() {
-    return this.adForm.get('categoryId');
-  }
+  // Геттеры для удобного доступа к контролам формы
+  get name() { return this.adForm.get('name'); }
+  get description() { return this.adForm.get('description'); }
+  get cost() { return this.adForm.get('cost'); }
+  get email() { return this.adForm.get('email'); }
+  get phone() { return this.adForm.get('phone'); }
+  get location() { return this.adForm.get('location'); }
+  get parentCategoryId() { return this.adForm.get('parentCategoryId'); }
+  get categoryId() { return this.adForm.get('categoryId'); }
 }
