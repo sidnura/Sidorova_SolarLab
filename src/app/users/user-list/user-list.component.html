@@ -1,0 +1,62 @@
+<!-- src/app/users/user-list/user-list.component.html -->
+<div class="user-list-container">
+  <div class="header">
+    <h1>Управление пользователями</h1>
+    <button class="btn btn-primary" routerLink="/profile" *ngIf="!isAdmin()">
+      Мой профиль
+    </button>
+  </div>
+
+  <!-- Состояние загрузки -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Загрузка пользователей...</p>
+  </div>
+
+  <!-- Сообщение об ошибке -->
+  <div *ngIf="errorMessage && !isLoading" class="error-state">
+    <p>❌ {{ errorMessage }}</p>
+    <button class="btn btn-secondary" (click)="loadUsers()">Попробовать снова</button>
+  </div>
+
+  <!-- Список пользователей -->
+  <div *ngIf="!isLoading && !errorMessage" class="users-content">
+    <div *ngIf="users.length === 0" class="empty-state">
+      <h3>Пользователи не найдены</h3>
+      <p>В системе пока нет зарегистрированных пользователей.</p>
+    </div>
+
+    <div *ngIf="users.length > 0" class="users-grid">
+      <div class="user-card" *ngFor="let user of users">
+        <div class="user-info">
+          <h3 class="user-name">{{ user.name }}</h3>
+          <p class="user-login">Логин: {{ user.login }}</p>
+          <p class="user-id">ID: {{ user.id }}</p>
+        </div>
+        
+        <div class="user-actions">
+          <button 
+            class="btn btn-info"
+            [routerLink]="['/users', user.id]">
+            Профиль
+          </button>
+          
+          <button 
+            class="btn btn-warning"
+            [routerLink]="['/users', user.id, 'edit']"
+            *ngIf="isAdmin()">
+            Редактировать
+          </button>
+          
+          <button 
+            class="btn btn-danger"
+            (click)="deleteUser(user.id, user.name)"
+            [disabled]="!canDeleteUser(user.id)"
+            *ngIf="isAdmin()">
+            Удалить
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,3 +1,4 @@
+// src/app/shared/components/header/header.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -37,7 +38,8 @@ export class HeaderComponent implements OnInit {
       this.userLogin = this.authService.getUserLogin();
       console.log('🔐 Статус авторизации обновлен:', {
         isLoggedIn: this.isLoggedIn,
-        userLogin: this.userLogin
+        userLogin: this.userLogin,
+        isAdmin: this.isAdmin()
       });
     });
   }
@@ -47,7 +49,8 @@ export class HeaderComponent implements OnInit {
     this.userLogin = this.authService.getUserLogin();
     console.log('🔐 Статус авторизации в header:', {
       isLoggedIn: this.isLoggedIn,
-      userLogin: this.userLogin
+      userLogin: this.userLogin,
+      isAdmin: this.isAdmin()
     });
   }
 
@@ -79,13 +82,20 @@ export class HeaderComponent implements OnInit {
     // Навигация на страницу объявлений с параметрами категории
     this.router.navigate(['/ads'], { 
       queryParams: { 
-        category: categoryId 
-      } 
+        category: categoryId,
+        search: null // Очищаем текстовый поиск при выборе категории
+      },
+      queryParamsHandling: 'merge'
     });
   }
 
   onSearch(): void {
     const searchQuery = this.searchForm.get('searchQuery')?.value?.trim();
+    
+    // Всегда очищаем выбранную категорию при текстовом поиске
+    if (searchQuery) {
+      this.selectedCategoryId = '';
+    }
     
     if (searchQuery || this.selectedCategoryId) {
       const searchParams = {
@@ -102,12 +112,14 @@ export class HeaderComponent implements OnInit {
       // Навигация на страницу объявлений с параметрами
       this.router.navigate(['/ads'], { 
         queryParams: { 
-          search: searchQuery,
-          category: this.selectedCategoryId 
-        } 
+          search: searchQuery || null,
+          category: this.selectedCategoryId || null
+        },
+        queryParamsHandling: 'merge'
       });
-
-      console.log('✅ Поиск выполнен, текст сохранен в поле');
+    } else {
+      // Если нет параметров - показываем все объявления
+      this.clearSearch();
     }
   }
 
@@ -117,20 +129,20 @@ export class HeaderComponent implements OnInit {
       searchQuery: ''
     });
     
-    // Если есть выбранная категория, выполняем поиск только по категории
-    if (this.selectedCategoryId) {
-      this.performCategorySearch(this.selectedCategoryId);
-    } else {
-      // Если нет категории, сбрасываем все фильтры
-      this.adSharingService.notifySearchParams({
-        search: '',
-        category: undefined,
-        showNonActive: false
-      });
-      this.router.navigate(['/ads']);
-    }
+    // Сбрасываем выбранную категорию
+    this.selectedCategoryId = '';
     
-    console.log('🔄 Поиск сброшен');
+    // Сбрасываем все фильтры
+    this.adSharingService.notifySearchParams({
+      search: '',
+      category: undefined,
+      showNonActive: false
+    });
+    
+    // Навигация на страницу объявлений без параметров
+    this.router.navigate(['/ads'], { queryParams: {} });
+    
+    console.log('🔄 Поиск полностью сброшен');
   }
 
   onSearchInputKeypress(event: KeyboardEvent): void {
@@ -139,8 +151,13 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  // Проверка, есть ли текст в поле поиска для отображения крестика
+  // Проверка, есть ли активные фильтры для отображения крестика
   hasSearchText(): boolean {
-    return !!this.searchForm.get('searchQuery')?.value?.trim();
+    return !!this.searchForm.get('searchQuery')?.value?.trim() || !!this.selectedCategoryId;
+  }
+
+  // Проверка прав администратора
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
   }
 }

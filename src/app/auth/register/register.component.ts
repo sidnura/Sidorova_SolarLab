@@ -51,51 +51,51 @@ export class RegisterComponent {
       this.authService.register(registerData).subscribe({
         next: (response) => {
           this.isLoading = false;
-          console.log('✅ Регистрация успешна:', response);
-          this.successMessage = '✅ Регистрация успешна! Автоматический вход выполнен. Перенаправляем на главную страницу...';
+          console.log(' Регистрация успешна:', response);
+          this.successMessage = 'Регистрация успешна! Автоматический вход выполнен. Перенаправляем на главную страницу...';
           setTimeout(() => {
             this.router.navigate(['/']);
           }, 2000);
         },
         error: (error) => {
           this.isLoading = false;
-          console.error('❌ Ошибка регистрации:', error);
-          console.error('🔍 Детали ошибки:', error.error);
+          console.error('Ошибка регистрации:', error);
+          console.error('Детали ошибки:', error.error);
 
           if (error.status === 400) {
             if (error.error?.errors) {
               // Обработка ошибок валидации ASP.NET
               const validationErrors = error.error.errors;
               if (validationErrors.Password) {
-                this.errorMessage = `❌ Пароль: ${validationErrors.Password.join(', ')}`;
+                this.errorMessage = `Пароль: ${validationErrors.Password.join(', ')}`;
               } else if (validationErrors.Login) {
-                this.errorMessage = `❌ Логин: ${validationErrors.Login.join(', ')}`;
+                this.errorMessage = `Логин: ${validationErrors.Login.join(', ')}`;
               } else if (validationErrors.Email) {
-                this.errorMessage = `❌ Email: ${validationErrors.Email.join(', ')}`;
+                this.errorMessage = `Email: ${validationErrors.Email.join(', ')}`;
               } else if (validationErrors.Name) {
-                this.errorMessage = `❌ Имя: ${validationErrors.Name.join(', ')}`;
+                this.errorMessage = `Имя: ${validationErrors.Name.join(', ')}`;
               } else {
-                this.errorMessage = '❌ Неверные данные. Проверьте заполнение полей.';
+                this.errorMessage = 'Неверные данные. Проверьте заполнение полей.';
               }
             } else if (error.error?.userMessage) {
-              this.errorMessage = `❌ ${error.error.userMessage}`;
+              this.errorMessage = ` ${error.error.userMessage}`;
             } else {
-              this.errorMessage = '❌ Неверные данные. Проверьте заполнение полей.';
+              this.errorMessage = 'Неверные данные. Проверьте заполнение полей.';
             }
           } else if (error.status === 409) {
-            this.errorMessage = '❌ Пользователь с таким логином уже существует.';
+            this.errorMessage = 'Пользователь с таким логином уже существует.';
           } else if (error.status === 500) {
-            this.errorMessage = '❌ Ошибка сервера. Попробуйте позже.';
+            this.errorMessage = 'Ошибка сервера. Попробуйте позже.';
           } else if (error.status === 0) {
-            this.errorMessage = '❌ Нет соединения с сервером. Проверьте интернет-соединение.';
+            this.errorMessage = 'Нет соединения с сервером. Проверьте интернет-соединение.';
           } else {
-            this.errorMessage = error.error?.userMessage || '❌ Неизвестная ошибка при регистрации.';
+            this.errorMessage = error.error?.userMessage || 'Неизвестная ошибка при регистрации.';
           }
         }
       });
     } else {
       markFormGroupTouched(this.registerForm);
-      this.errorMessage = '❌ Пожалуйста, заполните все поля правильно';
+      this.errorMessage = 'Пожалуйста, заполните все поля правильно';
     }
   }
 

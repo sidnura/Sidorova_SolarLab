@@ -4,11 +4,11 @@
     <div class="recommendations-header">
       <h2 class="recommendations__title">Рекомендации для вас</h2>
       
-      <!-- Кнопка сброса фильтров (только при выборе категории) -->
+      <!-- Кнопка сброса фильтров (только при активных фильтрах) -->
       <button 
-        *ngIf="hasActiveCategoryFilter()"
+        *ngIf="hasActiveFilters()"
         class="reset-filters-btn"
-        (click)="resetCategoryFilters()">
+        (click)="resetAllFilters()">
         ✕ Сбросить фильтры
       </button>
     </div>
@@ -52,17 +52,19 @@
     </li>
   </ul>
 
-  <!-- Изменено: "Объявлений пока нет" на "Объявления не найдены" -->
+  <!-- Сообщение когда нет объявлений -->
   <div *ngIf="!isLoading && getAllAds().length === 0" class="empty-state">
     <h2>Объявления не найдены!</h2>
-    <p>Попробуйте изменить параметры поиска или добавить новое объявление!</p>
+    <p *ngIf="hasActiveFilters()">Попробуйте изменить параметры поиска или сбросить фильтры</p>
+    <p *ngIf="!hasActiveFilters()">Пока нет объявлений. Будьте первым!</p>
+    
     <button class="btn-primary" routerLink="/add-ad">Добавить объявление</button>
     
     <!-- Кнопка сброса фильтров в пустом состоянии -->
     <button 
-      *ngIf="hasActiveCategoryFilter()"
+      *ngIf="hasActiveFilters()"
       class="btn-secondary"
-      (click)="resetCategoryFilters()">
+      (click)="resetAllFilters()">
       Сбросить фильтры
     </button>
   </div>

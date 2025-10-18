@@ -111,10 +111,9 @@
         </div>
       </div>
 
-      <!-- ОБНОВЛЕННЫЙ БЛОК ТЕЛЕФОНА -->
       <div class="form-group">
         <label for="phone" class="form-label">Телефон *</label>
-        <div class="phone-input-container" [class.invalid]="phone?.invalid && phone?.touched">
+        <div class="phone-input-container">
           <span class="phone-prefix">+7</span>
           <input
             id="phone"
@@ -122,6 +121,7 @@
             formControlName="phone"
             placeholder="(999) 123-45-67"
             class="form-control phone-input"
+            [class.invalid]="phone?.invalid && phone?.touched"
             (input)="onPhoneInput($event)"
             (keydown)="onPhoneKeydown($event)"
             maxlength="18">

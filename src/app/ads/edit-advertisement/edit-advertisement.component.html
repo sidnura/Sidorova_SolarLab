@@ -5,7 +5,6 @@
     <a [routerLink]="['/ad', adId]" class="back-link">← Назад к объявлению</a>
   </div>
 
-  <!-- Состояние загрузки -->
   <div *ngIf="isLoading && !advertisement" class="loading-state">
     <div class="spinner"></div>
     <p>Загрузка объявления...</p>
@@ -56,7 +55,6 @@
       <div class="form-group">
         <label class="form-label">Изображения</label>
         
-        <!-- Существующие изображения -->
         <div *ngIf="existingImageUrls.length > 0" class="existing-images-section">
           <h4 class="section-subtitle">Текущие изображения</h4>
           <div class="image-previews">
@@ -72,7 +70,6 @@
           </div>
         </div>
 
-        <!-- Добавление новых изображений -->
         <div class="file-upload-container">
           <input
             type="file"
@@ -87,7 +84,6 @@
           </label>
         </div>
         
-        <!-- Предпросмотр новых изображений -->
         <div class="image-previews" *ngIf="selectedFiles.length > 0">
           <div class="image-preview new" *ngFor="let file of selectedFiles; let i = index">
             <img 
@@ -137,7 +133,6 @@
         </div>
       </div>
 
-      <!-- Блок телефона -->
       <div class="form-group">
         <label for="phone" class="form-label">Телефон *</label>
         <div class="phone-input-container" [class.invalid]="phone?.invalid && phone?.touched">
@@ -214,7 +209,7 @@
       </div>
 
       <div class="category-info" *ngIf="selectedParentCategory && childCategories.length === 0">
-        <small>✅ Категория выбрана. Можно продолжить редактирование формы.</small>
+        <small>Категория выбрана. Можно продолжить редактирование формы.</small>
       </div>
 
       <div *ngIf="errorMessage" class="alert alert-error">
@@ -225,7 +220,6 @@
         {{ successMessage }}
       </div>
 
-      <!-- Кнопки -->
       <div class="form-actions">
         <button
           type="button"

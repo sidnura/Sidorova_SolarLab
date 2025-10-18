@@ -112,7 +112,6 @@
   }
 }
 
-/* СТИЛИ ДЛЯ ТЕЛЕФОНА */
 .phone-input-container {
   position: relative;
   display: flex;
@@ -440,7 +439,6 @@
   animation: spin 1s linear infinite;
 }
 
-// Стили для textarea
 textarea.form-control {
   resize: vertical;
   min-height: 100px;
@@ -467,7 +465,6 @@ select.form-control {
   }
 }
 
-// Специфичные стили для редактирования
 .edit-indicator {
   display: inline-flex;
   align-items: center;
@@ -541,7 +538,6 @@ select.form-control {
   }
 }
 
-// Адаптивность
 @media (max-width: 768px) {
   .edit-advertisement-container {
     padding: 15px;
@@ -618,8 +614,7 @@ select.form-control {
     grid-template-columns: repeat(2, 1fr);
   }
   
-  // Адаптивность для телефона
   .phone-input {
-    font-size: 16px; // Предотвращает зум в iOS
+    font-size: 16px; 
   }
 }

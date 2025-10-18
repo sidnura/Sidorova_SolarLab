@@ -94,7 +94,6 @@
   }
 }
 
-/* СТИЛИ ДЛЯ ТЕЛЕФОНА */
 .phone-input-container {
   position: relative;
   display: flex;
@@ -453,9 +452,8 @@
     grid-template-columns: repeat(2, 1fr);
   }
   
-  // Адаптивность для телефона
   .phone-input {
-    font-size: 16px; // Предотвращает зум в iOS
+    font-size: 16px; 
   }
 }
 
@@ -465,7 +463,6 @@
   }
 }
 
-// Стили для textarea
 textarea.form-control {
   resize: vertical;
   min-height: 100px;

@@ -1,0 +1,161 @@
+<!-- src/app/users/user-profile/user-profile.component.html -->
+<div class="user-profile-container">
+  <div class="header">
+    <h1>{{ isCurrentUser ? 'Мой профиль' : 'Профиль пользователя' }}</h1>
+    <button class="btn btn-secondary" routerLink="/users" *ngIf="!isCurrentUser">
+      ← Назад к списку
+    </button>
+  </div>
+
+  <!-- Состояние загрузки -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Загрузка профиля...</p>
+  </div>
+
+  <!-- Сообщение об ошибке -->
+  <div *ngIf="errorMessage && !isLoading" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Сообщение об успехе -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <!-- Профиль пользователя -->
+  <div *ngIf="user && !isLoading" class="profile-content">
+    <div class="profile-card">
+      <form [formGroup]="userForm" (ngSubmit)="onSubmit()" *ngIf="isEditing; else viewTemplate">
+        <!-- Режим редактирования -->
+        <div class="form-group">
+          <label for="name" class="form-label">Имя *</label>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            class="form-control"
+            [class.invalid]="name?.invalid && name?.touched">
+          <div class="validation-errors" *ngIf="name?.invalid && name?.touched">
+            <small *ngIf="name?.errors?.['required']">Имя обязательно</small>
+            <small *ngIf="name?.errors?.['minlength']">Минимум 2 символа</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="login" class="form-label">Логин *</label>
+          <input
+            id="login"
+            type="text"
+            formControlName="login"
+            class="form-control"
+            [class.invalid]="login?.invalid && login?.touched">
+          <div class="validation-errors" *ngIf="login?.invalid && login?.touched">
+            <small *ngIf="login?.errors?.['required']">Логин обязателен</small>
+            <small *ngIf="login?.errors?.['minlength']">Минимум 3 символа</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Новый пароль</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            class="form-control"
+            placeholder="Оставьте пустым, если не хотите менять"
+            [class.invalid]="password?.invalid && password?.touched">
+          <div class="validation-errors" *ngIf="password?.invalid && password?.touched">
+            <small *ngIf="password?.errors?.['minlength']">Минимум 6 символов</small>
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="password?.value">
+        <label for="confirmPassword" class="form-label">Подтвердите пароль</label>
+        <input
+            id="confirmPassword"
+            type="password"
+            formControlName="confirmPassword"
+            class="form-control"
+            placeholder="Повторите новый пароль"
+            [class.invalid]="confirmPassword?.invalid && confirmPassword?.touched">
+        <div class="validation-errors" *ngIf="confirmPassword?.invalid && confirmPassword?.touched">
+            <small *ngIf="confirmPassword?.errors?.['passwordMismatch']">Пароли не совпадают</small>
+        </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="cancelEditing()">
+            Отмена
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-primary"
+            [disabled]="userForm.invalid">
+            Сохранить
+          </button>
+        </div>
+      </form>
+
+      <ng-template #viewTemplate>
+        <!-- Режим просмотра -->
+        <div class="user-info">
+          <div class="info-row">
+            <span class="label">Имя:</span>
+            <span class="value">{{ user.name }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Логин:</span>
+            <span class="value">{{ user.login }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">ID:</span>
+            <span class="value user-id">{{ user.id }}</span>
+          </div>
+          <div class="info-row" *ngIf="user.role">
+            <span class="label">Роль:</span>
+            <span class="value">{{ user.role }}</span>
+          </div>
+          <div class="info-row" *ngIf="user.registeredTime">
+            <span class="label">Зарегистрирован:</span>
+            <span class="value">{{ user.registeredTime | date:'dd.MM.yyyy HH:mm' }}</span>
+          </div>
+        </div>
+
+        <div class="profile-actions" *ngIf="isCurrentUser">
+          <button class="btn btn-primary" (click)="startEditing()">
+            Редактировать профиль
+          </button>
+        </div>
+
+        <!-- Список объявлений пользователя -->
+        <div class="user-adverts" *ngIf="user.adverts && user.adverts.length > 0">
+          <h3>Объявления пользователя ({{ user.adverts.length }})</h3>
+          <div class="adverts-list">
+            <div class="advert-item" *ngFor="let advert of user.adverts">
+              <div class="advert-info">
+                <h4>{{ advert.name }}</h4>
+                <p class="advert-price">{{ advert.cost | number }} ₽</p>
+                <p class="advert-location">{{ advert.location }}</p>
+                <p class="advert-date">{{ advert.createdAt | date:'dd.MM.yyyy' }}</p>
+                <span class="advert-status" [class.active]="advert.isActive">
+                  {{ advert.isActive ? 'Активно' : 'Не активно' }}
+                </span>
+              </div>
+              <button 
+                class="btn btn-info"
+                [routerLink]="['/ad', advert.id]">
+                Посмотреть
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="user-adverts" *ngIf="user.adverts && user.adverts.length === 0">
+          <h3>Объявления</h3>
+          <p class="no-adverts">Пользователь пока не размещал объявления.</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

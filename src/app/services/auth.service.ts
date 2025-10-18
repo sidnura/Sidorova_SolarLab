@@ -33,12 +33,12 @@ export class AuthService {
 
   login(loginData: LoginRequest): Observable<AuthResponse> {
     const url = `${this.apiUrl}/Auth/Login`;
-    console.log('🔐 Отправка запроса на вход по URL:', url);
+    console.log('Отправка запроса на вход по URL:', url);
     
     return this.http.post<string>(url, loginData).pipe(
       map((token: string) => {
         const decodedToken = this.decodeJwt(token);
-        console.log('🔓 Декодированный токен:', decodedToken);
+        console.log('Декодированный токен:', decodedToken);
         
         return {
           token: token,
@@ -52,9 +52,9 @@ export class AuthService {
           localStorage.setItem('user_id', response.userId);
           localStorage.setItem('user_login', response.login);
           this.isAuthenticatedSubject.next(true);
-          console.log('✅ Вход выполнен успешно');
-          console.log('🔑 UserId сохранен:', response.userId || 'не найден в токене');
-          console.log('👤 UserLogin сохранен:', response.login);
+          console.log('Вход выполнен успешно');
+          console.log('UserId сохранен:', response.userId || 'не найден в токене');
+          console.log('UserLogin сохранен:', response.login);
         }
       })
     );
@@ -62,12 +62,12 @@ export class AuthService {
 
   register(registerData: RegisterRequest): Observable<AuthResponse> {
     const url = `${this.apiUrl}/Auth/Register`;
-    console.log('🔐 Отправка запроса на регистрацию по URL:', url);
+    console.log('Отправка запроса на регистрацию по URL:', url);
     
     return this.http.post<string>(url, registerData).pipe(
       map((token: string) => {
         const decodedToken = this.decodeJwt(token);
-        console.log('🔓 Декодированный токен:', decodedToken);
+        console.log('Декодированный токен:', decodedToken);
         
         return {
           token: token,
@@ -81,9 +81,9 @@ export class AuthService {
           localStorage.setItem('user_id', response.userId);
           localStorage.setItem('user_login', response.login);
           this.isAuthenticatedSubject.next(true);
-          console.log('✅ Регистрация выполнена успешно');
-          console.log('🔑 UserId сохранен:', response.userId || 'не найден в токене');
-          console.log('👤 UserLogin сохранен:', response.login);
+          console.log('Регистрация выполнена успешно');
+          console.log('UserId сохранен:', response.userId || 'не найден в токене');
+          console.log('UserLogin сохранен:', response.login);
         }
       })
     );
@@ -98,10 +98,10 @@ export class AuthService {
       }).join(''));
 
       const decoded = JSON.parse(jsonPayload);
-      console.log('🔍 Все поля декодированного токена:', decoded);
+      console.log('Все поля декодированного токена:', decoded);
       return decoded;
     } catch (error) {
-      console.error('❌ Ошибка декодирования JWT токена:', error);
+      console.error('Ошибка декодирования JWT токена:', error);
       return null;
     }
   }
@@ -124,7 +124,7 @@ export class AuthService {
     localStorage.removeItem('user_id');
     localStorage.removeItem('user_login');
     this.isAuthenticatedSubject.next(false);
-    console.log('✅ Выход выполнен');
+    console.log('Выход выполнен');
   }
 
   isLoggedIn(): boolean {
@@ -151,10 +151,26 @@ export class AuthService {
     return localStorage.getItem('user_login');
   }
 
-  // Метод для принудительного обновления статуса авторизации
   refreshAuthStatus(): void {
     const isLoggedIn = this.isLoggedIn();
     this.isAuthenticatedSubject.next(isLoggedIn);
-    console.log('🔄 Статус авторизации обновлен:', isLoggedIn);
+    console.log('Статус авторизации обновлен:', isLoggedIn);
+  }
+
+  // Проверка прав администратора
+  isAdmin(): boolean {
+    const userLogin = this.getUserLogin()?.toLowerCase();
+    
+    const adminLogins = [
+      'admin2',
+    ];
+    
+    const isAdmin = adminLogins.includes(userLogin || '');
+    console.log(' Проверка прав администратора:', {
+      userLogin: userLogin,
+      isAdmin: isAdmin
+    });
+    
+    return isAdmin;
   }
 }

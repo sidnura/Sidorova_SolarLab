@@ -71,7 +71,7 @@ export class AdDetailComponent implements OnInit {
       },
       error: (error: any) => {
         this.isLoading = false;
-        console.error('❌ Error loading advertisement:', error);
+        console.error(' Error loading advertisement:', error);
         
         if (error.status === 404) {
           this.errorMessage = 'Объявление не найдено';
@@ -131,7 +131,7 @@ export class AdDetailComponent implements OnInit {
   }
 
   onImageError(event: any): void {
-    console.log('🖼️ Изображение недоступно для объявления:', this.advertisement?.name);
+    console.log('Изображение недоступно для объявления:', this.advertisement?.name);
     
     event.target.style.display = 'none';
     

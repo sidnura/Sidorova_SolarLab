@@ -61,7 +61,7 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
       phone: ['', [
         Validators.required, 
         Validators.minLength(10), // 10 цифр без +7
-        Validators.pattern(/^\d{10}$/) // Только 10 цифр
+        Validators.pattern(/^\d{10}$/) 
       ]],
       location: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
       parentCategoryId: ['', Validators.required],
@@ -69,11 +69,10 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ФОРМАТИРОВАНИЕ ТЕЛЕФОНА - НОВЫЕ МЕТОДЫ
 
   // Форматирование телефонного номера
   formatPhoneNumber(value: string): string {
-    // Удаляем все нецифровые символы, кроме возможного плюса в начале
+    // Удаляем все нецифровые символы, кроме плюса в начале
     const cleaned = value.replace(/\D/g, '');
     
     // Если номер начинается с 7 или 8, убираем первую цифру (префикс +7 фиксированный)
@@ -109,27 +108,21 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     const cursorPosition = input.selectionStart;
     
-    // Получаем текущее значение и форматируем
     const formatted = this.formatPhoneNumber(input.value);
     
-    // Устанавливаем отформатированное значение
     input.value = formatted;
     
-    // Восстанавливаем позицию курсора
     const newCursorPosition = this.calculateNewCursorPosition(input.value, cursorPosition || 0);
     input.setSelectionRange(newCursorPosition, newCursorPosition);
     
-    // Обновляем значение в форме (только цифры)
     const cleaned = this.cleanPhoneNumber(formatted);
     this.adForm.patchValue({ phone: cleaned });
   }
 
-  // Обработчик клавиш для улучшения UX
   onPhoneKeydown(event: KeyboardEvent): void {
     const input = event.target as HTMLInputElement;
     const cursorPosition = input.selectionStart;
     
-    // Разрешаем: Backspace, Delete, Tab, Escape, Enter, стрелки
     if ([
       'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
       'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'
@@ -137,12 +130,10 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
       return;
     }
     
-    // Разрешаем только цифры и специальные клавиши
     if (!/^\d$/.test(event.key) && !event.ctrlKey && !event.metaKey) {
       event.preventDefault();
     }
     
-    // Автоматическое удаление при Backspace на определенных позициях
     if (event.key === 'Backspace' && cursorPosition) {
       const value = input.value;
       const isAtSpecialPosition = [
@@ -150,7 +141,6 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
       ].includes(cursorPosition);
       
       if (isAtSpecialPosition && value[cursorPosition - 1]?.match(/[\(\)\-\s]/)) {
-        // Перемещаем курсор назад через специальный символ
         setTimeout(() => {
           input.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
         });
@@ -158,14 +148,12 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Расчет новой позиции курсора после форматирования
   calculateNewCursorPosition(newValue: string, oldCursorPosition: number): number {
     if (oldCursorPosition === 0) return 0;
     
     const specialChars = ['(', ')', ' ', '-'];
     let newPosition = oldCursorPosition;
     
-    // Корректируем позицию на основе добавленных/удаленных специальных символов
     for (let i = 0; i < Math.min(oldCursorPosition, newValue.length); i++) {
       if (specialChars.includes(newValue[i])) {
         newPosition++;
@@ -177,19 +165,17 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
 
   // Очистка номера для отправки на бэкенд
   cleanPhoneNumber(phone: string): string {
-    // Удаляем все нецифровые символы и добавляем префикс +7
     const cleaned = phone.replace(/\D/g, '');
-    return cleaned; // Возвращаем только цифры (10 символов)
+    return cleaned; 
   }
 
   // Получение очищенного номера телефона для отправки
   getCleanPhoneForBackend(): string {
     const phoneValue = this.adForm.get('phone')?.value;
     const cleaned = this.cleanPhoneNumber(phoneValue);
-    return '+7' + cleaned; // Добавляем префикс для бэкенда
+    return '+7' + cleaned; 
   }
 
-  // СУЩЕСТВУЮЩИЕ МЕТОДЫ
 
   onFileSelected(event: any): void {
     const files: FileList = event.target.files;
@@ -215,7 +201,7 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
   }
 
   onImageError(event: any, index: number): void {
-    console.error('❌ Ошибка загрузки изображения:', event);
+    console.error(' Ошибка загрузки изображения:', event);
     event.target.style.display = 'none';
     const imagePreview = event.target.closest('.image-preview');
     if (imagePreview) {
@@ -223,7 +209,7 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
       errorElement.className = 'image-error';
       errorElement.innerHTML = `
         <div style="text-align: center; color: #dc3545; font-size: 12px; padding: 10px;">
-          <div>❌ Ошибка загрузки</div>
+          <div> Ошибка загрузки</div>
           <div>${this.selectedFiles[index]?.name || 'Изображение'}</div>
         </div>
       `;
@@ -245,7 +231,7 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
         this.parentCategories = categories;
       },
       error: (error: any) => {
-        console.error('❌ Ошибка загрузки категорий:', error);
+        console.error('Ошибка загрузки категорий:', error);
         this.errorMessage = 'Ошибка загрузки категорий';
       }
     });
@@ -262,7 +248,7 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
         }
       },
       error: (error: any) => {
-        console.error('❌ Ошибка загрузки дочерних категорий:', error);
+        console.error(' Ошибка загрузки дочерних категорий:', error);
         this.childCategories = [];
         this.adForm.patchValue({ categoryId: this.selectedParentCategory });
       }
@@ -330,11 +316,11 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
       formData.append('CategoryId', finalCategoryId);
 
       this.selectedFiles.forEach(file => {
-        console.log('📁 Добавление файла:', file.name, file.type, file.size);
+        console.log('Добавление файла:', file.name, file.type, file.size);
         formData.append('Images', file, file.name);
       });
 
-      console.log('📦 FormData содержимое:');
+      console.log('FormData содержимое:');
       for (let [key, value] of (formData as any).entries()) {
         if (value instanceof File) {
           console.log(`   ${key}:`, value.name, value.type, value.size);
@@ -346,7 +332,7 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
       this.adService.createAd(formData).subscribe({
         next: (response: any) => {
           this.isLoading = false;
-          console.log('✅ Объявление создано:', response);
+          console.log('Объявление создано:', response);
           this.successMessage = 'Объявление успешно создано!';
           
           this.adSharingService.notifyNewAd(response);
@@ -361,20 +347,20 @@ export class AddAdvertisementComponent implements OnInit, OnDestroy {
         },
         error: (error: any) => {
           this.isLoading = false;
-          console.error('❌ Ошибка создания объявления:', error);
+          console.error('Ошибка создания объявления:', error);
           
           if (error.status === 401) {
             this.errorMessage = 'Необходимо авторизоваться. Переходим на страницу входа...';
             setTimeout(() => this.router.navigate(['/login']), 2000);
           } else if (error.status === 400) {
             this.errorMessage = 'Неверные данные. Проверьте заполнение полей.';
-            console.error('🔍 Детали ошибки 400:', error.error);
+            console.error('Детали ошибки 400:', error.error);
           } else if (error.status === 404) {
             this.errorMessage = 'Endpoint не найден. Проверьте подключение к серверу.';
-            console.error('🔍 Детали ошибки 404:', error.url);
+            console.error('Детали ошибки 404:', error.url);
           } else if (error.status === 422) {
             this.errorMessage = error.error?.userMessage || 'Произошёл конфликт бизнес-логики';
-            console.error('🔍 Детали ошибки 422:', error.error);
+            console.error('Детали ошибки 422:', error.error);
           } else {
             this.errorMessage = error.error?.userMessage || 'Ошибка при создании объявления';
           }

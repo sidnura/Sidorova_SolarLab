@@ -23,6 +23,7 @@ export class AdsComponent implements OnInit, OnDestroy {
   errorMessage = '';
   isLoggedIn = false;
   hasActiveCategory = false;
+  hasActiveSearch = false;
 
   private newAdSubscription!: Subscription;
   private authSubscription!: Subscription;
@@ -38,9 +39,8 @@ export class AdsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.loadAdvertisements();
-    this.setupNewAdListener();
     this.setupAuthListener();
+    this.setupNewAdListener();
     this.setupSearchListener();
     this.setupRouteListener();
   }
@@ -63,17 +63,17 @@ export class AdsComponent implements OnInit, OnDestroy {
   private setupAuthListener(): void {
     this.authSubscription = this.authService.isAuthenticated$.subscribe(isAuthenticated => {
       this.isLoggedIn = isAuthenticated;
-      console.log('🔄 Статус авторизации в AdsComponent:', this.isLoggedIn);
+      console.log(' Статус авторизации в AdsComponent:', this.isLoggedIn);
     });
     
     this.isLoggedIn = this.authService.isLoggedIn();
-    console.log('🔐 Начальный статус авторизации:', this.isLoggedIn);
+    console.log(' Начальный статус авторизации:', this.isLoggedIn);
   }
 
   private setupNewAdListener(): void {
     this.newAdSubscription = this.adSharingService.newAd$.subscribe(newAd => {
       if (newAd) {
-        console.log('🔄 Получено новое объявление:', newAd);
+        console.log(' Получено новое объявление:', newAd);
         this.adSharingService.clearNewAd();
         this.loadAdvertisements();
       }
@@ -83,8 +83,9 @@ export class AdsComponent implements OnInit, OnDestroy {
   private setupSearchListener(): void {
     this.searchParamsSubscription = this.adSharingService.searchParams$.subscribe(params => {
       if (params) {
-        console.log('🔍 Получены параметры поиска:', params);
+        console.log(' Получены параметры поиска из сервиса:', params);
         this.hasActiveCategory = !!params.category;
+        this.hasActiveSearch = !!params.search;
         this.performSearch(params);
         this.adSharingService.clearSearchParams();
       }
@@ -96,50 +97,63 @@ export class AdsComponent implements OnInit, OnDestroy {
       const searchParam = params['search'];
       const categoryParam = params['category'];
       
+      console.log(' Параметры URL:', { searchParam, categoryParam });
+      
       if (searchParam || categoryParam) {
         const searchParams: SearchParams = {
           search: searchParam || '',
           category: categoryParam || undefined,
           showNonActive: false
         };
-        console.log('🔍 Параметры поиска из URL:', searchParams);
+        console.log(' Параметры поиска из URL:', searchParams);
         this.hasActiveCategory = !!categoryParam;
+        this.hasActiveSearch = !!searchParam;
         this.performSearch(searchParams);
       } else {
+        console.log(' Загрузка всех объявлений (без фильтров)');
         this.hasActiveCategory = false;
+        this.hasActiveSearch = false;
+        this.loadAdvertisements();
       }
     });
   }
 
   private performSearch(searchParams: SearchParams): void {
     this.isLoading = true;
-    console.log('🔍 Выполнение поиска с параметрами:', searchParams);
+    this.errorMessage = '';
+    console.log(' Выполнение поиска с параметрами:', searchParams);
     
-    this.adService.searchAds(searchParams).subscribe({
-      next: (ads: Ad[]) => {
-        this.isLoading = false;
-        
-        const sortedAds = this.sortAdsByDate(ads);
-        
-        this.apiAdvertisements = sortedAds;
-        this.filteredAdvertisements = sortedAds;
-        console.log('✅ Результаты поиска загружены и отсортированы:', sortedAds);
-      },
-      error: (error: any) => {
-        this.isLoading = false;
-        console.error('❌ Ошибка поиска объявлений:', error);
-        this.errorMessage = 'Ошибка поиска объявлений';
-        this.apiAdvertisements = [];
-        this.filteredAdvertisements = [];
-      }
-    });
+    // Если есть параметры поиска - используем searchAds
+    if (searchParams.search || searchParams.category) {
+      this.adService.searchAds(searchParams).subscribe({
+        next: (ads: Ad[]) => {
+          this.isLoading = false;
+          
+          const sortedAds = this.sortAdsByDate(ads);
+          
+          this.apiAdvertisements = sortedAds;
+          this.filteredAdvertisements = sortedAds;
+          console.log('Результаты поиска загружены:', sortedAds.length, 'объявлений');
+        },
+        error: (error: any) => {
+          this.isLoading = false;
+          console.error(' Ошибка поиска объявлений:', error);
+          this.errorMessage = 'Ошибка поиска объявлений';
+          this.apiAdvertisements = [];
+          this.filteredAdvertisements = [];
+        }
+      });
+    } else {
+      // Если нет параметров поиска - загружаем все объявления
+      this.loadAdvertisements();
+    }
   }
 
   loadAdvertisements(): void {
     this.isLoading = true;
     this.errorMessage = '';
     
-    console.log('🔄 Загрузка объявлений с API...');
+    console.log(' Загрузка всех объявлений с API...');
     
     this.adService.getAds().subscribe({
       next: (ads: Ad[]) => {
@@ -149,11 +163,11 @@ export class AdsComponent implements OnInit, OnDestroy {
         
         this.apiAdvertisements = sortedAds;
         this.filteredAdvertisements = sortedAds;
-        console.log('✅ API объявления загружены и отсортированы:', sortedAds);
+        console.log(' Все объявления загружены и отсортированы:', sortedAds.length, 'объявлений');
       },
       error: (error: any) => {
         this.isLoading = false;
-        console.error('❌ Ошибка загрузки API объявлений:', error);
+        console.error(' Ошибка загрузки объявлений:', error);
         this.errorMessage = 'Ошибка загрузки объявлений';
         this.apiAdvertisements = [];
         this.filteredAdvertisements = [];
@@ -161,13 +175,14 @@ export class AdsComponent implements OnInit, OnDestroy {
     });
   }
 
-  hasActiveCategoryFilter(): boolean {
-    return this.hasActiveCategory;
+  hasActiveFilters(): boolean {
+    return this.hasActiveCategory || this.hasActiveSearch;
   }
 
-  resetCategoryFilters(): void {
-    console.log('🔄 Сброс фильтров категории');
+  resetAllFilters(): void {
+    console.log('Сброс всех фильтров');
     this.hasActiveCategory = false;
+    this.hasActiveSearch = false;
     this.loadAdvertisements();
     this.router.navigate(['/ads'], { queryParams: {} });
   }
@@ -187,16 +202,16 @@ export class AdsComponent implements OnInit, OnDestroy {
     }
     
     if (confirm('Вы уверены, что хотите удалить это объявление?')) {
-      console.log('🗑️ Попытка удаления объявления ID:', adId);
+      console.log(' Попытка удаления объявления ID:', adId);
       
       this.adService.deleteAd(adId).subscribe({
         next: () => {
-          console.log('✅ Объявление удалено');
+          console.log(' Объявление удалено');
           this.apiAdvertisements = this.apiAdvertisements.filter(ad => ad.id !== adId);
           this.filteredAdvertisements = this.filteredAdvertisements.filter(ad => ad.id !== adId);
         },
         error: (error: any) => {
-          console.error('❌ Ошибка удаления объявления:', error);
+          console.error(' Ошибка удаления объявления:', error);
           this.errorMessage = 'Ошибка при удалении объявления';
           
           if (error.status === 404) {
@@ -212,7 +227,10 @@ export class AdsComponent implements OnInit, OnDestroy {
   }
 
   getAllAds(): any[] {
-    const adsToShow = this.filteredAdvertisements.length > 0 ? this.filteredAdvertisements : this.apiAdvertisements;
+    // Всегда используем apiAdvertisements как основной источник
+    const adsToShow = this.apiAdvertisements;
+    
+    console.log('📋 Отображаемые объявления:', adsToShow.length);
     
     const apiAdsFormatted = adsToShow.map(ad => ({
       id: ad.id,
@@ -253,7 +271,7 @@ export class AdsComponent implements OnInit, OnDestroy {
   }
 
   onImageError(event: any, ad: any): void {
-    console.log('🖼️ Изображение недоступно для объявления:', ad?.name);
+    console.log(' Изображение недоступно для объявления:', ad?.name);
     
     event.target.style.display = 'none';
     

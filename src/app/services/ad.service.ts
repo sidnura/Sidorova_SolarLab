@@ -14,7 +14,7 @@ export class AdService {
   constructor(private http: HttpClient) {}
 
   private handleError(error: HttpErrorResponse) {
-    console.error('🚨 AdService HTTP Error:', error);
+    console.error('AdService HTTP Error:', error);
     return throwError(() => error);
   }
 
@@ -37,19 +37,19 @@ export class AdService {
     return [];
   }
 
-  // Создать новое объявление (FormData)
+  // Создать новое объявление
   createAd(adData: FormData): Observable<Ad> {
     const url = `${this.apiUrl}/Advert`;
     console.log('📤 Отправка POST запроса на создание объявления:', url);
     
     return this.http.post<Ad>(url, adData)
       .pipe(
-        tap(response => console.log('✅ Объявление создано успешно:', response)),
+        tap(response => console.log('Объявление создано успешно:', response)),
         catchError(this.handleError)
       );
   }
 
-  // Обновление объявления с FormData
+  // Обновление объявления 
   updateAdWithFormData(adId: string, formData: FormData): Observable<Ad> {
     const url = `${this.apiUrl}/Advert/${adId}`;
     
@@ -61,7 +61,7 @@ export class AdService {
 
     return this.http.put<Ad>(url, formData)
       .pipe(
-        tap(response => console.log('✅ Объявление обновлено успешно:', response)),
+        tap(response => console.log('Объявление обновлено успешно:', response)),
         catchError(this.handleError)
       );
   }
@@ -69,7 +69,7 @@ export class AdService {
   // Старый метод для обратной совместимости (если нужен)
   updateAd(adId: string, adData: any): Observable<Ad> {
     const url = `${this.apiUrl}/Advert/${adId}`;
-    console.log('📤 PUT запрос для обновления объявления (JSON):', url);
+    console.log('PUT запрос для обновления объявления (JSON):', url);
     
     return this.http.put<Ad>(url, adData)
       .pipe(
@@ -78,7 +78,6 @@ export class AdService {
       );
   }
 
-  // Остальные методы без изменений
   getAds(): Observable<Ad[]> {
     const url = `${this.apiUrl}/Advert/search`;
     const searchParams: AdSearchRequestDto = {
@@ -86,10 +85,16 @@ export class AdService {
       sortOrder: 'desc'
     };
     
+    console.log('Загрузка всех объявлений:', url);
+    
     return this.http.post<Ad[]>(url, searchParams)
-      .pipe(catchError(this.handleError));
+      .pipe(
+        tap(ads => console.log('Все объявления загружены с сервера:', ads.length)),
+        catchError(this.handleError)
+      );
   }
 
+  // Поиск объявлений
   searchAds(searchParams: AdSearchRequestDto): Observable<Ad[]> {
     const url = `${this.apiUrl}/Advert/search`;
     const paramsWithSorting: AdSearchRequestDto = {
@@ -98,8 +103,16 @@ export class AdService {
       sortOrder: 'desc'
     };
     
+    console.log('Отправка запроса поиска:', {
+      url: url,
+      params: paramsWithSorting
+    });
+    
     return this.http.post<Ad[]>(url, paramsWithSorting)
-      .pipe(catchError(this.handleError));
+      .pipe(
+        tap(ads => console.log('Результаты поиска с сервера:', ads.length, 'объявлений')),
+        catchError(this.handleError)
+      );
   }
 
   getAdById(id: string): Observable<Ad> {

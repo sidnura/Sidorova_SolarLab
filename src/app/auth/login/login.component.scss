@@ -96,7 +96,6 @@
   margin-top: 5px;
 }
 
-/* Стили для уведомлений */
 .alert-success {
   background-color: #d4edda;
   border: 1px solid #c3e6cb;
@@ -274,7 +273,6 @@
   transform: translateX(-2px);
 }
 
-/* Адаптивность для форм */
 @media (max-width: 576px) {
   .form-container {
     padding: 20px 16px;

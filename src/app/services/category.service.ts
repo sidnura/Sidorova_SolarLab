@@ -21,25 +21,25 @@ export class CategoryService {
   }
 
   private handleError(error: HttpErrorResponse) {
-    console.error('🚨 CategoryService HTTP Error:', error);
+    console.error('CategoryService HTTP Error:', error);
     if (error.status === 404) {
-      console.error('❌ Endpoint не найден. Проверьте URL:', error.url);
+      console.error('Endpoint не найден. Проверьте URL:', error.url);
     }
     return throwError(() => error);
   }
 
   getAllCategories(): Observable<Category[]> {
     const url = `${this.apiUrl}/Categories`;
-    console.log('📥 Загрузка категорий с:', url);
+    console.log('Загрузка категорий с:', url);
     
     return this.http.get<Category[]>(url).pipe(
       map(categories => {
-        console.log('✅ Категории успешно загружены:', categories);
+        console.log('Категории успешно загружены:', categories);
         return categories;
       }),
       catchError((error: HttpErrorResponse) => {
-        console.error('❌ Ошибка загрузки категорий:', error);
-        console.error('❌ URL запроса:', url);
+        console.error('Ошибка загрузки категорий:', error);
+        console.error('URL запроса:', url);
         return of([]);
       })
     );
@@ -55,7 +55,7 @@ export class CategoryService {
         return categories;
       }),
       catchError((error: HttpErrorResponse) => {
-        console.error('❌ Ошибка фильтрации родительских категорий:', error);
+        console.error('Ошибка фильтрации родительских категорий:', error);
         return of([]);
       })
     );
@@ -65,11 +65,11 @@ export class CategoryService {
     return this.getAllCategories().pipe(
       map(categories => categories.filter(c => c.parentId === parentId)),
       map(categories => {
-        console.log('📋 Дочерние категории для', parentId, ':', categories);
+        console.log('Дочерние категории для', parentId, ':', categories);
         return categories;
       }),
       catchError((error: HttpErrorResponse) => {
-        console.error('❌ Ошибка фильтрации дочерних категорий:', error);
+        console.error('Ошибка фильтрации дочерних категорий:', error);
         return of([]);
       })
     );

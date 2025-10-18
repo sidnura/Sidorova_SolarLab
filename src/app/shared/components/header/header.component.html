@@ -1,4 +1,4 @@
-<!-- src/app/shared/components/smart/header/header.component.html -->
+<!-- src/app/shared/components/header/header.component.html -->
 <!-- Верхняя синяя полоса -->
 <div class="header-top">
   <div class="header-top__wrapper">
@@ -18,6 +18,13 @@
     </div>
     
     <div *ngIf="isLoggedIn" class="user-menu">
+      <a [routerLink]="['/profile']" class="header-top__btn">
+        Мой профиль
+      </a>
+      <!-- Кнопка "Пользователи" только для админа -->
+      <a [routerLink]="['/users']" class="header-top__btn" *ngIf="isAdmin()">
+        Пользователи
+      </a>
       <button class="header-top__btn header-top__btn_logout" (click)="onLogout()">
         Выйти
       </button>
