@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService, RegisterRequest } from '../../services/auth.service';
-import { markFormGroupTouched } from '../../utils/form.utils'; 
-
+import { markFormGroupTouched } from '../../utils/form.utils';
 
 @Component({
   selector: 'app-register',
@@ -46,12 +45,9 @@ export class RegisterComponent {
         name: formData.name
       };
 
-      console.log('🔄 Отправка данных для регистрации:', registerData);
-
       this.authService.register(registerData).subscribe({
         next: (response) => {
           this.isLoading = false;
-          console.log(' Регистрация успешна:', response);
           this.successMessage = 'Регистрация успешна! Автоматический вход выполнен. Перенаправляем на главную страницу...';
           setTimeout(() => {
             this.router.navigate(['/']);
@@ -59,12 +55,9 @@ export class RegisterComponent {
         },
         error: (error) => {
           this.isLoading = false;
-          console.error('Ошибка регистрации:', error);
-          console.error('Детали ошибки:', error.error);
-
+          
           if (error.status === 400) {
             if (error.error?.errors) {
-              // Обработка ошибок валидации ASP.NET
               const validationErrors = error.error.errors;
               if (validationErrors.Password) {
                 this.errorMessage = `Пароль: ${validationErrors.Password.join(', ')}`;
@@ -78,7 +71,7 @@ export class RegisterComponent {
                 this.errorMessage = 'Неверные данные. Проверьте заполнение полей.';
               }
             } else if (error.error?.userMessage) {
-              this.errorMessage = ` ${error.error.userMessage}`;
+              this.errorMessage = error.error.userMessage;
             } else {
               this.errorMessage = 'Неверные данные. Проверьте заполнение полей.';
             }

@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AdService } from '../../services/ad.service';
-import { AuthService } from '../../services/auth.service';
-import { CommentsComponent } from '../../shared/components/comments/comments.component';
-import { Ad } from '../../models/ad.model';
+import { AdService } from '../../../core/services/ad.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { CommentsComponent } from '../../../shared/components/comments/comments.component';
+import { Ad } from '../../../core/models/ad.model';
 
 @Component({
   selector: 'app-ad-detail',
@@ -35,8 +35,6 @@ export class AdDetailComponent implements OnInit {
   ngOnInit() {
     const adId = this.route.snapshot.paramMap.get('id');
     this.currentUserId = this.authService.getUserId();
-    console.log('🔄 Loading ad with ID:', adId);
-    console.log('👤 Current user ID:', this.currentUserId);
     
     if (adId) {
       this.loadAdvertisement(adId);
@@ -62,16 +60,10 @@ export class AdDetailComponent implements OnInit {
         this.allImageUrls = this.getAllImageUrls(ad);
         this.currentImageUrl = this.getCurrentImageUrl();
         
-        // Проверяем, является ли текущий пользователь владельцем
         this.isOwner = this.checkIfOwner(ad);
-        
-        console.log('📦 Found advertisement:', ad);
-        console.log('👤 Is owner:', this.isOwner);
-        console.log('🖼️ Image info - hasImage:', this.hasAdvertisementImage, 'imageUrls:', this.allImageUrls);
       },
       error: (error: any) => {
         this.isLoading = false;
-        console.error(' Error loading advertisement:', error);
         
         if (error.status === 404) {
           this.errorMessage = 'Объявление не найдено';
@@ -131,8 +123,6 @@ export class AdDetailComponent implements OnInit {
   }
 
   onImageError(event: any): void {
-    console.log('Изображение недоступно для объявления:', this.advertisement?.name);
-    
     event.target.style.display = 'none';
     
     const parent = event.target.parentElement;

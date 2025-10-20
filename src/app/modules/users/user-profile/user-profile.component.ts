@@ -1,11 +1,10 @@
-// src/app/users/user-profile/user-profile.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { UserService } from '../../services/user.service';
-import { User } from '../../models/user.model';
-import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../../core/services/user.service';
+import { User } from '../../../core/models/user.model';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -52,7 +51,6 @@ export class UserProfileComponent implements OnInit {
     }, { validators: this.passwordMatchValidator });
   }
 
-  // Валидатор для проверки совпадения паролей
   passwordMatchValidator(form: FormGroup) {
     const password = form.get('password');
     const confirmPassword = form.get('confirmPassword');
@@ -144,16 +142,9 @@ export class UserProfileComponent implements OnInit {
         Login: formData.login
       };
 
-      // Добавляем пароль только если он был изменен
       if (formData.password && formData.password.trim() !== '') {
         updateData.Password = formData.password;
-      } else {
-        // Если пароль не меняется, отправляем текущий пароль (нужно получить его от пользователя)
-  
-        console.log('Пароль не изменен, отправляем данные без пароля');
       }
-
-      console.log('Отправка данных обновления:', updateData);
 
       this.userService.updateUser(this.user.id, updateData).subscribe({
         next: (updatedUser) => {
@@ -161,7 +152,6 @@ export class UserProfileComponent implements OnInit {
           this.user = { ...this.user, ...updatedUser };
           this.isEditing = false;
           this.successMessage = 'Профиль успешно обновлен!';
-          console.log('Профиль обновлен:', updatedUser);
           
           if (this.isCurrentUser) {
             this.authService.refreshAuthStatus();
@@ -190,12 +180,8 @@ export class UserProfileComponent implements OnInit {
   }
 
   private handleError(error: any, action: string): void {
-    console.error(` Ошибка ${action}:`, error);
-    console.error(' Детали ошибки:', error.error);
-    
     if (error.status === 400) {
       if (error.error?.errors) {
-        // Обработка ошибок валидации
         const validationErrors = error.error.errors;
         if (validationErrors.Password) {
           this.errorMessage = `Пароль: ${validationErrors.Password.join(', ')}`;

@@ -31,7 +31,7 @@ export class LoginComponent {
     this.markFormGroupTouched();
 
     if (this.loginForm.invalid) {
-      this.errorMessage = ' Пожалуйста, заполните все поля правильно';
+      this.errorMessage = 'Пожалуйста, заполните все поля правильно';
       return;
     }
 
@@ -44,20 +44,14 @@ export class LoginComponent {
       password: formData.password
     };
 
-    console.log('🔄 Отправка данных для входа:', loginData);
-
     this.authService.login(loginData).subscribe({
       next: (response) => {
         this.isLoading = false;
-        console.log(' Вход выполнен:', response);
-        // Перенаправляем на главную страницу
         this.router.navigate(['/']);
       },
       error: (error) => {
         this.isLoading = false;
-        console.error(' Ошибка входа:', error);
         
-        // Упрощенная обработка ошибок
         if (error.status === 400) {
           this.errorMessage = 'Неверный логин или пароль';
         } else if (error.status === 0) {

@@ -19,12 +19,10 @@ export class AdSharingService {
   public searchParams$: Observable<SearchParams | null> = this.searchParamsSubject.asObservable();
 
   notifyNewAd(ad: Ad): void {
-    console.log('AdSharingService: Новое объявление получено:', ad);
     this.newAdSubject.next(ad);
   }
 
   notifySearchParams(params: SearchParams): void {
-    console.log('AdSharingService: Параметры поиска установлены:', params);
     this.searchParamsSubject.next(params);
   }
 

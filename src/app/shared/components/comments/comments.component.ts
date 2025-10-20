@@ -1,9 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { CommentService } from '../../../services/comment.service';
-import { AuthService } from '../../../services/auth.service';
-import { Comment, CreateCommentRequest } from '../../../models/comment.model';
+import { CommentService } from '../../../core/services/comment.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { Comment, CreateCommentRequest } from '../../../core/models/comment.model';
 
 @Component({
   selector: 'app-comments',
@@ -53,11 +53,9 @@ export class CommentsComponent implements OnInit {
       next: (comments: Comment[]) => {
         this.isLoading = false;
         this.comments = this.buildCommentTree(comments);
-        console.log('Комментарии загружены:', this.comments);
       },
       error: (error: any) => {
         this.isLoading = false;
-        console.error('Ошибка загрузки комментариев:', error);
         this.errorMessage = 'Ошибка загрузки комментариев';
       }
     });
@@ -80,14 +78,11 @@ export class CommentsComponent implements OnInit {
         text: commentText
       };
 
-      console.log('Отправка комментария:', commentData);
-
       this.commentService.createComment(this.adId, commentData).subscribe({
         next: (response: any) => {
           this.isLoading = false;
           this.commentForm.reset();
           this.successMessage = 'Комментарий добавлен!';
-          console.log('Комментарий создан:', response);
           this.loadComments();
           
           setTimeout(() => {
@@ -96,7 +91,6 @@ export class CommentsComponent implements OnInit {
         },
         error: (error: any) => {
           this.isLoading = false;
-          console.error(' Ошибка создания комментария:', error);
           this.errorMessage = 'Ошибка при добавлении комментария';
         }
       });
@@ -124,15 +118,12 @@ export class CommentsComponent implements OnInit {
         parentId: parentCommentId
       };
 
-      console.log('Отправка ответа:', replyData);
-
       this.commentService.createComment(this.adId, replyData).subscribe({
         next: (response: any) => {
           this.isLoading = false;
           this.replyForm.reset();
           this.replyingTo = null;
           this.successMessage = 'Ответ добавлен!';
-          console.log(' Ответ создан:', response);
           this.loadComments();
           
           setTimeout(() => {
@@ -141,7 +132,6 @@ export class CommentsComponent implements OnInit {
         },
         error: (error: any) => {
           this.isLoading = false;
-          console.error('Ошибка создания ответа:', error);
           this.errorMessage = 'Ошибка при добавлении ответа';
         }
       });

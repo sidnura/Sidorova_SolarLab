@@ -3,11 +3,11 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { AdService } from '../../services/ad.service';
-import { CategoryService } from '../../services/category.service';
-import { Category } from '../../services/category.service';
-import { AuthService } from '../../services/auth.service';
-import { Ad } from '../../models/ad.model';
+import { AdService } from '../../../core/services/ad.service';
+import { CategoryService } from '../../../core/services/category.service';
+import { Category } from '../../../core/services/category.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { Ad } from '../../../core/models/ad.model';
 
 @Component({
   selector: 'app-edit-advertisement',
@@ -46,7 +46,6 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.adId = this.route.snapshot.paramMap.get('id') || '';
-    console.log('Редактирование объявления ID:', this.adId);
     
     if (this.adId) {
       this.loadAdvertisement();
@@ -89,11 +88,9 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
         this.advertisement = ad;
         this.populateForm(ad);
         this.loadExistingImages(ad);
-        console.log(' Объявление загружено для редактирования:', ad);
       },
       error: (error: any) => {
         this.isLoadingAd = false;
-        console.error(' Ошибка загрузки объявления:', error);
         
         if (error.status === 404) {
           this.errorMessage = 'Объявление не найдено';
@@ -107,7 +104,6 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
   }
 
   populateForm(ad: Ad): void {
-    // Определяем parentCategoryId (если есть родительская категория, иначе используем саму категорию)
     const parentCategoryId = ad.category?.parentId || ad.category?.id || '';
     
     this.adForm.patchValue({
@@ -121,7 +117,6 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
       categoryId: ad.category?.id || ''
     });
 
-    // Если есть родительская категория, загружаем дочерние категории
     if (parentCategoryId) {
       this.selectedParentCategory = parentCategoryId;
       this.loadChildCategories(parentCategoryId);
@@ -129,7 +124,6 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
   }
 
   cleanPhoneForForm(phone: string): string {
-    // Убираем префикс +7 и все нецифровые символы
     let cleaned = phone.replace(/\D/g, '');
     if (cleaned.startsWith('7')) {
       cleaned = cleaned.substring(1);
@@ -140,7 +134,6 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
   loadExistingImages(ad: Ad): void {
     if (ad.imagesIds && ad.imagesIds.length > 0) {
       this.existingImageUrls = this.adService.getAllImageUrls(ad);
-      console.log('Существующие изображения:', this.existingImageUrls);
     }
   }
 
@@ -150,7 +143,6 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
         this.parentCategories = categories;
       },
       error: (error: any) => {
-        console.error(' Ошибка загрузки категорий:', error);
         this.errorMessage = 'Ошибка загрузки категорий';
       }
     });
@@ -160,13 +152,11 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
     this.categoryService.getChildCategories(parentId).subscribe({
       next: (categories: Category[]) => {
         this.childCategories = categories;
-        // Если нет дочерних категорий, устанавливаем parentCategoryId как categoryId
         if (categories.length === 0) {
           this.adForm.patchValue({ categoryId: parentId });
         }
       },
       error: (error: any) => {
-        console.error(' Ошибка загрузки дочерних категорий:', error);
         this.childCategories = [];
         this.adForm.patchValue({ categoryId: parentId });
       }
@@ -277,7 +267,6 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
     return '+7' + cleaned;
   }
 
-  // РАБОТА С ИЗОБРАЖЕНИЯМИ
   onFileSelected(event: any): void {
     const files: FileList = event.target.files;
     if (files.length > 0) {
@@ -306,12 +295,10 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
     if (imageId) {
       this.imagesToDelete.push(imageId);
       this.existingImageUrls.splice(index, 1);
-      console.log('🗑️ Изображение помечено для удаления:', imageId);
     }
   }
 
   onImageError(event: any, index: number): void {
-    console.error(' Ошибка загрузки изображения:', event);
     event.target.style.display = 'none';
     const imagePreview = event.target.closest('.image-preview');
     if (imagePreview) {
@@ -319,7 +306,7 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
       errorElement.className = 'image-error';
       errorElement.innerHTML = `
         <div style="text-align: center; color: #dc3545; font-size: 12px; padding: 10px;">
-          <div> Ошибка загрузки</div>
+          <div>Ошибка загрузки</div>
           <div>Изображение ${index + 1}</div>
         </div>
       `;
@@ -349,14 +336,6 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
 
       const formData = new FormData();
       const formValue = this.adForm.value;
-      
-      console.log('Обновление объявления:', {
-        name: formValue.name,
-        cost: formValue.cost,
-        phone: formValue.phone,
-        location: formValue.location,
-        categoryId: finalCategoryId
-      });
 
       formData.append('Name', formValue.name);
       formData.append('Description', formValue.description || '');
@@ -371,30 +350,18 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
       formData.append('CategoryId', finalCategoryId);
 
       this.selectedFiles.forEach(file => {
-        console.log('Добавление нового файла:', file.name);
         formData.append('Images', file, file.name);
       });
 
       if (this.imagesToDelete.length > 0) {
-        console.log(' Изображения для удаления:', this.imagesToDelete);
         this.imagesToDelete.forEach(imageId => {
           formData.append('ImagesToDelete', imageId);
         });
       }
 
-      console.log(' FormData содержимое:');
-      for (let [key, value] of (formData as any).entries()) {
-        if (value instanceof File) {
-          console.log(`   ${key}:`, value.name, value.type, value.size);
-        } else {
-          console.log(`   ${key}:`, value);
-        }
-      }
-
       this.adService.updateAdWithFormData(this.adId, formData).subscribe({
         next: (response: any) => {
           this.isLoading = false;
-          console.log(' Объявление обновлено:', response);
           this.successMessage = 'Объявление успешно обновлено!';
           
           setTimeout(() => {
@@ -403,7 +370,6 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
         },
         error: (error: any) => {
           this.isLoading = false;
-          console.error(' Ошибка обновления объявления:', error);
           
           if (error.status === 401) {
             this.errorMessage = 'Необходимо авторизоваться';

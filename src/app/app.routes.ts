@@ -1,17 +1,17 @@
 // app.routes.ts
 import { Routes } from '@angular/router';
-import { AdsComponent } from './ads/ads.component';
-import { LoginComponent } from './auth/login/login.component';
-import { RegisterComponent } from './auth/register/register.component';
-import { AddAdvertisementComponent } from './ads/add-advertisement/add-advertisement.component';
-import { EditAdvertisementComponent } from './ads/edit-advertisement/edit-advertisement.component';
-import { AdDetailComponent } from './ads/ad-detail/ad-detail.component';
-import { AuthGuard } from './guards/auth.guard';
-import { AdminGuard } from './guards/admin.guard';
+import { AdsComponent } from './modules/ads/ads.component';
+import { LoginComponent } from './core/auth/login/login.component';
+import { RegisterComponent } from './core/auth/register/register.component';
+import { AddAdvertisementComponent } from './modules/ads/add-advertisement/add-advertisement.component';
+import { EditAdvertisementComponent } from './modules/ads/edit-advertisement/edit-advertisement.component';
+import { AdDetailComponent } from './modules/ads/ad-detail/ad-detail.component';
+import { AuthGuard } from './core/guards/auth.guard';
+import { AdminGuard } from './core/guards/admin.guard';
 import { BaseLayoutComponent } from './layouts/base-layout/base-layout.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
-import { UserListComponent } from './users/user-list/user-list.component';
-import { UserProfileComponent } from './users/user-profile/user-profile.component';
+import { UserListComponent } from './modules/users/user-list/user-list.component';
+import { UserProfileComponent } from './modules/users/user-profile/user-profile.component';
 
 export const routes: Routes = [
   {

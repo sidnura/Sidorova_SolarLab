@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError, map, catchError, of } from 'rxjs'; // ← убрал tap
-import { environment } from '../../environments/environment.development';
+import { Observable, throwError, map, catchError, of } from 'rxjs';
+import { environment } from '../../../environments/environment.development';
 
 export interface Category {
   id: string;
@@ -16,30 +16,17 @@ export interface Category {
 export class CategoryService {
   private apiUrl = environment.baseApiURL;
 
-  constructor(private http: HttpClient) {
-    console.log('🔗 CategoryService API URL:', this.apiUrl);
-  }
+  constructor(private http: HttpClient) {}
 
   private handleError(error: HttpErrorResponse) {
-    console.error('CategoryService HTTP Error:', error);
-    if (error.status === 404) {
-      console.error('Endpoint не найден. Проверьте URL:', error.url);
-    }
     return throwError(() => error);
   }
 
   getAllCategories(): Observable<Category[]> {
     const url = `${this.apiUrl}/Categories`;
-    console.log('Загрузка категорий с:', url);
     
     return this.http.get<Category[]>(url).pipe(
-      map(categories => {
-        console.log('Категории успешно загружены:', categories);
-        return categories;
-      }),
       catchError((error: HttpErrorResponse) => {
-        console.error('Ошибка загрузки категорий:', error);
-        console.error('URL запроса:', url);
         return of([]);
       })
     );
@@ -50,12 +37,7 @@ export class CategoryService {
       map(categories => categories.filter(c =>
         c.parentId === '00000000-0000-0000-0000-000000000000' || !c.parentId
       )),
-      map(categories => {
-        console.log('📋 Родительские категории:', categories);
-        return categories;
-      }),
       catchError((error: HttpErrorResponse) => {
-        console.error('Ошибка фильтрации родительских категорий:', error);
         return of([]);
       })
     );
@@ -64,12 +46,7 @@ export class CategoryService {
   getChildCategories(parentId: string): Observable<Category[]> {
     return this.getAllCategories().pipe(
       map(categories => categories.filter(c => c.parentId === parentId)),
-      map(categories => {
-        console.log('Дочерние категории для', parentId, ':', categories);
-        return categories;
-      }),
       catchError((error: HttpErrorResponse) => {
-        console.error('Ошибка фильтрации дочерних категорий:', error);
         return of([]);
       })
     );

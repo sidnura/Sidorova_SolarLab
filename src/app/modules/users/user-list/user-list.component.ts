@@ -1,10 +1,9 @@
-// src/app/users/user-list/user-list.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { UserService } from '../../services/user.service';
-import { AuthService } from '../../services/auth.service';
-import { ShortUser } from '../../models/user.model';
+import { UserService } from '../../../core/services/user.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { ShortUser } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-user-list',
@@ -37,11 +36,9 @@ export class UserListComponent implements OnInit {
       next: (users) => {
         this.isLoading = false;
         this.users = users;
-        console.log(' Пользователи загружены:', users.length);
       },
       error: (error) => {
         this.isLoading = false;
-        console.error(' Ошибка загрузки пользователей:', error);
         
         if (error.status === 403) {
           this.errorMessage = 'Доступ запрещен. Недостаточно прав.';
@@ -58,12 +55,9 @@ export class UserListComponent implements OnInit {
     if (confirm(`Вы уверены, что хотите удалить пользователя "${userName}"?`)) {
       this.userService.deleteUser(userId).subscribe({
         next: () => {
-          console.log(' Пользователь удален:', userName);
           this.users = this.users.filter(user => user.id !== userId);
         },
         error: (error) => {
-          console.error(' Ошибка удаления пользователя:', error);
-          
           if (error.status === 403) {
             alert('Недостаточно прав для удаления пользователя.');
           } else if (error.status === 404) {
@@ -77,7 +71,6 @@ export class UserListComponent implements OnInit {
   }
 
   canDeleteUser(userId: string): boolean {
-    // Нельзя удалить самого себя
     return userId !== this.currentUserId;
   }
 
