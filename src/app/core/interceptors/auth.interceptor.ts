@@ -1,4 +1,4 @@
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
@@ -13,7 +13,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   if (token) {
     clonedReq = req.clone({
-      headers: req.headers.set('Authorization', `Bearer ${token}`)
+      headers: req.headers.set('Authorization', `Bearer ${token}`),
     });
   }
 
@@ -23,6 +23,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         authService.logout();
         router.navigate(['/login']);
       }
+
       return throwError(() => error);
     })
   );
