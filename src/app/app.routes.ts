@@ -11,7 +11,6 @@ import { AddAdvertisementComponent } from './modules/ads/add-advertisement/add-a
 import { AdsComponent } from './modules/ads/ads.component';
 import { EditAdvertisementComponent } from './modules/ads/edit-advertisement/edit-advertisement.component';
 import { UserListComponent } from './modules/users/user-list/user-list.component';
-import { UserProfileComponent } from './modules/users/user-profile/user-profile.component';
 
 export const routes: Routes = [
   {
@@ -48,12 +47,12 @@ export const routes: Routes = [
       },
       {
         canActivate: [AdminGuard],
-        component: UserProfileComponent,
+        loadChildren: () => import('./modules/users/user-profile/routes'),
         path: 'users/:id',
       },
       {
         canActivate: [AuthGuard],
-        component: UserProfileComponent,
+        loadChildren: () => import('./modules/users/user-profile/routes'),
         path: 'profile',
       },
     ],
