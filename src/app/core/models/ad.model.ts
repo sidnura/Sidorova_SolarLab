@@ -1,5 +1,5 @@
 // models/ad.model.ts
-export interface Ad {
+export interface AdModel {
   id: string;
   name: string;
   location: string;
@@ -10,19 +10,19 @@ export interface Ad {
   description?: string;
   email?: string;
   phone?: string;
-  
+
   user?: {
     id: string;
     name: string;
     login: string;
   };
-  
+
   category?: {
     id: string;
     parentId: string;
     name: string;
   };
-  
+
   created?: string;
 }
 

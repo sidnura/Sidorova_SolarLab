@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { AdService } from '../../../core/services/ad.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommentsComponent } from '../../../shared/components/comments/comments.component';
-import { Ad } from '../../../core/models/ad.model';
+import { AdModel } from '../../../core/models/ad.model';
 
 @Component({
   selector: 'app-ad-detail',
@@ -14,7 +14,7 @@ import { Ad } from '../../../core/models/ad.model';
   styleUrl: './ad-detail.component.scss'
 })
 export class AdDetailComponent implements OnInit {
-  advertisement: Ad | null = null;
+  advertisement: AdModel | null = null;
   showPhone = false;
   isLoading = true;
   errorMessage = '';
@@ -35,7 +35,7 @@ export class AdDetailComponent implements OnInit {
   ngOnInit() {
     const adId = this.route.snapshot.paramMap.get('id');
     this.currentUserId = this.authService.getUserId();
-    
+
     if (adId) {
       this.loadAdvertisement(adId);
     } else {
@@ -51,20 +51,20 @@ export class AdDetailComponent implements OnInit {
   loadAdvertisement(id: string) {
     this.isLoading = true;
     this.errorMessage = '';
-    
+
     this.adService.getAdById(id).subscribe({
-      next: (ad: Ad) => {
+      next: (ad: AdModel) => {
         this.isLoading = false;
         this.advertisement = ad;
         this.hasAdvertisementImage = this.hasImage(ad);
         this.allImageUrls = this.getAllImageUrls(ad);
         this.currentImageUrl = this.getCurrentImageUrl();
-        
+
         this.isOwner = this.checkIfOwner(ad);
       },
       error: (error: any) => {
         this.isLoading = false;
-        
+
         if (error.status === 404) {
           this.errorMessage = 'Объявление не найдено';
         } else if (error.status === 500) {
@@ -72,13 +72,13 @@ export class AdDetailComponent implements OnInit {
         } else {
           this.errorMessage = 'Ошибка загрузки объявления';
         }
-        
+
         this.advertisement = null;
       }
     });
   }
 
-  checkIfOwner(ad: Ad): boolean {
+  checkIfOwner(ad: AdModel): boolean {
     if (!this.currentUserId || !ad.user) return false;
     return ad.user.id === this.currentUserId;
   }
@@ -93,11 +93,11 @@ export class AdDetailComponent implements OnInit {
     this.showPhone = !this.showPhone;
   }
 
-  hasImage(ad: Ad): boolean {
+  hasImage(ad: AdModel): boolean {
     return !!(ad.imagesIds && ad.imagesIds.length > 0);
   }
 
-  getAllImageUrls(ad: Ad): string[] {
+  getAllImageUrls(ad: AdModel): string[] {
     return this.adService.getAllImageUrls(ad);
   }
 
@@ -124,7 +124,7 @@ export class AdDetailComponent implements OnInit {
 
   onImageError(event: any): void {
     event.target.style.display = 'none';
-    
+
     const parent = event.target.parentElement;
     if (parent && !parent.querySelector('.no-image-placeholder')) {
       const placeholder = document.createElement('div');

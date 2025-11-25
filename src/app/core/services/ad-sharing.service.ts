@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Ad } from '../models/ad.model';
+import { AdModel } from '../models/ad.model';
 
 export interface SearchParams {
   search: string;
@@ -12,16 +12,16 @@ export interface SearchParams {
   providedIn: 'root',
 })
 export class AdSharingService {
-  private newAdSubject = new BehaviorSubject<Ad | null>(null);
+  private newAdSubject = new BehaviorSubject<AdModel | null>(null);
   private searchParamsSubject = new BehaviorSubject<SearchParams | null>(null);
   public searchParams$: Observable<SearchParams | null> =
     this.searchParamsSubject.asObservable();
 
-  public get newAd$(): Observable<Ad | null> {
+  public get newAd$(): Observable<AdModel | null> {
     return this.newAdSubject.asObservable();
   }
 
-  notifyNewAd(ad: Ad): void {
+  notifyNewAd(ad: AdModel): void {
     this.newAdSubject.next(ad);
   }
 

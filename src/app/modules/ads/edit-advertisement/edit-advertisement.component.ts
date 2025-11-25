@@ -7,7 +7,7 @@ import { AdService } from '../../../core/services/ad.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { Category } from '../../../core/services/category.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Ad } from '../../../core/models/ad.model';
+import { AdModel } from '../../../core/models/ad.model';
 
 @Component({
   selector: 'app-edit-advertisement',
@@ -18,7 +18,7 @@ import { Ad } from '../../../core/models/ad.model';
 })
 export class EditAdvertisementComponent implements OnInit, OnDestroy {
   adForm: FormGroup;
-  advertisement: Ad | null = null;
+  advertisement: AdModel | null = null;
   parentCategories: Category[] = [];
   childCategories: Category[] = [];
   selectedParentCategory: string = '';
@@ -46,7 +46,7 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.adId = this.route.snapshot.paramMap.get('id') || '';
-    
+
     if (this.adId) {
       this.loadAdvertisement();
       this.loadParentCategories();
@@ -68,7 +68,7 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
       cost: [0, [Validators.required, Validators.min(0), Validators.max(100000000)]],
       email: ['', [Validators.email]],
       phone: ['', [
-        Validators.required, 
+        Validators.required,
         Validators.minLength(10),
         Validators.pattern(/^\d{10}$/)
       ]],
@@ -83,7 +83,7 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     this.adService.getAdById(this.adId).subscribe({
-      next: (ad: Ad) => {
+      next: (ad: AdModel) => {
         this.isLoadingAd = false;
         this.advertisement = ad;
         this.populateForm(ad);
@@ -91,7 +91,7 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
       },
       error: (error: any) => {
         this.isLoadingAd = false;
-        
+
         if (error.status === 404) {
           this.errorMessage = 'Объявление не найдено';
         } else if (error.status === 403) {
@@ -103,9 +103,9 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
     });
   }
 
-  populateForm(ad: Ad): void {
+  populateForm(ad: AdModel): void {
     const parentCategoryId = ad.category?.parentId || ad.category?.id || '';
-    
+
     this.adForm.patchValue({
       name: ad.name,
       description: ad.description || '',
@@ -131,7 +131,7 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
     return cleaned.substring(0, 10);
   }
 
-  loadExistingImages(ad: Ad): void {
+  loadExistingImages(ad: AdModel): void {
     if (ad.imagesIds && ad.imagesIds.length > 0) {
       this.existingImageUrls = this.adService.getAllImageUrls(ad);
     }
@@ -189,9 +189,9 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
       RussianNumber = RussianNumber.substring(1);
     }
     const limited = RussianNumber.substring(0, 10);
-    
+
     if (limited.length === 0) return '';
-    
+
     const match = limited.match(/^(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})$/);
     if (match) {
       let formatted = '';
@@ -209,10 +209,10 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
     const cursorPosition = input.selectionStart;
     const formatted = this.formatPhoneNumber(input.value);
     input.value = formatted;
-    
+
     const newCursorPosition = this.calculateNewCursorPosition(input.value, cursorPosition || 0);
     input.setSelectionRange(newCursorPosition, newCursorPosition);
-    
+
     const cleaned = this.cleanPhoneNumber(formatted);
     this.adForm.patchValue({ phone: cleaned });
   }
@@ -220,18 +220,18 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
   onPhoneKeydown(event: KeyboardEvent): void {
     const input = event.target as HTMLInputElement;
     const cursorPosition = input.selectionStart;
-    
+
     if ([
       'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
       'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'
     ].includes(event.key)) {
       return;
     }
-    
+
     if (!/^\d$/.test(event.key) && !event.ctrlKey && !event.metaKey) {
       event.preventDefault();
     }
-    
+
     if (event.key === 'Backspace' && cursorPosition) {
       const value = input.value;
       const isAtSpecialPosition = [1, 2, 6, 7, 11, 12, 15, 16].includes(cursorPosition);
@@ -247,7 +247,7 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
     if (oldCursorPosition === 0) return 0;
     const specialChars = ['(', ')', ' ', '-'];
     let newPosition = oldCursorPosition;
-    
+
     for (let i = 0; i < Math.min(oldCursorPosition, newValue.length); i++) {
       if (specialChars.includes(newValue[i])) {
         newPosition++;
@@ -340,11 +340,11 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
       formData.append('Name', formValue.name);
       formData.append('Description', formValue.description || '');
       formData.append('Cost', formValue.cost.toString());
-      
+
       if (formValue.email) {
         formData.append('Email', formValue.email);
       }
-      
+
       formData.append('Phone', this.getCleanPhoneForBackend());
       formData.append('Location', formValue.location);
       formData.append('CategoryId', finalCategoryId);
@@ -363,14 +363,14 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
         next: (response: any) => {
           this.isLoading = false;
           this.successMessage = 'Объявление успешно обновлено!';
-          
+
           setTimeout(() => {
             this.router.navigate(['/ad', this.adId]);
           }, 2000);
         },
         error: (error: any) => {
           this.isLoading = false;
-          
+
           if (error.status === 401) {
             this.errorMessage = 'Необходимо авторизоваться';
           } else if (error.status === 403) {
