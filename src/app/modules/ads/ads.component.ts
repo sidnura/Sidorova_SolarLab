@@ -1,23 +1,39 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { AsyncPipe, DecimalPipe, NgIf } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Observable, ReplaySubject, Subscription, takeUntil } from 'rxjs';
+import { AdModel } from '../../core/models/ad.model';
 import { AdService } from '../../core/services/ad.service';
 import {
   AdSharingService,
   SearchParamsModel,
 } from '../../core/services/ad-sharing.service';
 import { AuthService } from '../../core/services/auth.service';
-import { AdModel } from '../../core/models/ad.model';
-import { Subscription } from 'rxjs';
+import { AdListCommonStateModule } from '../../store/ad-list-common-state/ad-list-common-state.module';
+import { AdListFacade } from '../../store/ad-list-common-state/ad-list-state/ad-list.facade';
 
 @Component({
+  imports: [
+    RouterModule,
+    AdListCommonStateModule,
+    NgIf,
+    DecimalPipe,
+    AsyncPipe,
+  ],
   selector: 'app-ads',
   standalone: true,
-  imports: [CommonModule, RouterModule],
-  templateUrl: './ads.component.html',
   styleUrl: './ads.component.scss',
+  templateUrl: './ads.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdsComponent implements OnInit, OnDestroy {
+  public adList$: Observable<AdModel[]> = this.adListFacade.elements$;
+
   apiAdvertisements: AdModel[] = [];
   filteredAdvertisements: AdModel[] = [];
 
@@ -31,33 +47,42 @@ export class AdsComponent implements OnInit, OnDestroy {
   private authSubscription!: Subscription;
   private searchParamsSubscription!: Subscription;
   private routeSubscription!: Subscription;
+  private destroy$: ReplaySubject<void> = new ReplaySubject<void>(1);
 
   constructor(
     private adService: AdService,
     private adSharingService: AdSharingService,
     private authService: AuthService,
     private route: ActivatedRoute,
-    private router: Router
-  ) {
-  }
+    private router: Router,
+    private readonly adListFacade: AdListFacade
+  ) {}
 
   ngOnInit(): void {
     this.setupAuthListener();
     this.setupNewAdListener();
     this.setupSearchListener();
     this.setupRouteListener();
+
+    this.adListFacade.load({ sortBy: 'createdAt', sortOrder: 'desc' });
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+
     if (this.newAdSubscription) {
       this.newAdSubscription.unsubscribe();
     }
+
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();
     }
+
     if (this.searchParamsSubscription) {
       this.searchParamsSubscription.unsubscribe();
     }
+
     if (this.routeSubscription) {
       this.routeSubscription.unsubscribe();
     }
@@ -67,20 +92,24 @@ export class AdsComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.adService.getAds().subscribe({
-      next: (ads: AdModel[]) => {
-        this.isLoading = false;
-        const sortedAds = this.sortAdsByDate(ads);
-        this.apiAdvertisements = sortedAds;
-        this.filteredAdvertisements = sortedAds;
-      },
-      error: (error: any) => {
-        this.isLoading = false;
-        this.errorMessage = 'Ошибка загрузки объявлений';
-        this.apiAdvertisements = [];
-        this.filteredAdvertisements = [];
-      },
-    });
+    this.adService
+      .getAds()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        error: (error: any) => {
+          this.isLoading = false;
+          this.errorMessage = 'Ошибка загрузки объявлений';
+          this.apiAdvertisements = [];
+          this.filteredAdvertisements = [];
+        },
+        next: (ads: AdModel[]) => {
+          this.isLoading = false;
+          const sortedAds = this.sortAdsByDate(ads);
+
+          this.apiAdvertisements = sortedAds;
+          this.filteredAdvertisements = sortedAds;
+        },
+      });
   }
 
   hasActiveFilters(): boolean {
@@ -102,14 +131,6 @@ export class AdsComponent implements OnInit, OnDestroy {
 
     if (confirm('Вы уверены, что хотите удалить это объявление?')) {
       this.adService.deleteAd(adId).subscribe({
-        next: () => {
-          this.apiAdvertisements = this.apiAdvertisements.filter(
-            (ad) => ad.id !== adId
-          );
-          this.filteredAdvertisements = this.filteredAdvertisements.filter(
-            (ad) => ad.id !== adId
-          );
-        },
         error: (error: any) => {
           if (error.status === 404) {
             this.errorMessage = 'Объявление не найдено';
@@ -121,6 +142,14 @@ export class AdsComponent implements OnInit, OnDestroy {
             this.errorMessage = 'Ошибка при удалении объявления';
           }
         },
+        next: () => {
+          this.apiAdvertisements = this.apiAdvertisements.filter(
+            (ad) => ad.id !== adId
+          );
+          this.filteredAdvertisements = this.filteredAdvertisements.filter(
+            (ad) => ad.id !== adId
+          );
+        },
       });
     }
   }
@@ -129,13 +158,13 @@ export class AdsComponent implements OnInit, OnDestroy {
     const adsToShow = this.apiAdvertisements;
 
     const apiAdsFormatted = adsToShow.map((ad) => ({
-      id: ad.id,
-      name: ad.name,
       cost: ad.cost,
-      location: ad.location,
-      image: this.getImageUrl(ad),
       date: this.formatDate(ad.createdAt),
       hasImage: this.hasImage(ad),
+      id: ad.id,
+      image: this.getImageUrl(ad),
+      location: ad.location,
+      name: ad.name,
     }));
 
     return apiAdsFormatted;
@@ -166,8 +195,10 @@ export class AdsComponent implements OnInit, OnDestroy {
     event.target.style.display = 'none';
 
     const parent = event.target.parentElement;
+
     if (parent && !parent.querySelector('.no-image-placeholder')) {
       const placeholder = document.createElement('div');
+
       placeholder.className = 'no-image-placeholder';
       placeholder.innerHTML = `
         <div class="placeholder-content">
@@ -217,8 +248,8 @@ export class AdsComponent implements OnInit, OnDestroy {
 
       if (searchParam || categoryParam) {
         const searchParams: SearchParamsModel = {
-          search: searchParam || '',
           category: categoryParam || undefined,
+          search: searchParam || '',
           showNonActive: false,
         };
 
@@ -239,18 +270,18 @@ export class AdsComponent implements OnInit, OnDestroy {
 
     if (searchParams.search || searchParams.category) {
       this.adService.searchAds(searchParams).subscribe({
+        error: (error: any) => {
+          this.isLoading = false;
+          this.errorMessage = 'Ошибка поиска объявлений';
+          this.apiAdvertisements = [];
+          this.filteredAdvertisements = [];
+        },
         next: (ads: AdModel[]) => {
           this.isLoading = false;
           const sortedAds = this.sortAdsByDate(ads);
 
           this.apiAdvertisements = sortedAds;
           this.filteredAdvertisements = sortedAds;
-        },
-        error: (error: any) => {
-          this.isLoading = false;
-          this.errorMessage = 'Ошибка поиска объявлений';
-          this.apiAdvertisements = [];
-          this.filteredAdvertisements = [];
         },
       });
     } else {
