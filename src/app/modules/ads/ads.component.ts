@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AdService } from '../../core/services/ad.service';
 import {
   AdSharingService,
-  SearchParams,
+  SearchParamsModel,
 } from '../../core/services/ad-sharing.service';
 import { AuthService } from '../../core/services/auth.service';
 import { AdModel } from '../../core/models/ad.model';
@@ -216,7 +216,7 @@ export class AdsComponent implements OnInit, OnDestroy {
       const categoryParam = params['category'];
 
       if (searchParam || categoryParam) {
-        const searchParams: SearchParams = {
+        const searchParams: SearchParamsModel = {
           search: searchParam || '',
           category: categoryParam || undefined,
           showNonActive: false,
@@ -233,7 +233,7 @@ export class AdsComponent implements OnInit, OnDestroy {
     });
   }
 
-  private performSearch(searchParams: SearchParams): void {
+  private performSearch(searchParams: SearchParamsModel): void {
     this.isLoading = true;
     this.errorMessage = '';
 

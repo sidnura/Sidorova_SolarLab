@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommentService } from '../../../core/services/comment.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Comment, CreateCommentRequest } from '../../../core/models/comment.model';
+import { CommentModel, CreateCommentRequestModel } from '../../../core/models/comment.model';
 
 @Component({
   selector: 'app-comments',
@@ -14,8 +14,8 @@ import { Comment, CreateCommentRequest } from '../../../core/models/comment.mode
 })
 export class CommentsComponent implements OnInit {
   @Input() adId!: string;
-  
-  comments: Comment[] = [];
+
+  comments: CommentModel[] = [];
   commentForm: FormGroup;
   replyForm: FormGroup;
   isLoading = false;
@@ -41,7 +41,7 @@ export class CommentsComponent implements OnInit {
   ngOnInit(): void {
     this.isLoggedIn = this.authService.isLoggedIn();
     this.loadComments();
-    
+
     this.authService.isAuthenticated$.subscribe(isAuthenticated => {
       this.isLoggedIn = isAuthenticated;
     });
@@ -50,7 +50,7 @@ export class CommentsComponent implements OnInit {
   loadComments(): void {
     this.isLoading = true;
     this.commentService.getComments(this.adId).subscribe({
-      next: (comments: Comment[]) => {
+      next: (comments: CommentModel[]) => {
         this.isLoading = false;
         this.comments = this.buildCommentTree(comments);
       },
@@ -65,16 +65,16 @@ export class CommentsComponent implements OnInit {
     if (this.commentForm.valid) {
       this.isLoading = true;
       this.errorMessage = '';
-      
+
       const commentText = this.commentForm.get('text')?.value?.trim();
-      
+
       if (!commentText) {
         this.errorMessage = 'Введите текст комментария';
         this.isLoading = false;
         return;
       }
 
-      const commentData: CreateCommentRequest = {
+      const commentData: CreateCommentRequestModel = {
         text: commentText
       };
 
@@ -84,7 +84,7 @@ export class CommentsComponent implements OnInit {
           this.commentForm.reset();
           this.successMessage = 'Комментарий добавлен!';
           this.loadComments();
-          
+
           setTimeout(() => {
             this.successMessage = '';
           }, 3000);
@@ -104,16 +104,16 @@ export class CommentsComponent implements OnInit {
     if (this.replyForm.valid) {
       this.isLoading = true;
       this.errorMessage = '';
-      
+
       const replyText = this.replyForm.get('text')?.value?.trim();
-      
+
       if (!replyText) {
         this.errorMessage = 'Введите текст ответа';
         this.isLoading = false;
         return;
       }
 
-      const replyData: CreateCommentRequest = {
+      const replyData: CreateCommentRequestModel = {
         text: replyText,
         parentId: parentCommentId
       };
@@ -125,7 +125,7 @@ export class CommentsComponent implements OnInit {
           this.replyingTo = null;
           this.successMessage = 'Ответ добавлен!';
           this.loadComments();
-          
+
           setTimeout(() => {
             this.successMessage = '';
           }, 3000);
@@ -141,9 +141,9 @@ export class CommentsComponent implements OnInit {
     }
   }
 
-  private buildCommentTree(comments: Comment[]): Comment[] {
-    const commentMap = new Map<string, Comment & { replies?: Comment[] }>();
-    const rootComments: (Comment & { replies?: Comment[] })[] = [];
+  private buildCommentTree(comments: CommentModel[]): CommentModel[] {
+    const commentMap = new Map<string, CommentModel & { replies?: CommentModel[] }>();
+    const rootComments: (CommentModel & { replies?: CommentModel[] })[] = [];
 
     comments.forEach(comment => {
       commentMap.set(comment.id, { ...comment, replies: [] });
@@ -174,12 +174,12 @@ export class CommentsComponent implements OnInit {
     this.replyForm.reset();
   }
 
-  canEditComment(comment: Comment): boolean {
+  canEditComment(comment: CommentModel): boolean {
     const currentUserId = this.authService.getUserId();
     return currentUserId === comment.user.id;
   }
 
-  editComment(comment: Comment): void {
+  editComment(comment: CommentModel): void {
     const newText = prompt('Редактировать комментарий:', comment.text);
     if (newText && newText.trim() !== comment.text) {
       this.commentService.updateComment(comment.id, { text: newText.trim() }).subscribe({
@@ -195,7 +195,7 @@ export class CommentsComponent implements OnInit {
     }
   }
 
-  deleteComment(comment: Comment): void {
+  deleteComment(comment: CommentModel): void {
     if (confirm('Удалить комментарий?')) {
       this.commentService.deleteComment(comment.id).subscribe({
         next: () => {
@@ -222,7 +222,7 @@ export class CommentsComponent implements OnInit {
     if (diffMins < 60) return `${diffMins} мин. назад`;
     if (diffHours < 24) return `${diffHours} ч. назад`;
     if (diffDays < 7) return `${diffDays} дн. назад`;
-    
+
     return date.toLocaleDateString('ru-RU', {
       day: 'numeric',
       month: 'long',

@@ -5,7 +5,7 @@ import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { AdService } from '../../../core/services/ad.service';
 import { CategoryService } from '../../../core/services/category.service';
-import { Category } from '../../../core/services/category.service';
+import { CategoryModel } from '../../../core/services/category.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { AdModel } from '../../../core/models/ad.model';
 
@@ -19,8 +19,8 @@ import { AdModel } from '../../../core/models/ad.model';
 export class EditAdvertisementComponent implements OnInit, OnDestroy {
   adForm: FormGroup;
   advertisement: AdModel | null = null;
-  parentCategories: Category[] = [];
-  childCategories: Category[] = [];
+  parentCategories: CategoryModel[] = [];
+  childCategories: CategoryModel[] = [];
   selectedParentCategory: string = '';
   selectedFiles: File[] = [];
   imageUrls: SafeUrl[] = [];
@@ -139,7 +139,7 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
 
   loadParentCategories(): void {
     this.categoryService.getParentCategories().subscribe({
-      next: (categories: Category[]) => {
+      next: (categories: CategoryModel[]) => {
         this.parentCategories = categories;
       },
       error: (error: any) => {
@@ -150,7 +150,7 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
 
   loadChildCategories(parentId: string): void {
     this.categoryService.getChildCategories(parentId).subscribe({
-      next: (categories: Category[]) => {
+      next: (categories: CategoryModel[]) => {
         this.childCategories = categories;
         if (categories.length === 0) {
           this.adForm.patchValue({ categoryId: parentId });

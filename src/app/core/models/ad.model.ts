@@ -47,7 +47,7 @@ export interface UpdateAdRequest {
   categoryId: string;
 }
 
-export interface ShortAdDto {
+export interface ShortAdModel {
   id: string;
   name: string;
   location: string;
@@ -57,7 +57,7 @@ export interface ShortAdDto {
   cost: number;
 }
 
-export interface AdSearchRequestDto {
+export interface AdSearchRequestModel {
   search?: string;
   showNonActive?: boolean;
   category?: string;

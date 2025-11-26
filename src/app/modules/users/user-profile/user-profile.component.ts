@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserService } from '../../../core/services/user.service';
-import { User } from '../../../core/models/user.model';
+import { UserModel } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -14,7 +14,7 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrls: ['./user-profile.component.scss']
 })
 export class UserProfileComponent implements OnInit {
-  user: User | null = null;
+  user: UserModel | null = null;
   isCurrentUser = false;
   isLoading = true;
   errorMessage = '';
@@ -34,7 +34,7 @@ export class UserProfileComponent implements OnInit {
 
   ngOnInit(): void {
     const userId = this.route.snapshot.paramMap.get('id');
-    
+
     if (userId) {
       this.loadUser(userId);
     } else {
@@ -54,13 +54,13 @@ export class UserProfileComponent implements OnInit {
   passwordMatchValidator(form: FormGroup) {
     const password = form.get('password');
     const confirmPassword = form.get('confirmPassword');
-    
+
     if (password && confirmPassword && password.value !== confirmPassword.value) {
       confirmPassword.setErrors({ passwordMismatch: true });
     } else {
       confirmPassword?.setErrors(null);
     }
-    
+
     return null;
   }
 
@@ -105,7 +105,7 @@ export class UserProfileComponent implements OnInit {
     this.isCurrentUser = currentUserId === userId;
   }
 
-  populateForm(user: User): void {
+  populateForm(user: UserModel): void {
     this.userForm.patchValue({
       name: user.name,
       login: user.login,
@@ -136,7 +136,7 @@ export class UserProfileComponent implements OnInit {
       this.successMessage = '';
 
       const formData = this.userForm.value;
-      
+
       const updateData: any = {
         Name: formData.name,
         Login: formData.login
@@ -152,11 +152,11 @@ export class UserProfileComponent implements OnInit {
           this.user = { ...this.user, ...updatedUser };
           this.isEditing = false;
           this.successMessage = 'Профиль успешно обновлен!';
-          
+
           if (this.isCurrentUser) {
             this.authService.refreshAuthStatus();
           }
-          
+
           setTimeout(() => {
             this.successMessage = '';
           }, 3000);

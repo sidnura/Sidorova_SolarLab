@@ -3,19 +3,19 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap, map } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 
-export interface LoginRequest {
+export interface LoginRequestModel {
   login: string;
   password: string;
 }
 
-export interface RegisterRequest {
+export interface RegisterRequestModel {
   login: string;
   email: string;
   password: string;
   name: string;
 }
 
-export interface AuthResponse {
+export interface AuthResponseModel {
   token: string;
   userId: string;
   login: string;
@@ -31,20 +31,20 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  login(loginData: LoginRequest): Observable<AuthResponse> {
+  login(loginData: LoginRequestModel): Observable<AuthResponseModel> {
     const url = `${this.apiUrl}/Auth/Login`;
-    
+
     return this.http.post<string>(url, loginData).pipe(
       map((token: string) => {
         const decodedToken = this.decodeJwt(token);
-        
+
         return {
           token: token,
           userId: decodedToken?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || '',
           login: decodedToken?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || loginData.login
         };
       }),
-      tap((response: AuthResponse) => {
+      tap((response: AuthResponseModel) => {
         if (response.token) {
           localStorage.setItem('auth_token', response.token);
           localStorage.setItem('user_id', response.userId);
@@ -55,20 +55,20 @@ export class AuthService {
     );
   }
 
-  register(registerData: RegisterRequest): Observable<AuthResponse> {
+  register(registerData: RegisterRequestModel): Observable<AuthResponseModel> {
     const url = `${this.apiUrl}/Auth/Register`;
-    
+
     return this.http.post<string>(url, registerData).pipe(
       map((token: string) => {
         const decodedToken = this.decodeJwt(token);
-        
+
         return {
           token: token,
           userId: decodedToken?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || '',
           login: decodedToken?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || registerData.login
         };
       }),
-      tap((response: AuthResponse) => {
+      tap((response: AuthResponseModel) => {
         if (response.token) {
           localStorage.setItem('auth_token', response.token);
           localStorage.setItem('user_id', response.userId);
@@ -99,7 +99,7 @@ export class AuthService {
 
     try {
       const decodedToken = this.decodeJwt(token);
-      const expiration = decodedToken?.exp * 1000; 
+      const expiration = decodedToken?.exp * 1000;
       return Date.now() >= expiration;
     } catch (error) {
       return true;
@@ -116,12 +116,12 @@ export class AuthService {
   isLoggedIn(): boolean {
     const token = this.getToken();
     if (!token) return false;
-    
+
     if (this.isTokenExpired()) {
-      this.logout(); 
+      this.logout();
       return false;
     }
-    
+
     return true;
   }
 
@@ -144,11 +144,11 @@ export class AuthService {
 
   isAdmin(): boolean {
     const userLogin = this.getUserLogin()?.toLowerCase();
-    
+
     const adminLogins = [
       'admin2',
     ];
-    
+
     return adminLogins.includes(userLogin || '');
   }
 }

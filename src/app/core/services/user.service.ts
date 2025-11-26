@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment.development';
-import { User, ShortUser, UpdateUserRequest } from '../models/user.model';
+import { UserModel, ShortUserModel, UpdateUserRequestModel } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -17,24 +17,24 @@ export class UserService {
     return throwError(() => error);
   }
 
-  getUsers(): Observable<ShortUser[]> {
+  getUsers(): Observable<ShortUserModel[]> {
     const url = `${this.apiUrl}/Users`;
-    return this.http.get<ShortUser[]>(url).pipe(catchError(this.handleError));
+    return this.http.get<ShortUserModel[]>(url).pipe(catchError(this.handleError));
   }
 
-  getUserById(id: string): Observable<User> {
+  getUserById(id: string): Observable<UserModel> {
     const url = `${this.apiUrl}/Users/${id}`;
-    return this.http.get<User>(url).pipe(catchError(this.handleError));
+    return this.http.get<UserModel>(url).pipe(catchError(this.handleError));
   }
 
-  getCurrentUser(): Observable<User> {
+  getCurrentUser(): Observable<UserModel> {
     const url = `${this.apiUrl}/Users/current`;
-    return this.http.get<User>(url).pipe(catchError(this.handleError));
+    return this.http.get<UserModel>(url).pipe(catchError(this.handleError));
   }
 
-  updateUser(id: string, userData: UpdateUserRequest): Observable<ShortUser> {
+  updateUser(id: string, userData: UpdateUserRequestModel): Observable<ShortUserModel> {
     const url = `${this.apiUrl}/Users/${id}`;
-    return this.http.put<ShortUser>(url, userData).pipe(catchError(this.handleError));
+    return this.http.put<ShortUserModel>(url, userData).pipe(catchError(this.handleError));
   }
 
   deleteUser(id: string): Observable<void> {

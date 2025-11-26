@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { ShortUser } from '../../../core/models/user.model';
+import { ShortUserModel } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-user-list',
@@ -13,7 +13,7 @@ import { ShortUser } from '../../../core/models/user.model';
   styleUrls: ['./user-list.component.scss']
 })
 export class UserListComponent implements OnInit {
-  users: ShortUser[] = [];
+  users: ShortUserModel[] = [];
   isLoading = false;
   errorMessage = '';
   currentUserId: string | null = null;
@@ -39,7 +39,7 @@ export class UserListComponent implements OnInit {
       },
       error: (error) => {
         this.isLoading = false;
-        
+
         if (error.status === 403) {
           this.errorMessage = 'Доступ запрещен. Недостаточно прав.';
         } else if (error.status === 500) {
