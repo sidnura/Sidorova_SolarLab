@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CategoryService } from '../../../core/services/category.service';
-import { Category } from '../../../core/services/category.service';
+import { CategoryModel } from '../../../core/services/category.service';
 
 @Component({
   selector: 'app-category-selector',
@@ -11,8 +11,8 @@ import { Category } from '../../../core/services/category.service';
   styleUrls: ['./category-selector.component.scss']
 })
 export class CategorySelectorComponent implements OnInit {
-  parentCategories: Category[] = [];
-  childCategories: Category[] = [];
+  parentCategories: CategoryModel[] = [];
+  childCategories: CategoryModel[] = [];
   selectedParentCategory: string = '';
   isOpen = false;
   isLoading = false;
@@ -30,7 +30,7 @@ export class CategorySelectorComponent implements OnInit {
   loadParentCategories(): void {
     this.isLoading = true;
     this.categoryService.getParentCategories().subscribe({
-      next: (categories: Category[]) => {
+      next: (categories: CategoryModel[]) => {
         this.isLoading = false;
         this.parentCategories = categories;
       },
@@ -43,7 +43,7 @@ export class CategorySelectorComponent implements OnInit {
 
   loadChildCategories(parentId: string): void {
     this.categoryService.getChildCategories(parentId).subscribe({
-      next: (categories: Category[]) => {
+      next: (categories: CategoryModel[]) => {
         this.childCategories = categories;
       },
       error: (error: any) => {

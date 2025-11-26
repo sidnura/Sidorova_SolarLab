@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, tap, catchError } from 'rxjs';
-import { AdModel, ShortAdDto, AdSearchRequestDto } from '../models/ad.model';
+import { AdModel, ShortAdModel, AdSearchRequestModel } from '../models/ad.model';
 import { environment } from '../../../environments/environment.development';
 
 @Injectable({
@@ -58,7 +58,7 @@ export class AdService {
 
   getAds(): Observable<AdModel[]> {
     const url = `${this.apiUrl}/Advert/search`;
-    const searchParams: AdSearchRequestDto = {
+    const searchParams: AdSearchRequestModel = {
       sortBy: 'createdAt',
       sortOrder: 'desc'
     };
@@ -70,9 +70,9 @@ export class AdService {
   }
 
   // Поиск объявлений
-  searchAds(searchParams: AdSearchRequestDto): Observable<AdModel[]> {
+  searchAds(searchParams: AdSearchRequestModel): Observable<AdModel[]> {
     const url = `${this.apiUrl}/Advert/search`;
-    const paramsWithSorting: AdSearchRequestDto = {
+    const paramsWithSorting: AdSearchRequestModel = {
       ...searchParams,
       sortBy: 'createdAt',
       sortOrder: 'desc'

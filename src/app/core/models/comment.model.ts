@@ -1,4 +1,4 @@
-export interface Comment {
+export interface CommentModel {
   id: string;
   text: string;
   created: string;
@@ -8,15 +8,15 @@ export interface Comment {
     name: string;
     login: string;
   };
-  replies?: Comment[];
+  replies?: CommentModel[];
 }
 
-export interface CreateCommentRequest {
+export interface CreateCommentRequestModel {
   text: string;
   parentId?: string;
 }
 
-export interface UpdateCommentRequest {
+export interface UpdateCommentRequestModel {
   text: string;
 }
 

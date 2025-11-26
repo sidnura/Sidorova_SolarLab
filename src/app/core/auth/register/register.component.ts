@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService, RegisterRequest } from '../../services/auth.service';
+import { AuthService, RegisterRequestModel } from '../../services/auth.service';
 import { markFormGroupTouched } from '../../utils/form.utils';
 
 @Component({
@@ -38,7 +38,7 @@ export class RegisterComponent {
       this.successMessage = '';
 
       const formData = this.registerForm.value;
-      const registerData: RegisterRequest = {
+      const registerData: RegisterRequestModel = {
         login: formData.login,
         email: formData.email,
         password: formData.password,
@@ -55,7 +55,7 @@ export class RegisterComponent {
         },
         error: (error) => {
           this.isLoading = false;
-          
+
           if (error.status === 400) {
             if (error.error?.errors) {
               const validationErrors = error.error.errors;

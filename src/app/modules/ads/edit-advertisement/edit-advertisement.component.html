@@ -12,7 +12,7 @@
 
   <div *ngIf="advertisement" class="form-card">
     <form [formGroup]="adForm" (ngSubmit)="onSubmit()" class="ad-form">
-      
+
       <div class="form-group">
         <label for="name" class="form-label">Название *</label>
         <input
@@ -22,14 +22,14 @@
           placeholder="Введите название объявления"
           class="form-control"
           [class.invalid]="name?.invalid && name?.touched">
-        
+
         <div class="validation-errors" *ngIf="name?.invalid && name?.touched">
           <small *ngIf="name?.errors?.['required']">Название обязательно</small>
           <small *ngIf="name?.errors?.['minlength']">
-            Минимум {{name?.errors?.['minlength']?.requiredLength}} символов
+            Минимум {{ name?.errors?.['minlength']?.requiredLength }} символов
           </small>
           <small *ngIf="name?.errors?.['maxlength']">
-            Максимум {{name?.errors?.['maxlength']?.requiredLength}} символов
+            Максимум {{ name?.errors?.['maxlength']?.requiredLength }} символов
           </small>
         </div>
       </div>
@@ -44,24 +44,24 @@
           class="form-control"
           [class.invalid]="description?.invalid && description?.touched">
         </textarea>
-        
+
         <div class="validation-errors" *ngIf="description?.invalid && description?.touched">
           <small *ngIf="description?.errors?.['maxlength']">
-            Максимум {{description?.errors?.['maxlength']?.requiredLength}} символов
+            Максимум {{ description?.errors?.['maxlength']?.requiredLength }} символов
           </small>
         </div>
       </div>
 
       <div class="form-group">
         <label class="form-label">Изображения</label>
-        
+
         <div *ngIf="existingImageUrls.length > 0" class="existing-images-section">
           <h4 class="section-subtitle">Текущие изображения</h4>
           <div class="image-previews">
             <div class="image-preview existing" *ngFor="let imageUrl of existingImageUrls; let i = index">
-              <img 
-                [src]="imageUrl" 
-                [alt]="'Изображение ' + (i + 1)" 
+              <img
+                [src]="imageUrl"
+                [alt]="'Изображение ' + (i + 1)"
                 class="preview-img"
                 (error)="onImageError($event, i)">
               <button type="button" class="remove-image-btn" (click)="removeExistingImage(i)">×</button>
@@ -83,20 +83,21 @@
             <span>Добавить новые изображения</span>
           </label>
         </div>
-        
+
         <div class="image-previews" *ngIf="selectedFiles.length > 0">
           <div class="image-preview new" *ngFor="let file of selectedFiles; let i = index">
-            <img 
-              [src]="imageUrls[i]" 
-              [alt]="file.name" 
+            <img
+              [src]="imageUrls[i]"
+              [alt]="file.name"
               class="preview-img"
               (error)="onImageError($event, i)">
             <button type="button" class="remove-image-btn" (click)="removeImage(i)">×</button>
             <span class="image-name">{{ file.name }}</span>
           </div>
         </div>
-        
-        <small class="form-text">Можно выбрать несколько изображений. Удаленные изображения будут окончательно удалены после сохранения.</small>
+
+        <small class="form-text">Можно выбрать несколько изображений. Удаленные изображения будут окончательно удалены
+          после сохранения.</small>
       </div>
 
       <div class="form-group">
@@ -110,7 +111,7 @@
           step="500"
           class="form-control"
           [class.invalid]="cost?.invalid && cost?.touched">
-        
+
         <div class="validation-errors" *ngIf="cost?.invalid && cost?.touched">
           <small *ngIf="cost?.errors?.['required']">Укажите цену</small>
           <small *ngIf="cost?.errors?.['min']">Цена не может быть отрицательной</small>
@@ -127,7 +128,7 @@
           placeholder="example@mail.com"
           class="form-control"
           [class.invalid]="email?.invalid && email?.touched">
-        
+
         <div class="validation-errors" *ngIf="email?.invalid && email?.touched">
           <small *ngIf="email?.errors?.['email']">Введите корректный email</small>
         </div>
@@ -147,7 +148,7 @@
             (keydown)="onPhoneKeydown($event)"
             maxlength="18">
         </div>
-        
+
         <div class="validation-errors" *ngIf="phone?.invalid && phone?.touched">
           <small *ngIf="phone?.errors?.['required']">Телефон обязателен</small>
           <small *ngIf="phone?.errors?.['pattern']">Введите корректный номер телефона</small>
@@ -164,14 +165,14 @@
           placeholder="Город, адрес или район"
           class="form-control"
           [class.invalid]="location?.invalid && location?.touched">
-        
+
         <div class="validation-errors" *ngIf="location?.invalid && location?.touched">
           <small *ngIf="location?.errors?.['required']">Местоположение обязательно</small>
           <small *ngIf="location?.errors?.['minlength']">
-            Минимум {{location?.errors?.['minlength']?.requiredLength}} символов
+            Минимум {{ location?.errors?.['minlength']?.requiredLength }} символов
           </small>
           <small *ngIf="location?.errors?.['maxlength']">
-            Максимум {{location?.errors?.['maxlength']?.requiredLength}} символов
+            Максимум {{ location?.errors?.['maxlength']?.requiredLength }} символов
           </small>
         </div>
       </div>
@@ -188,7 +189,7 @@
             {{ category.name }}
           </option>
         </select>
-        
+
         <div class="validation-errors" *ngIf="parentCategoryId?.invalid && parentCategoryId?.touched">
           <small *ngIf="parentCategoryId?.errors?.['required']">Выберите категорию</small>
         </div>

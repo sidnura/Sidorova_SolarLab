@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService, LoginRequest } from '../../services/auth.service';
+import { AuthService, LoginRequestModel } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -39,7 +39,7 @@ export class LoginComponent {
     this.errorMessage = '';
 
     const formData = this.loginForm.value;
-    const loginData: LoginRequest = {
+    const loginData: LoginRequestModel = {
       login: formData.login,
       password: formData.password
     };
@@ -51,7 +51,7 @@ export class LoginComponent {
       },
       error: (error) => {
         this.isLoading = false;
-        
+
         if (error.status === 400) {
           this.errorMessage = 'Неверный логин или пароль';
         } else if (error.status === 0) {

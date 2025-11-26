@@ -1,24 +1,25 @@
-// app.routes.ts
 import { Routes } from '@angular/router';
-import { LoginComponent } from './core/auth/login/login.component';
-import { RegisterComponent } from './core/auth/register/register.component';
 import { AdminGuard } from './core/guards/admin.guard';
 import { AuthGuard } from './core/guards/auth.guard';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { BaseLayoutComponent } from './layouts/base-layout/base-layout.component';
-import { AdDetailComponent } from './modules/ads/ad-detail/ad-detail.component';
-import { AddAdvertisementComponent } from './modules/ads/add-advertisement/add-advertisement.component';
-import { AdsComponent } from './modules/ads/ads.component';
-import { EditAdvertisementComponent } from './modules/ads/edit-advertisement/edit-advertisement.component';
-import { UserListComponent } from './modules/users/user-list/user-list.component';
-import { UserProfileComponent } from './modules/users/user-profile/user-profile.component';
 
 export const routes: Routes = [
   {
     children: [
-      { component: LoginComponent, path: 'login' },
-      { component: RegisterComponent, path: 'register' },
-      { path: '', pathMatch: 'full', redirectTo: 'login' },
+      {
+        loadChildren: () => import('./core/auth/login/routes').then(m => m.default),
+        path: 'login',
+      },
+      {
+        loadChildren: () => import('./core/auth/register/routes').then(m => m.default),
+        path: 'register',
+      },
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'login',
+      },
     ],
     component: AuthLayoutComponent,
     path: 'auth',
@@ -26,34 +27,41 @@ export const routes: Routes = [
 
   {
     children: [
-      { component: AdsComponent, path: '' },
-      { component: AdsComponent, path: 'ads' },
+      {
+        loadChildren: () => import('./modules/ads/routes').then(m => m.default), // Изменено
+        path: '',
+      },
+      {
+        loadChildren: () => import('./modules/ads/routes').then(m => m.default), // Изменено
+        path: 'ads',
+      },
       {
         canActivate: [AuthGuard],
-        component: AddAdvertisementComponent,
+        loadChildren: () => import('./modules/ads/add-advertisement/routes').then(m => m.default),
         path: 'add-ad',
       },
       {
         canActivate: [AuthGuard],
-        component: EditAdvertisementComponent,
+        loadChildren: () => import('./modules/ads/edit-advertisement/routes').then(m => m.default),
         path: 'edit-ad/:id',
       },
-      { component: AdDetailComponent, path: 'ad/:id' },
-
-      // Управление пользователями - только для админов
+      {
+        loadChildren: () => import('./modules/ads/ad-detail/routes').then(m => m.default),
+        path: 'ad/:id',
+      },
       {
         canActivate: [AdminGuard],
-        component: UserListComponent,
+        loadChildren: () => import('./modules/users/user-list/routes').then(m => m.default),
         path: 'users',
       },
       {
         canActivate: [AdminGuard],
-        component: UserProfileComponent,
+        loadChildren: () => import('./modules/users/user-profile/routes').then(m => m.default),
         path: 'users/:id',
       },
       {
         canActivate: [AuthGuard],
-        component: UserProfileComponent,
+        loadChildren: () => import('./modules/users/user-profile/routes').then(m => m.default),
         path: 'profile',
       },
     ],
@@ -61,8 +69,20 @@ export const routes: Routes = [
     path: '',
   },
 
-  { path: 'login', pathMatch: 'full', redirectTo: 'auth/login' },
-  { path: 'register', pathMatch: 'full', redirectTo: 'auth/register' },
+  {
+    path: 'login',
+    pathMatch: 'full',
+    redirectTo: 'auth/login',
+  },
+  {
+    path: 'register',
+    pathMatch: 'full',
+    redirectTo: 'auth/register',
+  },
 
-  { path: '**', pathMatch: 'full', redirectTo: '' },
+  {
+    path: '**',
+    pathMatch: 'full',
+    redirectTo: '',
+  },
 ];

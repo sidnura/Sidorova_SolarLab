@@ -11,7 +11,7 @@ import { AdModel } from '../../../core/models/ad.model';
   standalone: true,
   imports: [CommonModule, CommentsComponent],
   templateUrl: './ad-detail.component.html',
-  styleUrl: './ad-detail.component.scss'
+  styleUrl: './ad-detail.component.scss',
 })
 export class AdDetailComponent implements OnInit {
   advertisement: AdModel | null = null;
@@ -74,7 +74,7 @@ export class AdDetailComponent implements OnInit {
         }
 
         this.advertisement = null;
-      }
+      },
     });
   }
 
@@ -110,14 +110,17 @@ export class AdDetailComponent implements OnInit {
 
   nextImage(): void {
     if (this.allImageUrls.length > 0) {
-      this.currentImageIndex = (this.currentImageIndex + 1) % this.allImageUrls.length;
+      this.currentImageIndex =
+        (this.currentImageIndex + 1) % this.allImageUrls.length;
       this.currentImageUrl = this.getCurrentImageUrl();
     }
   }
 
   prevImage(): void {
     if (this.allImageUrls.length > 0) {
-      this.currentImageIndex = (this.currentImageIndex - 1 + this.allImageUrls.length) % this.allImageUrls.length;
+      this.currentImageIndex =
+        (this.currentImageIndex - 1 + this.allImageUrls.length) %
+        this.allImageUrls.length;
       this.currentImageUrl = this.getCurrentImageUrl();
     }
   }
