@@ -18,7 +18,7 @@
 <div class="main__container container">
   <ul class="ads">
     @for (ad of adList$| async; track $index) {
-      <li class="ads__item" [routerLink]="['/ad', ad.id]">
+      <li class="ads__item" (click)="onClick(ad)">
 
         <!-- Кнопка удаления показывается только для авторизованного пользователя -->
         <button

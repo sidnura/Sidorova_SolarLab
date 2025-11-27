@@ -1,16 +1,15 @@
-import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
-import { AdModel } from '../../../../../../core/models/ad.model';
+import { AdModel } from '@models/ad.model';
 
 export const AD_DETAIL_STATE_KEY = 'ad-detail-state';
 
-export interface AdDetailStateModel extends EntityState<AdModel> {
+export type AdDetailStateModel = {
   loading: Record<string, boolean>;
-}
+  selectedId: string;
+  data: AdModel;
+};
 
-export const adDetailEntityAdapter: EntityAdapter<AdModel> = createEntityAdapter({
-  selectId: (model) => model.id,
-});
-
-export const initialState: AdDetailStateModel = adDetailEntityAdapter.getInitialState({
+export const initialState: AdDetailStateModel = {
+  data: undefined,
   loading: {},
-});
+  selectedId: undefined,
+};

@@ -1,5 +1,5 @@
 // ad-detail.component.scss
-.ad-container {
+.card-container {
     margin-top: 24px;
     background: white;
     padding: 40px;
@@ -9,7 +9,7 @@
 }
 
 // Стили для кнопки редактирования
-.ad-actions {
+.card-actions {
     display: flex;
     justify-content: flex-end;
     margin-bottom: 20px;
@@ -41,7 +41,7 @@
     }
 }
 
-.ad-header {
+.card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -50,7 +50,7 @@
     border-bottom: 1px solid #e9ecef;
 }
 
-.ad-title {
+.card-title {
     font-size: 32px;
     font-weight: bold;
     color: #333;
@@ -58,26 +58,26 @@
     margin: 0;
 }
 
-.ad-price {
+.card-price {
     font-size: 36px;
     font-weight: bold;
     color: #000;
     margin: 0;
 }
 
-.ad-content {
+.card-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 40px;
 }
 
-.ad-image-section {
+.card-image-section {
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
 
-.ad-image {
+.card-image {
     width: 100%;
     border-radius: 12px;
     overflow: hidden;
@@ -85,7 +85,7 @@
     position: relative;
 }
 
-.ad-image__img {
+.card-image__img {
     width: 100%;
     height: 400px;
     display: block;
@@ -119,7 +119,7 @@
     align-items: center;
     justify-content: center;
     transition: background-color 0.3s;
-    
+
     &:hover {
         background: rgba(255, 255, 255, 0.2);
     }
@@ -187,7 +187,7 @@
     font-weight: 600;
     transition: all 0.3s;
     width: 200px;
-    
+
     &:hover {
         background-color: #0056b3;
         transform: translateY(-1px);
@@ -231,7 +231,7 @@
     text-decoration: none;
     font-size: 14px;
     transition: color 0.3s;
-    
+
     &:hover {
         color: #0056b3;
         text-decoration: underline;
@@ -245,7 +245,7 @@
 .description-text {
     line-height: 1.6;
     color: #333;
-    
+
     p {
         margin-bottom: 12px;
     }
@@ -575,11 +575,11 @@
 }
 
 @keyframes spin {
-    0% { 
-        transform: rotate(0deg); 
+    0% {
+        transform: rotate(0deg);
     }
-    100% { 
-        transform: rotate(360deg); 
+    100% {
+        transform: rotate(360deg);
     }
 }
 
@@ -640,43 +640,43 @@
 
 // Адаптивность
 @media (max-width: 768px) {
-    .ad-container {
+    .card-container {
         padding: 20px;
     }
-    
-    .ad-content {
+
+    .card-content {
         grid-template-columns: 1fr;
         gap: 24px;
     }
-    
-    .ad-header {
+
+    .card-header {
         flex-direction: column;
         gap: 12px;
     }
-    
-    .ad-title {
+
+    .card-title {
         font-size: 24px;
     }
-    
-    .ad-price {
+
+    .card-price {
         font-size: 28px;
     }
-    
+
     .phone-toggle {
         width: 100%;
         max-width: 200px;
     }
 
-    .ad-actions {
+    .card-actions {
         justify-content: center;
     }
-    
+
     .btn-edit {
         width: 100%;
         justify-content: center;
     }
 
-    .ad-image__img {
+    .card-image__img {
         height: 300px;
     }
 
@@ -707,24 +707,24 @@
 }
 
 @media (max-width: 576px) {
-    .ad-container {
+    .card-container {
         padding: 16px;
         margin-top: 16px;
     }
-    
-    .ad-title {
+
+    .card-title {
         font-size: 22px;
     }
-    
-    .ad-price {
+
+    .card-price {
         font-size: 26px;
     }
-    
+
     .phone-toggle {
         max-width: 100%;
     }
 
-    .ad-image__img {
+    .card-image__img {
         height: 250px;
     }
 

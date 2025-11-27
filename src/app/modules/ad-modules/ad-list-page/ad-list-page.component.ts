@@ -1,29 +1,33 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { AsyncPipe, DatePipe, DecimalPipe, NgIf } from '@angular/common';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Observable, Subject, takeUntil } from 'rxjs';
-import { AdModel } from '../../../core/models/ad.model';
-import { AuthService } from '../../../core/services/auth.service';
+import { AdModel } from '@models/ad.model';
 import { AdService } from '../../../core/services/ad.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { CommentsComponent } from '../../../shared/components/comments/comments.component';
 import { AdDetailCommonStateModule } from './store/ad-detail-common-state/ad-detail-common-state.module';
 import { AdDetailFacade } from './store/ad-detail-common-state/ad-detail-state/ad-detail.facade';
 
 @Component({
-  selector: 'app-ad-list-page',
-  standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     CommentsComponent,
-    AdDetailCommonStateModule
+    AdDetailCommonStateModule,
+    NgIf,
+    DecimalPipe,
+    AsyncPipe,
+    DatePipe,
   ],
+  selector: 'app-ad-list-page',
+  standalone: true,
+  styleUrls: ['./ad-list-page.component.scss'],
   templateUrl: './ad-list-page.component.html',
-  styleUrls: ['./ad-list-page.component.scss']
 })
 export class AdListPageComponent implements OnInit, OnDestroy {
   public element$: Observable<AdModel | null> = this.adDetailFacade.elements$;
-  public loading$: Observable<Record<string, boolean>> = this.adDetailFacade.loading$;
+  public loading$: Observable<Record<string, boolean>> =
+    this.adDetailFacade.loading$;
 
   showPhone = false;
   currentImageUrl: string | null = null;
@@ -45,22 +49,21 @@ export class AdListPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const adId = this.route.snapshot.paramMap.get('id');
+
     this.currentUserId = this.authService.getUserId();
 
     if (adId) {
       this.adDetailFacade.load(adId);
     }
 
-    this.element$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(ad => {
-        if (ad) {
-          this.hasAdvertisementImage = this.hasImage(ad);
-          this.allImageUrls = this.getAllImageUrls(ad);
-          this.currentImageUrl = this.getCurrentImageUrl();
-          this.isOwner = this.checkIfOwner(ad);
-        }
-      });
+    this.element$.pipe(takeUntil(this.destroy$)).subscribe((ad) => {
+      if (ad) {
+        this.hasAdvertisementImage = this.hasImage(ad);
+        this.allImageUrls = this.getAllImageUrls(ad);
+        this.currentImageUrl = this.getCurrentImageUrl();
+        this.isOwner = this.checkIfOwner(ad);
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -70,17 +73,16 @@ export class AdListPageComponent implements OnInit, OnDestroy {
 
   checkIfOwner(ad: AdModel): boolean {
     if (!this.currentUserId || !ad.user) return false;
+
     return ad.user.id === this.currentUserId;
   }
 
   onEdit(): void {
-    this.element$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(ad => {
-        if (ad) {
-          this.router.navigate(['/edit-ad', ad.id]);
-        }
-      });
+    this.element$.pipe(takeUntil(this.destroy$)).subscribe((ad) => {
+      if (ad) {
+        this.router.navigate(['/edit-ad', ad.id]);
+      }
+    });
   }
 
   togglePhone() {
@@ -99,6 +101,7 @@ export class AdListPageComponent implements OnInit, OnDestroy {
     if (this.allImageUrls.length > 0) {
       return this.allImageUrls[this.currentImageIndex];
     }
+
     return null;
   }
 
@@ -123,8 +126,10 @@ export class AdListPageComponent implements OnInit, OnDestroy {
     event.target.style.display = 'none';
 
     const parent = event.target.parentElement;
+
     if (parent && !parent.querySelector('.no-image-placeholder')) {
       const placeholder = document.createElement('div');
+
       placeholder.className = 'no-image-placeholder';
       placeholder.innerHTML = `
         <div class="placeholder-content">

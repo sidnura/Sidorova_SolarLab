@@ -1,93 +1,92 @@
-<main>
-    <div class="container">
-        <div *ngIf="isLoading" class="loading-state">
-            <div class="spinner"></div>
-            <p>Загрузка объявления...</p>
-        </div>
 
-        <div *ngIf="errorMessage && !isLoading" class="error-state">
-            <p>❌ {{ errorMessage }}</p>
-        </div>
+<div class="container">
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Загрузка объявления...</p>
+  </div>
 
-        <div *ngIf="!advertisement && !isLoading" class="not-found-state">
-            Объявление не найдено! ID: {{ getAdId() }}
-        </div>
+  <div *ngIf="errorMessage && !isLoading" class="error-state">
+    <p>❌ {{ errorMessage }}</p>
+  </div>
 
-        <div *ngIf="advertisement && !isLoading" class="ad-container">
-            
-            <div class="ad-actions" *ngIf="isOwner">
-                <button class="btn-edit" (click)="onEdit()" title="Редактировать объявление">
-                    Редактировать объявление
-                </button>
-            </div>
+  <div *ngIf="!advertisement && !isLoading" class="not-found-state">
+    Объявление не найдено! ID: {{ getAdId() }}
+  </div>
 
-            <div class="ad-header">
-                <h1 class="ad-title">{{ advertisement.name }}</h1>
-                <p class="ad-price">{{ advertisement.cost | number }} ₽</p>
-            </div>
+  <div *ngIf="advertisement && !isLoading" class="ad-container">
 
-            <div class="ad-content">
-                <div class="ad-image-section">
-                    <div class="ad-image">
-                        <div *ngIf="hasAdvertisementImage && currentImageUrl; else noPhotoTemplate">
-                            <img [src]="currentImageUrl" 
-                                 [alt]="advertisement.name" 
-                                 (error)="onImageError($event)"
-                                 class="ad-image__img">
-                            
-                            <div *ngIf="hasMultipleImages()" class="image-navigation">
-                                <button class="nav-btn prev-btn" (click)="prevImage()">‹</button>
-                                <span class="image-counter">{{ currentImageIndex + 1 }} / {{ allImageUrls.length }}</span>
-                                <button class="nav-btn next-btn" (click)="nextImage()">›</button>
-                            </div>
-                        </div>
-                        <ng-template #noPhotoTemplate>
-                            <div class="no-image-placeholder">
-                                <div class="placeholder-content">
-                                    <span class="placeholder-icon">📷</span>
-                                    <span class="placeholder-text">Нет фото</span>
-                                </div>
-                            </div>
-                        </ng-template>
-                    </div>
-                </div>
-
-                <div class="ad-info-section">
-                    <div class="ad-details">
-                        <div class="ad-contact-section">
-                            <button class="phone-toggle" (click)="togglePhone()">
-                                {{ showPhone ? getPhoneNumber() : 'Показать номер' }}
-                            </button>
-                            
-                            <div class="address-section">
-                                <h3 class="section-title">Адрес</h3>
-                                <p class="address-text">{{ advertisement.location }}</p>
-                                <a href="#" class="map-link">открыть на карте</a>
-                            </div>
-                        </div>
-
-                        <div class="description-section">
-                            <h3 class="section-title">Описание</h3>
-                            <div class="description-text">
-                                <p>{{ advertisement.description || 'Описание отсутствует' }}</p>
-                                
-                                <div *ngIf="advertisement.email">
-                                    <p><strong>Email:</strong> {{ advertisement.email }}</p>
-                                </div>
-                                <p><strong>Статус:</strong> {{ advertisement.isActive ? 'Активно' : 'Не активно' }}</p>
-                                
-                                <div *ngIf="advertisement.category">
-                                    <p><strong>Категория:</strong> {{ advertisement.category.name }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="comments-section-wrapper">
-                <app-comments [adId]="advertisement.id"></app-comments>
-            </div>
-        </div>
+    <div class="ad-actions" *ngIf="isOwner">
+      <button class="btn-edit" (click)="onEdit()" title="Редактировать объявление">
+        Редактировать объявление
+      </button>
     </div>
-</main>
+
+    <div class="ad-header">
+      <h1 class="ad-title">{{ advertisement.name }}</h1>
+      <p class="ad-price">{{ advertisement.cost | number }} ₽</p>
+    </div>
+
+    <div class="ad-content">
+      <div class="ad-image-section">
+        <div class="ad-image">
+          <div *ngIf="hasAdvertisementImage && currentImageUrl; else noPhotoTemplate">
+            <img [src]="currentImageUrl"
+                 [alt]="advertisement.name"
+                 (error)="onImageError($event)"
+                 class="ad-image__img">
+
+            <div *ngIf="hasMultipleImages()" class="image-navigation">
+              <button class="nav-btn prev-btn" (click)="prevImage()">‹</button>
+              <span class="image-counter">{{ currentImageIndex + 1 }} / {{ allImageUrls.length }}</span>
+              <button class="nav-btn next-btn" (click)="nextImage()">›</button>
+            </div>
+          </div>
+          <ng-template #noPhotoTemplate>
+            <div class="no-image-placeholder">
+              <div class="placeholder-content">
+                <span class="placeholder-icon">📷</span>
+                <span class="placeholder-text">Нет фото</span>
+              </div>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <div class="ad-info-section">
+        <div class="ad-details">
+          <div class="ad-contact-section">
+            <button class="phone-toggle" (click)="togglePhone()">
+              {{ showPhone ? getPhoneNumber() : 'Показать номер' }}
+            </button>
+
+            <div class="address-section">
+              <h3 class="section-title">Адрес</h3>
+              <p class="address-text">{{ advertisement.location }}</p>
+              <a href="#" class="map-link">открыть на карте</a>
+            </div>
+          </div>
+
+          <div class="description-section">
+            <h3 class="section-title">Описание</h3>
+            <div class="description-text">
+              <p>{{ advertisement.description || 'Описание отсутствует' }}</p>
+
+              <div *ngIf="advertisement.email">
+                <p><strong>Email:</strong> {{ advertisement.email }}</p>
+              </div>
+              <p><strong>Статус:</strong> {{ advertisement.isActive ? 'Активно' : 'Не активно' }}</p>
+
+              <div *ngIf="advertisement.category">
+                <p><strong>Категория:</strong> {{ advertisement.category.name }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comments-section-wrapper">
+      <app-comments [adId]="advertisement.id"></app-comments>
+    </div>
+  </div>
+</div>

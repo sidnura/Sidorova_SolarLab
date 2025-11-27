@@ -1,4 +1,10 @@
-// src/app/layouts/base-layout/base-layout.component.scss
+@use "styles";
+
+:host {
+
+  @include styles.page-layout();
+}
+
 .content {
   display: flex;
   flex-direction: column;
