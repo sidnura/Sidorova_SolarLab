@@ -1,24 +1,23 @@
 import { Routes } from '@angular/router';
+import { AppComponent } from './app.component';
 import { AdminGuard } from './core/guards/admin.guard';
 import { AuthGuard } from './core/guards/auth.guard';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { BaseLayoutComponent } from './layouts/base-layout/base-layout.component';
-import { AppComponent } from './app.component';
 
-export const routes: Routes = [
-
+export default [
   {
-    path: '',
-    component: AppComponent,
     children: [
       {
         children: [
           {
-            loadChildren: () => import('./core/auth/login/routes').then(m => m.default),
+            loadChildren: () =>
+              import('./core/auth/login/routes').then((m) => m.default),
             path: 'login',
           },
           {
-            loadChildren: () => import('./core/auth/register/routes').then(m => m.default),
+            loadChildren: () =>
+              import('./core/auth/register/routes').then((m) => m.default),
             path: 'register',
           },
           {
@@ -36,24 +35,24 @@ export const routes: Routes = [
           {
             loadChildren: () => import('./modules/ads/routes'),
             path: '',
-          },
-          {
-            loadChildren: () => import('./modules/ads/routes'),
-            path: 'ads',
+            pathMatch: 'full',
           },
           {
             canActivate: [AuthGuard],
-            loadChildren: () => import('./modules/ads/add-advertisement/routes'),
+            loadChildren: () =>
+              import('./modules/ads/add-advertisement/routes'),
             path: 'add-ad',
           },
           {
             canActivate: [AuthGuard],
-            loadChildren: () => import('./modules/ads/edit-advertisement/routes'),
+            loadChildren: () =>
+              import('./modules/ads/edit-advertisement/routes'),
             path: 'edit-ad/:id',
           },
           // ЗАМЕНИТЬ старый маршрут на новый
           {
-            loadChildren: () => import('./modules/ad-modules/ad-list-page/routes'),
+            loadChildren: () =>
+              import('./modules/ad-modules/ad-list-page/routes'),
             path: 'ad/:id',
           },
           {
@@ -71,6 +70,10 @@ export const routes: Routes = [
             loadChildren: () => import('./modules/users/user-profile/routes'),
             path: 'profile',
           },
+          {
+            path: '**',
+            redirectTo: ''
+          }
         ],
         component: BaseLayoutComponent,
         path: 'ads',
@@ -78,24 +81,14 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'ads'
-      }
-    ]
+        redirectTo: 'ads',
+      },
+      {
+        path: '**',
+        redirectTo: 'ads',
+      },
+    ],
+    component: AppComponent,
+    path: '',
   },
-  {
-    path: 'login',
-    pathMatch: 'full',
-    redirectTo: 'auth/login',
-  },
-  {
-    path: 'register',
-    pathMatch: 'full',
-    redirectTo: 'auth/register',
-  },
-
-  {
-    path: '**',
-    pathMatch: 'full',
-    redirectTo: '',
-  },
-];
+] satisfies Routes;

@@ -1,4 +1,10 @@
-// Стили для контейнера поля поиска с крестиком
+
+:host {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .search-input-container {
   position: relative;
   flex: 1;

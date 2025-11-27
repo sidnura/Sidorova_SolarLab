@@ -210,6 +210,10 @@ export class AdsComponent implements OnInit, OnDestroy {
     }
   }
 
+  protected onClick(ad: AdModel): void {
+    this.router.navigate(['ad', ad.id], { relativeTo: this.route });
+  }
+
   private setupAuthListener(): void {
     this.authSubscription = this.authService.isAuthenticated$.subscribe(
       (isAuthenticated) => {

@@ -10,27 +10,27 @@
   </div>
 
   <ng-container *ngIf="element$ | async as advertisement">
-    <div class="ad-container">
+    <div class="card-container">
 
-      <div class="ad-actions" *ngIf="isOwner">
+      <div class="card-actions" *ngIf="isOwner">
         <button class="btn-edit" (click)="onEdit()" title="Редактировать объявление">
           Редактировать объявление
         </button>
       </div>
 
-      <div class="ad-header">
-        <h1 class="ad-title">{{ advertisement.name }}</h1>
-        <p class="ad-price">{{ advertisement.cost | number }} ₽</p>
+      <div class="card-header">
+        <h1 class="card-title">{{ advertisement.name }}</h1>
+        <p class="card-price">{{ advertisement.cost | number }} ₽</p>
       </div>
 
-      <div class="ad-content">
-        <div class="ad-image-section">
-          <div class="ad-image">
+      <div class="card-content">
+        <div class="card-image-section">
+          <div class="card-image">
             <div *ngIf="hasAdvertisementImage && currentImageUrl; else noPhotoTemplate">
               <img [src]="currentImageUrl"
                    [alt]="advertisement.name"
                    (error)="onImageError($event)"
-                   class="ad-image__img">
+                   class="card-image__img">
 
               <div *ngIf="hasMultipleImages()" class="image-navigation">
                 <button class="nav-btn prev-btn" (click)="prevImage()">‹</button>
