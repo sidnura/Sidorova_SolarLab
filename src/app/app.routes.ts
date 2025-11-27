@@ -28,11 +28,11 @@ export const routes: Routes = [
   {
     children: [
       {
-        loadChildren: () => import('./modules/ads/routes').then(m => m.default), // Изменено
+        loadChildren: () => import('./modules/ads/routes').then(m => m.default),
         path: '',
       },
       {
-        loadChildren: () => import('./modules/ads/routes').then(m => m.default), // Изменено
+        loadChildren: () => import('./modules/ads/routes').then(m => m.default),
         path: 'ads',
       },
       {
@@ -45,8 +45,9 @@ export const routes: Routes = [
         loadChildren: () => import('./modules/ads/edit-advertisement/routes').then(m => m.default),
         path: 'edit-ad/:id',
       },
+      // ЗАМЕНИТЬ старый маршрут на новый
       {
-        loadChildren: () => import('./modules/ads/ad-detail/routes').then(m => m.default),
+        loadChildren: () => import('./modules/ad-modules/ad-list-page/routes').then(m => m.default),
         path: 'ad/:id',
       },
       {
