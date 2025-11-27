@@ -6,14 +6,14 @@ import { AdModel } from '@models/ad.model';
 import { AdService } from '../../../core/services/ad.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommentsComponent } from '../../../shared/components/comments/comments.component';
-import { AdDetailCommonStateModule } from './store/ad-detail-common-state/ad-detail-common-state.module';
-import { AdDetailFacade } from './store/ad-detail-common-state/ad-detail-state/ad-detail.facade';
+import { AdListCommonStateModule } from '../../../store/ad-list-common-state/ad-list-common-state.module';
+import { AdDetailsFacade } from '../../../store/ad-list-common-state/ad-details-state/ad-details.facade';
 
 @Component({
   imports: [
     RouterModule,
     CommentsComponent,
-    AdDetailCommonStateModule,
+    AdListCommonStateModule,
     NgIf,
     DecimalPipe,
     AsyncPipe,
@@ -25,9 +25,9 @@ import { AdDetailFacade } from './store/ad-detail-common-state/ad-detail-state/a
   templateUrl: './ad-list-page.component.html',
 })
 export class AdListPageComponent implements OnInit, OnDestroy {
-  public element$: Observable<AdModel | null> = this.adDetailFacade.elements$;
+  public element$: Observable<AdModel | null> = this.adDetailsFacade.elements$;
   public loading$: Observable<Record<string, boolean>> =
-    this.adDetailFacade.loading$;
+    this.adDetailsFacade.loading$;
 
   showPhone = false;
   currentImageUrl: string | null = null;
@@ -44,7 +44,7 @@ export class AdListPageComponent implements OnInit, OnDestroy {
     private router: Router,
     private adService: AdService,
     private authService: AuthService,
-    private readonly adDetailFacade: AdDetailFacade
+    private readonly adDetailsFacade: AdDetailsFacade
   ) {}
 
   ngOnInit() {
@@ -53,7 +53,7 @@ export class AdListPageComponent implements OnInit, OnDestroy {
     this.currentUserId = this.authService.getUserId();
 
     if (adId) {
-      this.adDetailFacade.load(adId);
+      this.adDetailsFacade.load(adId);
     }
 
     this.element$.pipe(takeUntil(this.destroy$)).subscribe((ad) => {

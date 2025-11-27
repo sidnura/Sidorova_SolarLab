@@ -2,7 +2,6 @@
 @forward "styles/layout";
 @forward "styles/display";
 
-
 /* Глобальные стили */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -11,17 +10,16 @@
 html, body {
   height: 100%;
   width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
   font-family: Arial, sans-serif;
   background-color: #f5f5f5;
   min-height: 100vh;
-  height: 100%;
   font-size: 14px;
   line-height: 1.5;
-  margin: 0;
-  padding: 0;
 }
 
 .container {
@@ -29,7 +27,6 @@ body {
   margin: 0 auto;
   padding: 0 16px;
   width: 100%;
-  height: 100%;
   display: block;
   box-sizing: border-box;
   position: relative;
