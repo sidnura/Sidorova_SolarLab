@@ -296,11 +296,11 @@
 }
 
 @keyframes spin {
-    0% { 
-        transform: rotate(0deg); 
+    0% {
+        transform: rotate(0deg);
     }
-    100% { 
-        transform: rotate(360deg); 
+    100% {
+        transform: rotate(360deg);
     }
 }
 
@@ -308,25 +308,26 @@
     .ad-container {
         padding: 20px;
     }
-    
+
     .ad-content {
         grid-template-columns: 1fr;
         gap: 24px;
     }
-    
+
     .ad-header {
         flex-direction: column;
         gap: 12px;
+      display: flex;
     }
-    
+
     .ad-title {
         font-size: 24px;
     }
-    
+
     .ad-price {
         font-size: 28px;
     }
-    
+
     .phone-toggle {
         width: 100%;
         max-width: 200px;
@@ -335,7 +336,7 @@
     .ad-actions {
         justify-content: center;
     }
-    
+
     .btn-edit {
         width: 100%;
         justify-content: center;
@@ -360,15 +361,15 @@
         padding: 16px;
         margin-top: 16px;
     }
-    
+
     .ad-title {
         font-size: 22px;
     }
-    
+
     .ad-price {
         font-size: 26px;
     }
-    
+
     .phone-toggle {
         max-width: 100%;
     }

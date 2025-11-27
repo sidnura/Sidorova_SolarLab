@@ -1,3 +1,10 @@
+@use "styles";
+
+:host {
+
+  @include styles.page-layout();
+}
+
 .ad-container {
   margin-top: 24px;
   background: white;
