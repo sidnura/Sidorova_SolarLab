@@ -1,8 +1,8 @@
-@use "styles";
-
 :host {
-
-  @include styles.page-layout();
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f5f5f5;
 }
 
 .content {

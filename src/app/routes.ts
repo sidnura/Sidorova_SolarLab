@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { AppComponent } from './app.component';
 import { AdminGuard } from './core/guards/admin.guard';
 import { AuthGuard } from './core/guards/auth.guard';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
@@ -29,7 +28,6 @@ export default [
         component: AuthLayoutComponent,
         path: 'auth',
       },
-
       {
         children: [
           {
@@ -49,7 +47,6 @@ export default [
               import('./modules/ads/edit-advertisement/routes'),
             path: 'edit-ad/:id',
           },
-          // ЗАМЕНИТЬ старый маршрут на новый
           {
             loadChildren: () =>
               import('./modules/ad-modules/ad-list-page/routes'),
@@ -88,7 +85,6 @@ export default [
         redirectTo: 'ads',
       },
     ],
-    component: AppComponent,
     path: '',
   },
 ] satisfies Routes;

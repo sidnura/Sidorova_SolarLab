@@ -3,26 +3,24 @@
 <div class="header-top">
   <div class="header-top__wrapper">
     <!-- Кнопка "Добавить объявление" -->
-    <a 
-      routerLink="/add-ad" 
-      class="header-top__btn header-top__btn_add">
+    <a routerLink="/ads/add-ad" class="header-top__btn header-top__btn_add">
       Добавить объявление
       <span class="header-top__plus">+</span>
     </a>
-    
+
     <!-- Динамические кнопки в зависимости от авторизации -->
     <div *ngIf="!isLoggedIn" class="auth-buttons">
       <a routerLink="/auth/login" class="header-top__btn header-top__btn_enter">
         Войти
       </a>
     </div>
-    
+
     <div *ngIf="isLoggedIn" class="user-menu">
-      <a [routerLink]="['/profile']" class="header-top__btn">
+      <a routerLink="/ads/profile" class="header-top__btn">
         Мой профиль
       </a>
       <!-- Кнопка "Пользователи" только для админа -->
-      <a [routerLink]="['/users']" class="header-top__btn" *ngIf="isAdmin()">
+      <a routerLink="/ads/users" class="header-top__btn" *ngIf="isAdmin()">
         Пользователи
       </a>
       <button class="header-top__btn header-top__btn_logout" (click)="onLogout()">
@@ -36,27 +34,27 @@
 <div class="header__nav">
   <div class="header__nav-container">
     <!-- Логотип с ссылкой на главную -->
-    <a routerLink="/" class="header__title">
+    <a routerLink="/ads" class="header__title">
       Доска объявлений
     </a>
-    
-    <app-category-selector 
+
+    <app-category-selector
       (categorySelected)="onCategorySelect($event)">
     </app-category-selector>
-    
+
     <div class="header__search">
       <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="search-form">
         <div class="search-input-container">
-          <input 
-            type="text" 
+          <input
+            type="text"
             formControlName="searchQuery"
-            placeholder="Поиск объявлений..." 
+            placeholder="Поиск объявлений..."
             class="header__search-input"
             (keypress)="onSearchInputKeypress($event)">
           <!-- Крестик для сброса поиска -->
-          <button 
+          <button
             *ngIf="hasSearchText()"
-            type="button" 
+            type="button"
             class="clear-search-btn"
             (click)="clearSearch()"
             title="Очистить поиск">
