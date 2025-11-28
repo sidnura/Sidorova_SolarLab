@@ -3,11 +3,12 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { AdModel } from '@models/ad.model';
+import { NgLetDirective } from '../../../core/directives/ng-let.directive';
 import { AdService } from '../../../core/services/ad.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommentsComponent } from '../../../shared/components/comments/comments.component';
-import { AdListCommonStateModule } from '../../../store/ad-list-common-state/ad-list-common-state.module';
 import { AdDetailsFacade } from '../../../store/ad-list-common-state/ad-details-state/ad-details.facade';
+import { AdListCommonStateModule } from '../../../store/ad-list-common-state/ad-list-common-state.module';
 
 @Component({
   imports: [
@@ -18,6 +19,7 @@ import { AdDetailsFacade } from '../../../store/ad-list-common-state/ad-details-
     DecimalPipe,
     AsyncPipe,
     DatePipe,
+    NgLetDirective,
   ],
   selector: 'app-ad-list-page',
   standalone: true,
@@ -28,6 +30,7 @@ export class AdListPageComponent implements OnInit, OnDestroy {
   public element$: Observable<AdModel | null> = this.adDetailsFacade.elements$;
   public loading$: Observable<Record<string, boolean>> =
     this.adDetailsFacade.loading$;
+  public hasData$: Observable<boolean> = this.adDetailsFacade.hasData$;
 
   showPhone = false;
   currentImageUrl: string | null = null;
