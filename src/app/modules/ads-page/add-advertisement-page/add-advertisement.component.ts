@@ -10,13 +10,13 @@ import { AuthService } from '../../../core/services/auth.service';
 import { AdSharingService } from '../../../core/services/ad-sharing.service';
 
 @Component({
-  selector: 'app-add-advertisement',
+  selector: 'app-add-advertisement-page',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './add-advertisement.component.html',
   styleUrls: ['./add-advertisement.component.scss']
 })
-export class AddAdvertisementComponent implements OnInit, OnDestroy {
+export class AddAdvertisementPageComponent implements OnInit, OnDestroy {
   adForm: FormGroup;
   parentCategories: CategoryModel[] = [];
   childCategories: CategoryModel[] = [];

@@ -1,6 +1,5 @@
-<!-- src/app/shared/components/category-selector/category-selector.component.html -->
 <div class="category-selector">
-  <button 
+  <button
     class="category-selector-btn"
     (click)="toggleDropdown()"
     (mouseenter)="onButtonMouseEnter()"
@@ -8,56 +7,73 @@
     Все категории ▼
   </button>
 
-  <div 
-    class="category-dropdown" 
-    *ngIf="isOpen"
-    (mouseenter)="onDropdownMouseEnter()"
-    (mouseleave)="onDropdownMouseLeave()">
-    
-    <div class="loading-indicator" *ngIf="isLoading">
-      Загрузка категорий...
-    </div>
+  @if (isOpen) {
+    <div
+      class="category-dropdown"
+      (mouseenter)="onDropdownMouseEnter()"
+      (mouseleave)="onDropdownMouseLeave()">
 
-    <div class="error-message" *ngIf="errorMessage && !isLoading">
-      {{ errorMessage }}
-    </div>
+      @if (isLoading) {
+        <div class="loading-indicator">
+          Загрузка категорий...
+        </div>
+      }
 
-    <div class="category-level" *ngIf="!isLoading && !errorMessage">
-      <div 
-        *ngFor="let category of parentCategories"
-        class="category-item"
-        (mouseenter)="onParentCategoryHover(category.id)"
-        [class.active]="selectedParentCategory === category.id">
-        {{ category.name }}
-        <span *ngIf="selectedParentCategory === category.id" class="arrow">▶</span>
-      </div>
-      
-      <div class="no-categories" *ngIf="parentCategories.length === 0">
-        Категории не найдены
-      </div>
-    </div>
+      @if (errorMessage && !isLoading) {
+        <div class="error-message">
+          {{ errorMessage }}
+        </div>
+      }
 
-    <div class="category-level child-level" *ngIf="selectedParentCategory && childCategories.length > 0">
-      <div 
-        *ngFor="let category of childCategories"
-        class="category-item child"
-        (click)="onCategorySelect(category.id)">
-        {{ category.name }}
-      </div>
-      
-      <div 
-        class="category-item child all-category"
-        (click)="onCategorySelect(selectedParentCategory)">
-        Все в этой категории
-      </div>
-    </div>
+      @if (!isLoading && !errorMessage) {
+        <div class="category-level">
+          @for (category of parentCategories; track category.id) {
+            <div
+              class="category-item"
+              (mouseenter)="onParentCategoryHover(category.id)"
+              [class.active]="selectedParentCategory === category.id">
+              {{ category.name }}
+              @if (selectedParentCategory === category.id) {
+                <span class="arrow">▶</span>
+              }
+            </div>
+          }
 
-    <div class="category-level child-level" *ngIf="selectedParentCategory && childCategories.length === 0">
-      <div 
-        class="category-item child all-category"
-        (click)="onCategorySelect(selectedParentCategory)">
-        Все в этой категории
-      </div>
+          @if (parentCategories.length === 0) {
+            <div class="no-categories">
+              Категории не найдены
+            </div>
+          }
+        </div>
+      }
+
+      @if (selectedParentCategory && childCategories.length > 0) {
+        <div class="category-level child-level">
+          @for (category of childCategories; track category.id) {
+            <div
+              class="category-item child"
+              (click)="onCategorySelect(category.id)">
+              {{ category.name }}
+            </div>
+          }
+
+          <div
+            class="category-item child all-category"
+            (click)="onCategorySelect(selectedParentCategory)">
+            Все в этой категории
+          </div>
+        </div>
+      }
+
+      @if (selectedParentCategory && childCategories.length === 0) {
+        <div class="category-level child-level">
+          <div
+            class="category-item child all-category"
+            (click)="onCategorySelect(selectedParentCategory)">
+            Все в этой категории
+          </div>
+        </div>
+      }
     </div>
-  </div>
+  }
 </div>

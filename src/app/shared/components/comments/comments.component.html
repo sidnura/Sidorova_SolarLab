@@ -2,129 +2,162 @@
   <h3 class="comments-title">Комментарии ({{comments.length}})</h3>
 
   <!-- Сообщения -->
-  <div *ngIf="errorMessage" class="alert alert-error">
-    {{ errorMessage }}
-  </div>
+  @if (errorMessage) {
+    <div class="alert alert-error">
+      {{ errorMessage }}
+    </div>
+  }
 
-  <div *ngIf="successMessage" class="alert alert-success">
-    {{ successMessage }}
-  </div>
+  @if (successMessage) {
+    <div class="alert alert-success">
+      {{ successMessage }}
+    </div>
+  }
 
   <!-- Форма добавления комментария -->
-  <div *ngIf="isLoggedIn" class="comment-form">
-    <form [formGroup]="commentForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <textarea
-          formControlName="text"
-          placeholder="Добавьте комментарий..."
-          rows="3"
-          class="comment-textarea"
-          [class.invalid]="commentForm.get('text')?.invalid && commentForm.get('text')?.touched">
-        </textarea>
-        <div class="validation-errors" *ngIf="commentForm.get('text')?.invalid && commentForm.get('text')?.touched">
-          <small *ngIf="commentForm.get('text')?.errors?.['required']">Введите текст комментария</small>
-          <small *ngIf="commentForm.get('text')?.errors?.['maxlength']">
-            Максимум {{commentForm.get('text')?.errors?.['maxlength']?.requiredLength}} символов
-          </small>
+  @if (isLoggedIn) {
+    <div class="comment-form">
+      <form [formGroup]="commentForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <textarea
+            formControlName="text"
+            placeholder="Добавьте комментарий..."
+            rows="3"
+            class="comment-textarea"
+            [class.invalid]="commentForm.get('text')?.invalid && commentForm.get('text')?.touched">
+          </textarea>
+          @if (commentForm.get('text')?.invalid && commentForm.get('text')?.touched) {
+            <div class="validation-errors">
+              @if (commentForm.get('text')?.errors?.['required']) {
+                <small>Введите текст комментария</small>
+              }
+              @if (commentForm.get('text')?.errors?.['maxlength']) {
+                <small>Максимум {{commentForm.get('text')?.errors?.['maxlength']?.requiredLength}} символов</small>
+              }
+            </div>
+          }
         </div>
-      </div>
-      <button
-        type="submit"
-        class="btn btn-primary"
-        [disabled]="commentForm.invalid || isLoading">
-        {{ isLoading ? 'Отправка...' : 'Добавить комментарий' }}
-      </button>
-    </form>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="commentForm.invalid || isLoading">
+          {{ isLoading ? 'Отправка...' : 'Добавить комментарий' }}
+        </button>
+      </form>
+    </div>
+  }
 
-
-  </div>
-
-  <div *ngIf="!isLoggedIn" class="login-prompt">
-    <p>Войдите, чтобы оставить комментарий</p>
-  </div>
+  @if (!isLoggedIn) {
+    <div class="login-prompt">
+      <p>Войдите, чтобы оставить комментарий</p>
+    </div>
+  }
 
   <!-- Список комментариев -->
-  <div class="comments-list" *ngIf="!isLoading && comments.length > 0">
-    <div class="comment-item" *ngFor="let comment of comments">
-      <div class="comment-header">
-        <span class="comment-author">{{ comment.user.name }}</span>
-        <span class="comment-date">{{ formatDate(comment.created) }}</span>
-      </div>
-      <div class="comment-text">{{ comment.text }}</div>
-      
-      <!-- Действия с комментарием -->
-      <div class="comment-actions">
-        <button 
-          *ngIf="isLoggedIn"
-          class="btn-reply"
-          (click)="startReply(comment.id)">
-          Ответить
-        </button>
-        
-        <div class="comment-owner-actions" *ngIf="canEditComment(comment)">
-          <button class="btn-edit" (click)="editComment(comment)">Редактировать</button>
-          <button class="btn-delete" (click)="deleteComment(comment)">Удалить</button>
-        </div>
-      </div>
+  @if (!isLoading && comments.length > 0) {
+    <div class="comments-list">
+      @for (comment of comments; track comment.id) {
+        <div class="comment-item">
+          <div class="comment-header">
+            <span class="comment-author">{{ comment.user.name }}</span>
+            <span class="comment-date">{{ formatDate(comment.created) }}</span>
+          </div>
+          <div class="comment-text">{{ comment.text }}</div>
 
-      <!-- Форма ответа -->
-      <div *ngIf="replyingTo === comment.id" class="reply-form">
-        <form [formGroup]="replyForm" (ngSubmit)="onReply(comment.id)">
-          <div class="form-group">
-            <textarea
-              formControlName="text"
-              placeholder="Ваш ответ..."
-              rows="2"
-              class="reply-textarea"
-              [class.invalid]="replyForm.get('text')?.invalid && replyForm.get('text')?.touched">
-            </textarea>
-            <div class="validation-errors" *ngIf="replyForm.get('text')?.invalid && replyForm.get('text')?.touched">
-              <small *ngIf="replyForm.get('text')?.errors?.['required']">Введите текст ответа</small>
+          <!-- Действия с комментарием -->
+          <div class="comment-actions">
+            @if (isLoggedIn) {
+              <button
+                class="btn-reply"
+                (click)="startReply(comment.id)">
+                Ответить
+              </button>
+            }
+
+            @if (canEditComment(comment)) {
+              <div class="comment-owner-actions">
+                <button class="btn-edit" (click)="editComment(comment)">Редактировать</button>
+                <button class="btn-delete" (click)="deleteComment(comment)">Удалить</button>
+              </div>
+            }
+          </div>
+
+          <!-- Форма ответа -->
+          @if (replyingTo === comment.id) {
+            <div class="reply-form">
+              <form [formGroup]="replyForm" (ngSubmit)="onReply(comment.id)">
+                <div class="form-group">
+                  <textarea
+                    formControlName="text"
+                    placeholder="Ваш ответ..."
+                    rows="2"
+                    class="reply-textarea"
+                    [class.invalid]="replyForm.get('text')?.invalid && replyForm.get('text')?.touched">
+                  </textarea>
+                  @if (replyForm.get('text')?.invalid && replyForm.get('text')?.touched) {
+                    <div class="validation-errors">
+                      @if (replyForm.get('text')?.errors?.['required']) {
+                        <small>Введите текст ответа</small>
+                      }
+                    </div>
+                  }
+                </div>
+                <div class="reply-actions">
+                  <button
+                    type="submit"
+                    class="btn btn-primary btn-sm"
+                    [disabled]="replyForm.invalid || isLoading">
+                    Отправить
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-sm"
+                    (click)="cancelReply()">
+                    Отмена
+                  </button>
+                </div>
+              </form>
             </div>
-          </div>
-          <div class="reply-actions">
-            <button
-              type="submit"
-              class="btn btn-primary btn-sm"
-              [disabled]="replyForm.invalid || isLoading">
-              Отправить
-            </button>
-            <button
-              type="button"
-              class="btn btn-secondary btn-sm"
-              (click)="cancelReply()">
-              Отмена
-            </button>
-          </div>
-        </form>
-      </div>
+          }
 
-      <!-- Ответы на комментарий -->
-      <div class="replies" *ngIf="comment.replies && comment.replies.length > 0">
-        <div class="reply-item" *ngFor="let reply of comment.replies">
-          <div class="reply-header">
-            <span class="reply-author">{{ reply.user.name }}</span>
-            <span class="reply-date">{{ formatDate(reply.created) }}</span>
-          </div>
-          <div class="reply-text">{{ reply.text }}</div>
-          
-          <div class="reply-actions" *ngIf="canEditComment(reply)">
-            <button class="btn-edit" (click)="editComment(reply)">Редактировать</button>
-            <button class="btn-delete" (click)="deleteComment(reply)">Удалить</button>
-          </div>
+          <!-- Ответы на комментарий -->
+          @if (comment.replies && comment.replies.length > 0) {
+            <div class="replies">
+              @for (reply of comment.replies; track reply.id) {
+                <div class="reply-item">
+                  <div class="reply-header">
+                    <span class="reply-author">{{ reply.user.name }}</span>
+                    <span class="reply-date">{{ formatDate(reply.created) }}</span>
+                  </div>
+                  <div class="reply-text">{{ reply.text }}</div>
+
+                  @if (canEditComment(reply)) {
+                    <div class="reply-actions">
+                      <button class="btn-edit" (click)="editComment(reply)">Редактировать</button>
+                      <button class="btn-delete" (click)="deleteComment(reply)">Удалить</button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
         </div>
-      </div>
+      }
     </div>
-  </div>
+  }
 
   <!-- Состояние загрузки -->
-  <div *ngIf="isLoading" class="loading-state">
-    <div class="spinner"></div>
-    <p>Загрузка комментариев...</p>
-  </div>
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Загрузка комментариев...</p>
+    </div>
+  }
 
   <!-- Пустое состояние -->
-  <div *ngIf="!isLoading && comments.length === 0" class="empty-state">
-    <p>Пока нет комментариев. Будьте первым!</p>
-  </div>
+  @if (!isLoading && comments.length === 0) {
+    <div class="empty-state">
+      <p>Пока нет комментариев. Будьте первым!</p>
+    </div>
+  }
 </div>

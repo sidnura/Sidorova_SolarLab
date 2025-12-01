@@ -11,12 +11,12 @@ export default [
         children: [
           {
             loadChildren: () =>
-              import('./core/auth/login/routes').then((m) => m.default),
+              import('./core/auth/login-page/routes').then((m) => m.default),
             path: 'login',
           },
           {
             loadChildren: () =>
-              import('./core/auth/register/routes').then((m) => m.default),
+              import('./core/auth/register-page/routes').then((m) => m.default),
             path: 'register',
           },
           {
@@ -31,25 +31,25 @@ export default [
       {
         children: [
           {
-            loadChildren: () => import('./modules/ads/routes'),
+            loadChildren: () => import('./modules/ads-page/routes'),
             path: '',
             pathMatch: 'full',
           },
           {
             canActivate: [AuthGuard],
             loadChildren: () =>
-              import('./modules/ads/add-advertisement/routes'),
+              import('./modules/ads-page/add-advertisement-page/routes'),
             path: 'add-ad',
           },
           {
             canActivate: [AuthGuard],
             loadChildren: () =>
-              import('./modules/ads/edit-advertisement/routes'),
+              import('./modules/ads-page/edit-advertisement-page/routes'),
             path: 'edit-ad/:id',
           },
           {
             loadChildren: () =>
-              import('./modules/ad-modules/ad-list-page/routes'),
+              import('./modules/ad-modules/ad-details-page/routes'),
             path: 'ad/:id',
           },
           {
@@ -73,16 +73,16 @@ export default [
           }
         ],
         component: BaseLayoutComponent,
-        path: 'ads',
+        path: 'ads-page',
       },
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'ads',
+        redirectTo: 'ads-page',
       },
       {
         path: '**',
-        redirectTo: 'ads',
+        redirectTo: 'ads-page',
       },
     ],
     path: '',

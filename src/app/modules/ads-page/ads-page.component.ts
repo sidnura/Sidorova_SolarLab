@@ -1,4 +1,4 @@
-import { AsyncPipe, DecimalPipe, NgIf } from '@angular/common';
+import { AsyncPipe, DecimalPipe } from '@angular/common'; // ← Убрали NgIf
 import {
   ChangeDetectionStrategy,
   Component,
@@ -21,18 +21,18 @@ import { AdListFacade } from '../../store/ad-list-common-state/ad-list-state/ad-
   imports: [
     RouterModule,
     AdListCommonStateModule,
-    NgIf,
-    DecimalPipe,
+    DecimalPipe, // ← Убрали NgIf
     AsyncPipe,
   ],
-  selector: 'app-ads',
+  selector: 'app-advertisements-list-page',
   standalone: true,
-  styleUrl: './ads.component.scss',
-  templateUrl: './ads.component.html',
+  styleUrl: './ads-page.component.scss',
+  templateUrl: './ads-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AdsComponent implements OnInit, OnDestroy {
+export class AdvertisementsListPageComponent implements OnInit, OnDestroy {
   public adList$: Observable<AdModel[]> = this.adListFacade.elements$;
+  public loading$: Observable<Record<string, boolean>> = this.adListFacade.loading$; // ← ДОБАВИЛИ hasData$
 
   apiAdvertisements: AdModel[] = [];
   filteredAdvertisements: AdModel[] = [];

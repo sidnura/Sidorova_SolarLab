@@ -1,22 +1,29 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { AdService } from '../../../core/services/ad.service';
-import { CategoryService } from '../../../core/services/category.service';
-import { CategoryModel } from '../../../core/services/category.service';
+import {
+  CategoryModel,
+  CategoryService,
+} from '../../../core/services/category.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { AdModel } from '../../../core/models/ad.model';
 
 @Component({
-  selector: 'app-edit-advertisement',
+  selector: 'app-edit-advertisement-page',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './edit-advertisement.component.html',
-  styleUrls: ['./edit-advertisement.component.scss']
+  styleUrls: ['./edit-advertisement.component.scss'],
 })
-export class EditAdvertisementComponent implements OnInit, OnDestroy {
+export class EditAdvertisementPageComponent implements OnInit, OnDestroy {
   adForm: FormGroup;
   advertisement: AdModel | null = null;
   parentCategories: CategoryModel[] = [];
@@ -44,6 +51,38 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
     this.adForm = this.createForm();
   }
 
+  get name() {
+    return this.adForm.get('name');
+  }
+
+  get description() {
+    return this.adForm.get('description');
+  }
+
+  get cost() {
+    return this.adForm.get('cost');
+  }
+
+  get email() {
+    return this.adForm.get('email');
+  }
+
+  get phone() {
+    return this.adForm.get('phone');
+  }
+
+  get location() {
+    return this.adForm.get('location');
+  }
+
+  get parentCategoryId() {
+    return this.adForm.get('parentCategoryId');
+  }
+
+  get categoryId() {
+    return this.adForm.get('categoryId');
+  }
+
   ngOnInit(): void {
     this.adId = this.route.snapshot.paramMap.get('id') || '';
 
@@ -63,18 +102,38 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
 
   createForm(): FormGroup {
     return this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      name: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(100),
+        ],
+      ],
       description: ['', [Validators.maxLength(1000)]],
-      cost: [0, [Validators.required, Validators.min(0), Validators.max(100000000)]],
+      cost: [
+        0,
+        [Validators.required, Validators.min(0), Validators.max(100000000)],
+      ],
       email: ['', [Validators.email]],
-      phone: ['', [
-        Validators.required,
-        Validators.minLength(10),
-        Validators.pattern(/^\d{10}$/)
-      ]],
-      location: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
+      phone: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(10),
+          Validators.pattern(/^\d{10}$/),
+        ],
+      ],
+      location: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(200),
+        ],
+      ],
       parentCategoryId: ['', Validators.required],
-      categoryId: ['']
+      categoryId: [''],
     });
   }
 
@@ -99,7 +158,7 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
         } else {
           this.errorMessage = 'Ошибка загрузки объявления';
         }
-      }
+      },
     });
   }
 
@@ -114,7 +173,7 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
       phone: this.cleanPhoneForForm(ad.phone || ''),
       location: ad.location,
       parentCategoryId: parentCategoryId,
-      categoryId: ad.category?.id || ''
+      categoryId: ad.category?.id || '',
     });
 
     if (parentCategoryId) {
@@ -144,7 +203,7 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
       },
       error: (error: any) => {
         this.errorMessage = 'Ошибка загрузки категорий';
-      }
+      },
     });
   }
 
@@ -159,12 +218,12 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
       error: (error: any) => {
         this.childCategories = [];
         this.adForm.patchValue({ categoryId: parentId });
-      }
+      },
     });
   }
 
   setupCategoryChangeListener(): void {
-    this.adForm.get('parentCategoryId')?.valueChanges.subscribe(parentId => {
+    this.adForm.get('parentCategoryId')?.valueChanges.subscribe((parentId) => {
       if (parentId) {
         this.selectedParentCategory = parentId;
         this.loadChildCategories(parentId);
@@ -210,7 +269,10 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
     const formatted = this.formatPhoneNumber(input.value);
     input.value = formatted;
 
-    const newCursorPosition = this.calculateNewCursorPosition(input.value, cursorPosition || 0);
+    const newCursorPosition = this.calculateNewCursorPosition(
+      input.value,
+      cursorPosition || 0
+    );
     input.setSelectionRange(newCursorPosition, newCursorPosition);
 
     const cleaned = this.cleanPhoneNumber(formatted);
@@ -221,10 +283,19 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     const cursorPosition = input.selectionStart;
 
-    if ([
-      'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
-      'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'
-    ].includes(event.key)) {
+    if (
+      [
+        'Backspace',
+        'Delete',
+        'Tab',
+        'Escape',
+        'Enter',
+        'ArrowLeft',
+        'ArrowRight',
+        'ArrowUp',
+        'ArrowDown',
+      ].includes(event.key)
+    ) {
       return;
     }
 
@@ -234,8 +305,13 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
 
     if (event.key === 'Backspace' && cursorPosition) {
       const value = input.value;
-      const isAtSpecialPosition = [1, 2, 6, 7, 11, 12, 15, 16].includes(cursorPosition);
-      if (isAtSpecialPosition && value[cursorPosition - 1]?.match(/[\(\)\-\s]/)) {
+      const isAtSpecialPosition = [1, 2, 6, 7, 11, 12, 15, 16].includes(
+        cursorPosition
+      );
+      if (
+        isAtSpecialPosition &&
+        value[cursorPosition - 1]?.match(/[\(\)\-\s]/)
+      ) {
         setTimeout(() => {
           input.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
         });
@@ -243,7 +319,10 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
     }
   }
 
-  calculateNewCursorPosition(newValue: string, oldCursorPosition: number): number {
+  calculateNewCursorPosition(
+    newValue: string,
+    oldCursorPosition: number
+  ): number {
     if (oldCursorPosition === 0) return 0;
     const specialChars = ['(', ')', ' ', '-'];
     let newPosition = oldCursorPosition;
@@ -271,7 +350,7 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
     const files: FileList = event.target.files;
     if (files.length > 0) {
       const newFiles = Array.from(files);
-      newFiles.forEach(file => {
+      newFiles.forEach((file) => {
         const blobUrl = URL.createObjectURL(file);
         const safeUrl = this.sanitizer.bypassSecurityTrustUrl(blobUrl);
         this.imageUrls.push(safeUrl);
@@ -314,14 +393,6 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
     }
   }
 
-  private cleanupImageUrls(): void {
-    this.imageUrls.forEach(url => {
-      if (typeof url === 'string') URL.revokeObjectURL(url);
-    });
-    this.imageUrls = [];
-    this.selectedFiles = [];
-  }
-
   onSubmit(): void {
     if (this.adForm.valid && this.advertisement) {
       const finalCategoryId = this.getFinalCategoryId();
@@ -349,12 +420,12 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
       formData.append('Location', formValue.location);
       formData.append('CategoryId', finalCategoryId);
 
-      this.selectedFiles.forEach(file => {
+      this.selectedFiles.forEach((file) => {
         formData.append('Images', file, file.name);
       });
 
       if (this.imagesToDelete.length > 0) {
-        this.imagesToDelete.forEach(imageId => {
+        this.imagesToDelete.forEach((imageId) => {
           formData.append('ImagesToDelete', imageId);
         });
       }
@@ -380,11 +451,13 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
           } else if (error.status === 400) {
             this.errorMessage = 'Неверные данные. Проверьте заполнение полей.';
           } else if (error.status === 422) {
-            this.errorMessage = error.error?.userMessage || 'Произошёл конфликт бизнес-логики';
+            this.errorMessage =
+              error.error?.userMessage || 'Произошёл конфликт бизнес-логики';
           } else {
-            this.errorMessage = error.error?.userMessage || 'Ошибка при обновлении объявления';
+            this.errorMessage =
+              error.error?.userMessage || 'Ошибка при обновлении объявления';
           }
-        }
+        },
       });
     } else {
       this.markFormGroupTouched();
@@ -392,23 +465,22 @@ export class EditAdvertisementComponent implements OnInit, OnDestroy {
     }
   }
 
-  private markFormGroupTouched(): void {
-    Object.keys(this.adForm.controls).forEach(key => {
-      this.adForm.get(key)?.markAsTouched();
-    });
-  }
-
   onCancel(): void {
     this.cleanupImageUrls();
     this.router.navigate(['/ad', this.adId]);
   }
 
-  get name() { return this.adForm.get('name'); }
-  get description() { return this.adForm.get('description'); }
-  get cost() { return this.adForm.get('cost'); }
-  get email() { return this.adForm.get('email'); }
-  get phone() { return this.adForm.get('phone'); }
-  get location() { return this.adForm.get('location'); }
-  get parentCategoryId() { return this.adForm.get('parentCategoryId'); }
-  get categoryId() { return this.adForm.get('categoryId'); }
+  private cleanupImageUrls(): void {
+    this.imageUrls.forEach((url) => {
+      if (typeof url === 'string') URL.revokeObjectURL(url);
+    });
+    this.imageUrls = [];
+    this.selectedFiles = [];
+  }
+
+  private markFormGroupTouched(): void {
+    Object.keys(this.adForm.controls).forEach((key) => {
+      this.adForm.get(key)?.markAsTouched();
+    });
+  }
 }
