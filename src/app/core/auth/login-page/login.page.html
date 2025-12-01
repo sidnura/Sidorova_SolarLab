@@ -1,4 +1,3 @@
-<!-- src/app/auth/login/login.component.html -->
 <div class="form-container">
   <div class="form-wrapper">
     <div class="form-header">
@@ -9,43 +8,55 @@
         </svg>
       </button>
     </div>
-    
+
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
-      
+
       <div class="form-group">
-        <input 
-          type="text" 
+        <input
+          type="text"
           class="form-input"
           placeholder="Логин"
           formControlName="login"
           required
           [class.error]="login?.invalid && login?.touched">
-        <div class="validation-error" *ngIf="login?.invalid && login?.touched">
-          <span *ngIf="login?.errors?.['required']">Логин обязателен</span>
-        </div>
+        @if (login?.invalid && login?.touched) {
+          <div class="validation-error">
+            @if (login?.errors?.['required']) {
+              <span>Логин обязателен</span>
+            }
+          </div>
+        }
       </div>
-      
+
       <div class="form-group">
-        <input 
-          type="password" 
+        <input
+          type="password"
           class="form-input"
           placeholder="Пароль"
           formControlName="password"
           required
           [class.error]="password?.invalid && password?.touched">
-        <div class="validation-error" *ngIf="password?.invalid && password?.touched">
-          <span *ngIf="password?.errors?.['required']">Пароль обязателен</span>
-          <span *ngIf="password?.errors?.['minlength']">Минимум 6 символов</span>
-        </div>
+        @if (password?.invalid && password?.touched) {
+          <div class="validation-error">
+            @if (password?.errors?.['required']) {
+              <span>Пароль обязателен</span>
+            }
+            @if (password?.errors?.['minlength']) {
+              <span>Минимум 6 символов</span>
+            }
+          </div>
+        }
       </div>
 
-      <div class="alert-error" *ngIf="errorMessage">
-        <div class="alert-content">
-          <span class="alert-icon">❌</span>
-          {{ errorMessage }}
+      @if (errorMessage) {
+        <div class="alert-error">
+          <div class="alert-content">
+            <span class="alert-icon">❌</span>
+            {{ errorMessage }}
+          </div>
         </div>
-      </div>
-      
+      }
+
       <div class="form-options">
         <label class="checkbox-label">
           <input type="checkbox" class="checkbox">
@@ -54,21 +65,21 @@
         </label>
         <a href="#" class="form-link">Забыли пароль?</a>
       </div>
-      
-      <button 
-        type="submit" 
+
+      <button
+        type="submit"
         class="form-btn form-btn--primary form-btn--small"
         [disabled]="loginForm.invalid || isLoading">
         {{ isLoading ? 'Вход...' : 'Войти' }}
       </button>
     </form>
-    
+
     <div class="form-footer">
       <p class="form-footer-text">
-        Ещё нет аккаунта? 
+        Ещё нет аккаунта?
         <a routerLink="/auth/register" class="form-link">Зарегистрироваться</a>
       </p>
-      
+
       <a routerLink="/" class="back-link">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
           <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>

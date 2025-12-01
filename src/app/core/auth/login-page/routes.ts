@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
-import { RegisterComponent } from './register.component';
+import { LoginComponent } from './login.page';
 
 export default [
   {
-    component: RegisterComponent,
+    component: LoginComponent,
     path: '',
   },
 ] satisfies Routes;

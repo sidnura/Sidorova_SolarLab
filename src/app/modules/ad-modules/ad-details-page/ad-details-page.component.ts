@@ -1,9 +1,8 @@
-import { AsyncPipe, DatePipe, DecimalPipe, NgIf } from '@angular/common';
+import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { AdModel } from '@models/ad.model';
-import { NgLetDirective } from '../../../core/directives/ng-let.directive';
 import { AdService } from '../../../core/services/ad.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommentsComponent } from '../../../shared/components/comments/comments.component';
@@ -14,22 +13,19 @@ import { AdListCommonStateModule } from '../../../store/ad-list-common-state/ad-
   imports: [
     RouterModule,
     CommentsComponent,
-    AdListCommonStateModule,
-    NgIf,
     DecimalPipe,
     AsyncPipe,
     DatePipe,
-    NgLetDirective,
+    AdListCommonStateModule,
   ],
-  selector: 'app-ad-list-page',
+  selector: 'app-ad-details-page',
   standalone: true,
-  styleUrls: ['./ad-list-page.component.scss'],
-  templateUrl: './ad-list-page.component.html',
+  styleUrls: ['./ad-details-page.component.scss'],
+  templateUrl: './ad-details-page.component.html',
 })
-export class AdListPageComponent implements OnInit, OnDestroy {
+export class AdDetailsPageComponent implements OnInit, OnDestroy {
   public element$: Observable<AdModel | null> = this.adDetailsFacade.elements$;
-  public loading$: Observable<Record<string, boolean>> =
-    this.adDetailsFacade.loading$;
+  public loading$: Observable<Record<string, boolean>> = this.adDetailsFacade.loading$;
   public hasData$: Observable<boolean> = this.adDetailsFacade.hasData$;
 
   showPhone = false;
@@ -76,7 +72,6 @@ export class AdListPageComponent implements OnInit, OnDestroy {
 
   checkIfOwner(ad: AdModel): boolean {
     if (!this.currentUserId || !ad.user) return false;
-
     return ad.user.id === this.currentUserId;
   }
 
@@ -104,7 +99,6 @@ export class AdListPageComponent implements OnInit, OnDestroy {
     if (this.allImageUrls.length > 0) {
       return this.allImageUrls[this.currentImageIndex];
     }
-
     return null;
   }
 

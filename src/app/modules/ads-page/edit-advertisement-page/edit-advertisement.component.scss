@@ -1,4 +1,4 @@
-// ads/edit-advertisement/edit-advertisement.component.scss
+// ads-page/edit-advertisement-page/edit-advertisement-page.component.scss
 .edit-advertisement-container {
   max-width: 800px;
   margin: 0 auto;
@@ -35,7 +35,7 @@
   border: 1px solid #007bff;
   border-radius: 6px;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background-color: #007bff;
     color: white;
@@ -67,7 +67,7 @@
   margin-bottom: 8px;
   color: #495057;
   font-size: 14px;
-  
+
   &.required::after {
     content: " *";
     color: #dc3545;
@@ -116,7 +116,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  
+
   &.invalid {
     .phone-input {
       border-color: #dc3545;
@@ -143,7 +143,7 @@
   font-weight: 500;
   color: #495057;
   letter-spacing: 0;
-  
+
   &::placeholder {
     font-family: inherit;
     font-weight: normal;
@@ -209,16 +209,16 @@
   background: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  
+
   &:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
-  
+
   &.existing {
     border-color: #28a745;
     background: #f8fff9;
   }
-  
+
   &.new {
     border-color: #007bff;
     background: #f0f8ff;
@@ -250,7 +250,7 @@
   justify-content: center;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  
+
   &:hover {
     background: #c82333;
     transform: scale(1.1);
@@ -272,7 +272,7 @@
   color: #dc3545;
   font-size: 12px;
   padding: 10px;
-  
+
   div {
     margin-bottom: 4px;
   }
@@ -280,13 +280,13 @@
 
 .validation-errors {
   margin-top: 6px;
-  
+
   small {
     color: #dc3545;
     font-size: 12px;
     display: block;
     margin-top: 2px;
-    
+
     &:first-child {
       margin-top: 0;
     }
@@ -299,7 +299,7 @@
   border: 1px solid #b3d7ff;
   border-radius: 6px;
   color: #0066cc;
-  
+
   small {
     font-size: 13px;
     font-weight: 500;
@@ -312,13 +312,13 @@
   font-size: 14px;
   margin-bottom: 16px;
   animation: slideIn 0.3s ease-out;
-  
+
   &.alert-error {
     background-color: #f8d7da;
     border: 1px solid #f5c6cb;
     color: #721c24;
   }
-  
+
   &.alert-success {
     background-color: #d4edda;
     border: 1px solid #c3e6cb;
@@ -376,7 +376,7 @@
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
   }
-  
+
   &:active:not(:disabled) {
     transform: translateY(0);
   }
@@ -390,7 +390,7 @@
     background-color: #545b62;
     transform: translateY(-1px);
   }
-  
+
   &:active:not(:disabled) {
     transform: translateY(0);
   }
@@ -422,11 +422,11 @@
 }
 
 @keyframes spin {
-  0% { 
-    transform: rotate(0deg); 
+  0% {
+    transform: rotate(0deg);
   }
-  100% { 
-    transform: rotate(360deg); 
+  100% {
+    transform: rotate(360deg);
   }
 }
 
@@ -453,7 +453,7 @@ select.form-control {
   background-repeat: no-repeat;
   background-size: 1.5em 1.5em;
   padding-right: 2.5rem;
-  
+
   &:focus {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23007bff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
   }
@@ -518,20 +518,20 @@ select.form-control {
   font-size: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &.primary {
     background: #007bff;
     color: white;
-    
+
     &:hover {
       background: #0056b3;
     }
   }
-  
+
   &.danger {
     background: #dc3545;
     color: white;
-    
+
     &:hover {
       background: #c82333;
     }
@@ -548,7 +548,7 @@ select.form-control {
     gap: 15px;
     align-items: flex-start;
     padding: 16px;
-    
+
     h2 {
       font-size: 20px;
     }
@@ -557,25 +557,25 @@ select.form-control {
   .form-card {
     padding: 20px;
   }
-  
+
   .ad-form {
     gap: 16px;
   }
 
   .form-actions {
     flex-direction: column;
-    
+
     .btn {
       min-width: 100%;
       justify-content: center;
     }
   }
-  
+
   .image-previews {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     gap: 12px;
   }
-  
+
   .preview-img {
     height: 80px;
   }
@@ -585,36 +585,36 @@ select.form-control {
   .edit-advertisement-container {
     padding: 10px;
   }
-  
+
   .form-header {
     margin-bottom: 20px;
     padding: 12px;
-    
+
     h2 {
       font-size: 18px;
     }
   }
-  
+
   .form-card {
     padding: 16px;
   }
-  
+
   .back-link {
     font-size: 13px;
     padding: 6px 12px;
   }
-  
+
   .btn {
     padding: 10px 16px;
     font-size: 13px;
     min-width: 100px;
   }
-  
+
   .image-previews {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .phone-input {
-    font-size: 16px; 
+    font-size: 16px;
   }
 }

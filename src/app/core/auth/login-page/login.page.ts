@@ -5,11 +5,11 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { AuthService, LoginRequestModel } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-login-page',
   standalone: true,
   imports: [CommonModule, RouterModule, ReactiveFormsModule],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  templateUrl: './login.page.html',
+  styleUrl: './login.page.scss'
 })
 export class LoginComponent {
   loginForm: FormGroup;

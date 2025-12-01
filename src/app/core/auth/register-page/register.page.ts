@@ -6,11 +6,11 @@ import { AuthService, RegisterRequestModel } from '../../services/auth.service';
 import { markFormGroupTouched } from '../../utils/form.utils';
 
 @Component({
-  selector: 'app-register',
+  selector: 'app-register-page',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
-  templateUrl: './register.component.html',
-  styleUrl: './register.component.scss'
+  templateUrl: './register.page.html',
+  styleUrl: './register.page.scss'
 })
 export class RegisterComponent {
   registerForm: FormGroup;

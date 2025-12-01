@@ -1,4 +1,3 @@
-<!-- src/app/shared/components/header/header.component.html -->
 <!-- Верхняя синяя полоса -->
 <div class="header-top">
   <div class="header-top__wrapper">
@@ -9,24 +8,30 @@
     </a>
 
     <!-- Динамические кнопки в зависимости от авторизации -->
-    <div *ngIf="!isLoggedIn" class="auth-buttons">
-      <a routerLink="/auth/login" class="header-top__btn header-top__btn_enter">
-        Войти
-      </a>
-    </div>
+    @if (!isLoggedIn) {
+      <div class="auth-buttons">
+        <a routerLink="/auth/login" class="header-top__btn header-top__btn_enter">
+          Войти
+        </a>
+      </div>
+    }
 
-    <div *ngIf="isLoggedIn" class="user-menu">
-      <a routerLink="/ads/profile" class="header-top__btn">
-        Мой профиль
-      </a>
-      <!-- Кнопка "Пользователи" только для админа -->
-      <a routerLink="/ads/users" class="header-top__btn" *ngIf="isAdmin()">
-        Пользователи
-      </a>
-      <button class="header-top__btn header-top__btn_logout" (click)="onLogout()">
-        Выйти
-      </button>
-    </div>
+    @if (isLoggedIn) {
+      <div class="user-menu">
+        <a routerLink="/ads/profile" class="header-top__btn">
+          Мой профиль
+        </a>
+        <!-- Кнопка "Пользователи" только для админа -->
+        @if (isAdmin()) {
+          <a routerLink="/ads/users" class="header-top__btn">
+            Пользователи
+          </a>
+        }
+        <button class="header-top__btn header-top__btn_logout" (click)="onLogout()">
+          Выйти
+        </button>
+      </div>
+    }
   </div>
 </div>
 
@@ -52,14 +57,15 @@
             class="header__search-input"
             (keypress)="onSearchInputKeypress($event)">
           <!-- Крестик для сброса поиска -->
-          <button
-            *ngIf="hasSearchText()"
-            type="button"
-            class="clear-search-btn"
-            (click)="clearSearch()"
-            title="Очистить поиск">
-            ×
-          </button>
+          @if (hasSearchText()) {
+            <button
+              type="button"
+              class="clear-search-btn"
+              (click)="clearSearch()"
+              title="Очистить поиск">
+              ×
+            </button>
+          }
         </div>
         <button type="submit" class="header__search-btn">
           Найти

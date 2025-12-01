@@ -1,0 +1,91 @@
+<!-- ads-page.component.html -->
+<section class="recommendations">
+  <div class="container">
+    <div class="recommendations-header">
+      <h2 class="recommendations__title">Рекомендации для вас</h2>
+
+      <!-- Кнопка сброса фильтров (только при активных фильтрах) -->
+      @if (hasActiveFilters()) {
+        <button class="reset-filters-btn" (click)="resetAllFilters()">
+          ✕ Сбросить фильтры
+        </button>
+      }
+    </div>
+  </div>
+</section>
+
+<div class="main__container container">
+  @if (loading$ | async; as loadingState) {
+    @if (loadingState['list']) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Загрузка объявлений...</p>
+      </div>
+    }
+  }
+
+  <ul class="ads">
+    @for (ad of adList$ | async; track ad.id) {
+      <li class="ads__item" (click)="onClick(ad)">
+
+        <!-- Кнопка удаления показывается только для авторизованного пользователя -->
+        @if (isLoggedIn) {
+          <button
+            class="delete-btn"
+            (click)="deleteAd(ad.id, $event)"
+            title="Удалить объявление">
+            🗑️
+          </button>
+        }
+
+        <div class="ads__image-container">
+          @if (false) {
+            <img
+              class="ads__image"
+              [src]="ad"
+              [alt]="ad.name"
+              (error)="onImageError($event, ad)"
+              loading="lazy">
+          } @else {
+            <div class="no-image-placeholder">
+              <div class="placeholder-content">
+                <span class="placeholder-icon">📷</span>
+                <span class="placeholder-text">Нет фото</span>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="ads__content">
+          <h3 class="ads__title">{{ ad.name }}</h3>
+          <p class="ads__price">{{ ad.cost | number }} ₽</p>
+          <p class="ads__description">{{ ad.location }} {{ ad.createdAt }}</p>
+        </div>
+      </li>
+    }
+  </ul>
+
+  <!-- Сообщение когда нет объявлений -->
+  @if (!isLoading) {
+    @if (getAllAds().length === 0) {
+      <div class="empty-state">
+        <h2>Объявления не найдены!</h2>
+
+        @if (hasActiveFilters()) {
+          <p>Попробуйте изменить параметры поиска или сбросить фильтры</p>
+        } @else {
+          <p>Пока нет объявлений. Будьте первым!</p>
+        }
+
+        <button class="btn-primary" routerLink="/add-ad">Добавить объявление</button>
+
+        <!-- Кнопка сброса фильтров в пустом состоянии -->
+        @if (hasActiveFilters()) {
+          <button class="btn-secondary" (click)="resetAllFilters()">
+            Сбросить фильтры
+          </button>
+        }
+      </div>
+    }
+  }
+</div>

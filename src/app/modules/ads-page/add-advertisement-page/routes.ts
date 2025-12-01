@@ -1,11 +1,11 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '../../../core/guards/auth.guard';
-import { EditAdvertisementComponent } from './edit-advertisement.component';
+import { AddAdvertisementPageComponent } from './add-advertisement.component';
 
 export default [
   {
     canActivate: [AuthGuard],
-    component: EditAdvertisementComponent,
+    component: AddAdvertisementPageComponent,
     path: '',
   },
 ] satisfies Routes;
