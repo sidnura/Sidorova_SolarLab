@@ -7,35 +7,37 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Observable, ReplaySubject, Subscription, takeUntil } from 'rxjs';
-import { AdModel } from '../../core/models/ad.model';
+import { AdModel } from '@models/ad.model';
 import { AdService } from '../../core/services/ad.service';
 import {
   AdSharingService,
   SearchParamsModel,
 } from '../../core/services/ad-sharing.service';
 import { AuthService } from '../../core/services/auth.service';
+import { CardLayoutComponent } from '../../shared/components/card-layout/card-layout.component';
+import { ImageLazyLoaderComponent } from '../../shared/components/image-lazy-loader/image-lazy-loader.component';
 import { AdListCommonStateModule } from '../../store/ad-list-common-state/ad-list-common-state.module';
 import { AdListFacade } from '../../store/ad-list-common-state/ad-list-state/ad-list.facade';
-import { HexagonImageComponent } from '../../shared/components/hexagon-image/hexagon-image.component';
-
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterModule,
     AdListCommonStateModule,
     DecimalPipe,
     AsyncPipe,
-    HexagonImageComponent,
+    ImageLazyLoaderComponent,
+    CardLayoutComponent,
   ],
   selector: 'app-advertisements-list-page',
   standalone: true,
   styleUrl: './ads-page.component.scss',
   templateUrl: './ads-page.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdvertisementsListPageComponent implements OnInit, OnDestroy {
   public adList$: Observable<AdModel[]> = this.adListFacade.elements$;
-  public loading$: Observable<Record<string, boolean>> = this.adListFacade.loading$;
+  public loading$: Observable<Record<string, boolean>> =
+    this.adListFacade.loading$;
 
   apiAdvertisements: AdModel[] = [];
   filteredAdvertisements: AdModel[] = [];
@@ -99,7 +101,7 @@ export class AdvertisementsListPageComponent implements OnInit, OnDestroy {
       .getAds()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        error: (error: any) => {
+        error: () => {
           this.isLoading = false;
           this.errorMessage = 'Ошибка загрузки объявлений';
           this.apiAdvertisements = [];
@@ -194,7 +196,7 @@ export class AdvertisementsListPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  onImageError(event: any, ad: any): void {
+  onImageError(event: any): void {
     event.target.style.display = 'none';
 
     const parent = event.target.parentElement;
@@ -277,7 +279,7 @@ export class AdvertisementsListPageComponent implements OnInit, OnDestroy {
 
     if (searchParams.search || searchParams.category) {
       this.adService.searchAds(searchParams).subscribe({
-        error: (error: any) => {
+        error: () => {
           this.isLoading = false;
           this.errorMessage = 'Ошибка поиска объявлений';
           this.apiAdvertisements = [];

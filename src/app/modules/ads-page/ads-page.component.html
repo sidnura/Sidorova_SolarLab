@@ -25,31 +25,20 @@
 
   <ul class="ads">
     @for (ad of adList$ | async; track ad.id) {
-      <li class="ads__item" (click)="onClick(ad)">
-
+      <app-card-layout (click)="onClick(ad)">
         <!-- Кнопка удаления показывается только для авторизованного пользователя -->
         @if (isLoggedIn) {
           <button
             class="delete-btn"
             (click)="deleteAd(ad.id, $event)"
-            title="Удалить объявление">
+            title="Удалить объявление"
+          >
             🗑️
           </button>
         }
 
         <div class="ads__image-container">
-          @if (ad.imagesIds && ad.imagesIds.length > 0) {
-            <app-hexagon-image
-              [imageId]="ad.imagesIds[0]">
-            </app-hexagon-image>
-          } @else {
-            <div class="no-image-placeholder">
-              <div class="placeholder-content">
-                <span class="placeholder-icon">📷</span>
-                <span class="placeholder-text">Нет фото</span>
-              </div>
-            </div>
-          }
+          <image-lazy-loader [url]="ad.imagesIds?.at(0)"/>
         </div>
 
         <div class="ads__content">
@@ -57,7 +46,7 @@
           <p class="ads__price">{{ ad.cost | number }} ₽</p>
           <p class="ads__description">{{ ad.location }} {{ ad.createdAt }}</p>
         </div>
-      </li>
+      </app-card-layout>
     }
   </ul>
 
@@ -73,7 +62,9 @@
           <p>Пока нет объявлений. Будьте первым!</p>
         }
 
-        <button class="btn-primary" routerLink="/add-ad">Добавить объявление</button>
+        <button class="btn-primary" routerLink="/add-ad">
+          Добавить объявление
+        </button>
 
         <!-- Кнопка сброса фильтров в пустом состоянии -->
         @if (hasActiveFilters()) {
