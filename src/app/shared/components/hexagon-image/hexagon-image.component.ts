@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdService } from '../../../core/services/ad.service';
+import { isNil } from 'lodash';
 
 @Component({
   selector: 'app-hexagon-image',
@@ -18,7 +19,7 @@ export class HexagonImageComponent implements OnChanges {
   constructor(private adService: AdService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['imageId'] && this.imageId) {
+    if (changes['imageId'] && !isNil(changes['imageUrl'].currentValue)) {
       this.loadImage();
     }
   }
