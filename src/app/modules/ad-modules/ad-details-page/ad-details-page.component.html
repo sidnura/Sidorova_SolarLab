@@ -32,17 +32,16 @@
         <div class="card-content">
           <div class="card-image-section">
             <div class="card-image">
-              @if (hasAdvertisementImage && currentImageUrl) {
+              @if (advertisement.imagesIds && advertisement.imagesIds.length > 0) {
                 <div>
-                  <img [src]="currentImageUrl"
-                       [alt]="advertisement.name"
-                       (error)="onImageError($event)"
-                       class="card-image__img">
+                  <app-hexagon-image
+                    [imageId]="advertisement.imagesIds[currentImageIndex]">
+                  </app-hexagon-image>
 
-                  @if (hasMultipleImages()) {
+                  @if (advertisement.imagesIds.length > 1) {
                     <div class="image-navigation">
                       <button class="nav-btn prev-btn" (click)="prevImage()">‹</button>
-                      <span class="image-counter">{{ currentImageIndex + 1 }} / {{ allImageUrls.length }}</span>
+                      <span class="image-counter">{{ currentImageIndex + 1 }} / {{ advertisement.imagesIds.length }}</span>
                       <button class="nav-btn next-btn" (click)="nextImage()">›</button>
                     </div>
                   }

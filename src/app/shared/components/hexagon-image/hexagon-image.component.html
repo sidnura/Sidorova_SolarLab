@@ -1,0 +1,14 @@
+<div class="image-container">
+  @if (imageUrl && !hasError) {
+    <img
+      [src]="imageUrl"
+      [alt]="'Изображение'"
+      (error)="onImageError()"
+      class="image-img">
+  } @else {
+    <div class="placeholder">
+      <span class="placeholder-icon">📷</span>
+      <span class="placeholder-text">Нет фото</span>
+    </div>
+  }
+</div>

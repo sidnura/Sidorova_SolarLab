@@ -1,4 +1,4 @@
-import { AsyncPipe, DecimalPipe } from '@angular/common'; // ← Убрали NgIf
+import { AsyncPipe, DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -16,13 +16,16 @@ import {
 import { AuthService } from '../../core/services/auth.service';
 import { AdListCommonStateModule } from '../../store/ad-list-common-state/ad-list-common-state.module';
 import { AdListFacade } from '../../store/ad-list-common-state/ad-list-state/ad-list.facade';
+import { HexagonImageComponent } from '../../shared/components/hexagon-image/hexagon-image.component';
+
 
 @Component({
   imports: [
     RouterModule,
     AdListCommonStateModule,
-    DecimalPipe, // ← Убрали NgIf
+    DecimalPipe,
     AsyncPipe,
+    HexagonImageComponent,
   ],
   selector: 'app-advertisements-list-page',
   standalone: true,
@@ -32,7 +35,7 @@ import { AdListFacade } from '../../store/ad-list-common-state/ad-list-state/ad-
 })
 export class AdvertisementsListPageComponent implements OnInit, OnDestroy {
   public adList$: Observable<AdModel[]> = this.adListFacade.elements$;
-  public loading$: Observable<Record<string, boolean>> = this.adListFacade.loading$; // ← ДОБАВИЛИ hasData$
+  public loading$: Observable<Record<string, boolean>> = this.adListFacade.loading$;
 
   apiAdvertisements: AdModel[] = [];
   filteredAdvertisements: AdModel[] = [];
