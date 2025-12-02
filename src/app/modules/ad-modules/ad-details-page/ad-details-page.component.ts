@@ -6,6 +6,7 @@ import { AdModel } from '@models/ad.model';
 import { AdService } from '../../../core/services/ad.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommentsComponent } from '../../../shared/components/comments/comments.component';
+import { HexagonImageComponent } from '../../../shared/components/hexagon-image/hexagon-image.component';
 import { AdDetailsFacade } from '../../../store/ad-list-common-state/ad-details-state/ad-details.facade';
 import { AdListCommonStateModule } from '../../../store/ad-list-common-state/ad-list-common-state.module';
 
@@ -13,6 +14,7 @@ import { AdListCommonStateModule } from '../../../store/ad-list-common-state/ad-
   imports: [
     RouterModule,
     CommentsComponent,
+    HexagonImageComponent,
     DecimalPipe,
     AsyncPipe,
     DatePipe,
@@ -25,13 +27,11 @@ import { AdListCommonStateModule } from '../../../store/ad-list-common-state/ad-
 })
 export class AdDetailsPageComponent implements OnInit, OnDestroy {
   public element$: Observable<AdModel | null> = this.adDetailsFacade.elements$;
-  public loading$: Observable<Record<string, boolean>> = this.adDetailsFacade.loading$;
+  public loading$: Observable<Record<string, boolean>> =
+    this.adDetailsFacade.loading$;
   public hasData$: Observable<boolean> = this.adDetailsFacade.hasData$;
 
   showPhone = false;
-  currentImageUrl: string | null = null;
-  hasAdvertisementImage: boolean = false;
-  allImageUrls: string[] = [];
   currentImageIndex: number = 0;
   isOwner = false;
   currentUserId: string | null = null;
@@ -57,9 +57,6 @@ export class AdDetailsPageComponent implements OnInit, OnDestroy {
 
     this.element$.pipe(takeUntil(this.destroy$)).subscribe((ad) => {
       if (ad) {
-        this.hasAdvertisementImage = this.hasImage(ad);
-        this.allImageUrls = this.getAllImageUrls(ad);
-        this.currentImageUrl = this.getCurrentImageUrl();
         this.isOwner = this.checkIfOwner(ad);
       }
     });
@@ -87,62 +84,26 @@ export class AdDetailsPageComponent implements OnInit, OnDestroy {
     this.showPhone = !this.showPhone;
   }
 
-  hasImage(ad: AdModel): boolean {
-    return !!(ad.imagesIds && ad.imagesIds.length > 0);
-  }
-
-  getAllImageUrls(ad: AdModel): string[] {
-    return this.adService.getAllImageUrls(ad);
-  }
-
-  getCurrentImageUrl(): string | null {
-    if (this.allImageUrls.length > 0) {
-      return this.allImageUrls[this.currentImageIndex];
-    }
-    return null;
-  }
-
   nextImage(): void {
-    if (this.allImageUrls.length > 0) {
-      this.currentImageIndex =
-        (this.currentImageIndex + 1) % this.allImageUrls.length;
-      this.currentImageUrl = this.getCurrentImageUrl();
-    }
+    this.element$.pipe(takeUntil(this.destroy$)).subscribe((ad) => {
+      if (ad && ad.imagesIds && ad.imagesIds.length > 0) {
+        this.currentImageIndex =
+          (this.currentImageIndex + 1) % ad.imagesIds.length;
+      }
+    });
   }
 
   prevImage(): void {
-    if (this.allImageUrls.length > 0) {
-      this.currentImageIndex =
-        (this.currentImageIndex - 1 + this.allImageUrls.length) %
-        this.allImageUrls.length;
-      this.currentImageUrl = this.getCurrentImageUrl();
-    }
-  }
-
-  onImageError(event: any): void {
-    event.target.style.display = 'none';
-
-    const parent = event.target.parentElement;
-
-    if (parent && !parent.querySelector('.no-image-placeholder')) {
-      const placeholder = document.createElement('div');
-
-      placeholder.className = 'no-image-placeholder';
-      placeholder.innerHTML = `
-        <div class="placeholder-content">
-          <span class="placeholder-icon">📷</span>
-          <span class="placeholder-text">Фото не загружено</span>
-        </div>
-      `;
-      parent.appendChild(placeholder);
-    }
+    this.element$.pipe(takeUntil(this.destroy$)).subscribe((ad) => {
+      if (ad && ad.imagesIds && ad.imagesIds.length > 0) {
+        this.currentImageIndex =
+          (this.currentImageIndex - 1 + ad.imagesIds.length) %
+          ad.imagesIds.length;
+      }
+    });
   }
 
   getPhoneNumber(ad: AdModel): string {
     return ad?.phone || '+7 (999) 123-45-67';
-  }
-
-  hasMultipleImages(): boolean {
-    return this.allImageUrls.length > 1;
   }
 }
