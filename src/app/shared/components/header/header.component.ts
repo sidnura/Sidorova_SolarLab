@@ -1,23 +1,31 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
-import { CategorySelectorComponent } from '../category-selector/category-selector.component';
-import { AuthService } from '../../../core/services/auth.service';
 import { AdSharingService } from '../../../core/services/ad-sharing.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { CategorySelectorComponent } from '../category-selector/category-selector.component';
+import { SearchInputComponent } from '../search-input/search-input.component';
 
 @Component({
+  imports: [
+    RouterModule,
+    CategorySelectorComponent,
+    ReactiveFormsModule,
+    FormsModule,
+    SearchInputComponent,
+  ],
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, CategorySelectorComponent, ReactiveFormsModule],
+  styleUrl: './header.component.scss',
   templateUrl: './header.component.html',
-  styleUrl: './header.component.scss'
 })
 export class HeaderComponent implements OnInit {
   isLoggedIn = false;
   userLogin: string | null = null;
   searchForm: FormGroup;
   selectedCategoryId: string = '';
+
+  search: string = '';
 
   constructor(
     private router: Router,
@@ -26,13 +34,13 @@ export class HeaderComponent implements OnInit {
     private fb: FormBuilder
   ) {
     this.searchForm = this.fb.group({
-      searchQuery: ['']
+      searchQuery: [''],
     });
   }
 
   ngOnInit(): void {
     this.checkAuthStatus();
-    this.authService.isAuthenticated$.subscribe(isAuthenticated => {
+    this.authService.isAuthenticated$.subscribe((isAuthenticated) => {
       this.isLoggedIn = isAuthenticated;
       this.userLogin = this.authService.getUserLogin();
     });
@@ -57,7 +65,7 @@ export class HeaderComponent implements OnInit {
     const searchParams = {
       search: '',
       category: categoryId,
-      showNonActive: false
+      showNonActive: false,
     };
 
     this.adSharingService.notifySearchParams(searchParams);
@@ -65,9 +73,9 @@ export class HeaderComponent implements OnInit {
     this.router.navigate(['/ads-page'], {
       queryParams: {
         category: categoryId,
-        search: null
+        search: null,
       },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 
@@ -82,7 +90,7 @@ export class HeaderComponent implements OnInit {
       const searchParams = {
         search: searchQuery || '',
         category: this.selectedCategoryId || undefined,
-        showNonActive: false
+        showNonActive: false,
       };
 
       this.adSharingService.notifySearchParams(searchParams);
@@ -90,9 +98,9 @@ export class HeaderComponent implements OnInit {
       this.router.navigate(['/ads-page'], {
         queryParams: {
           search: searchQuery || null,
-          category: this.selectedCategoryId || null
+          category: this.selectedCategoryId || null,
         },
-        queryParamsHandling: 'merge'
+        queryParamsHandling: 'merge',
       });
     } else {
       this.clearSearch();
@@ -101,7 +109,7 @@ export class HeaderComponent implements OnInit {
 
   clearSearch(): void {
     this.searchForm.patchValue({
-      searchQuery: ''
+      searchQuery: '',
     });
 
     this.selectedCategoryId = '';
@@ -109,7 +117,7 @@ export class HeaderComponent implements OnInit {
     this.adSharingService.notifySearchParams({
       search: '',
       category: undefined,
-      showNonActive: false
+      showNonActive: false,
     });
 
     this.router.navigate(['/ads-page'], { queryParams: {} });
@@ -122,10 +130,17 @@ export class HeaderComponent implements OnInit {
   }
 
   hasSearchText(): boolean {
-    return !!this.searchForm.get('searchQuery')?.value?.trim() || !!this.selectedCategoryId;
+    return (
+      !!this.searchForm.get('searchQuery')?.value?.trim() ||
+      !!this.selectedCategoryId
+    );
   }
 
   isAdmin(): boolean {
     return this.authService.isAdmin();
+  }
+
+  protected onSearchChange(event: any): void {
+    console.log(event);
   }
 }

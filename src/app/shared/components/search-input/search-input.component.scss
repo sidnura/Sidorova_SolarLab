@@ -1,0 +1,46 @@
+
+:host {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+
+
+  input {
+    width: 100%;
+    display: flex;
+    box-sizing: border-box;
+    padding: 3px 30px 3px 8px;
+    min-height: 30px;
+    outline: none;
+    border: 1px solid var(--color-stone-200);
+    font-family: Roboto;
+    font-size: 14px;
+    border-radius: 5px;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .icon {
+    width: 24px;
+    height: 24px;
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    cursor: pointer;
+
+    &.close {
+      background-image: url("/assets/img/ico/close-one-ico.svg");
+    }
+
+    &.search {
+      background-image: url("/assets/img/ico/search-ico.svg");
+    }
+  }
+}

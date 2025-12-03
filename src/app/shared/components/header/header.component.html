@@ -10,7 +10,10 @@
     <!-- Динамические кнопки в зависимости от авторизации -->
     @if (!isLoggedIn) {
       <div class="auth-buttons">
-        <a routerLink="/auth/login" class="header-top__btn header-top__btn_enter">
+        <a
+          routerLink="/auth/login"
+          class="header-top__btn header-top__btn_enter"
+        >
           Войти
         </a>
       </div>
@@ -18,16 +21,15 @@
 
     @if (isLoggedIn) {
       <div class="user-menu">
-        <a routerLink="/ads/profile" class="header-top__btn">
-          Мой профиль
-        </a>
+        <a routerLink="/ads/profile" class="header-top__btn"> Мой профиль </a>
         <!-- Кнопка "Пользователи" только для админа -->
         @if (isAdmin()) {
-          <a routerLink="/ads/users" class="header-top__btn">
-            Пользователи
-          </a>
+          <a routerLink="/ads/users" class="header-top__btn"> Пользователи </a>
         }
-        <button class="header-top__btn header-top__btn_logout" (click)="onLogout()">
+        <button
+          class="header-top__btn header-top__btn_logout"
+          (click)="onLogout()"
+        >
           Выйти
         </button>
       </div>
@@ -39,38 +41,42 @@
 <div class="header__nav">
   <div class="header__nav-container">
     <!-- Логотип с ссылкой на главную -->
-    <a routerLink="/ads" class="header__title">
-      Доска объявлений
-    </a>
+    <a routerLink="/ads" class="header__title"> Доска объявлений </a>
 
-    <app-category-selector
-      (categorySelected)="onCategorySelect($event)">
+    <app-category-selector (categorySelected)="onCategorySelect($event)">
     </app-category-selector>
 
     <div class="header__search">
-      <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="search-form">
+      <div>
+        <app-search-input [(ngModel)]="search" (ngModelChange)="onSearchChange($event)"/>
+      </div>
+      <!--<form
+        [formGroup]="searchForm"
+        (ngSubmit)="onSearch()"
+        class="search-form"
+      >
         <div class="search-input-container">
           <input
             type="text"
             formControlName="searchQuery"
             placeholder="Поиск объявлений..."
             class="header__search-input"
-            (keypress)="onSearchInputKeypress($event)">
-          <!-- Крестик для сброса поиска -->
+            (keypress)="onSearchInputKeypress($event)"
+          />
+          &lt;!&ndash; Крестик для сброса поиска &ndash;&gt;
           @if (hasSearchText()) {
             <button
               type="button"
               class="clear-search-btn"
               (click)="clearSearch()"
-              title="Очистить поиск">
+              title="Очистить поиск"
+            >
               ×
             </button>
           }
         </div>
-        <button type="submit" class="header__search-btn">
-          Найти
-        </button>
-      </form>
+        <button type="submit" class="header__search-btn">Найти</button>
+      </form>-->
     </div>
   </div>
 </div>
