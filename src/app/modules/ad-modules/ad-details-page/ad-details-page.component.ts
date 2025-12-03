@@ -6,15 +6,14 @@ import { AdModel } from '@models/ad.model';
 import { AdService } from '../../../core/services/ad.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommentsComponent } from '../../../shared/components/comments/comments.component';
-import { HexagonImageComponent } from '../../../shared/components/hexagon-image/hexagon-image.component';
-import { AdDetailsFacade } from '../../../store/ad-list-common-state/ad-details-state/ad-details.facade';
+import { ImageLazyLoaderComponent } from '../../../shared/components/image-lazy-loader/image-lazy-loader.component';import { AdDetailsFacade } from '../../../store/ad-list-common-state/ad-details-state/ad-details.facade';
 import { AdListCommonStateModule } from '../../../store/ad-list-common-state/ad-list-common-state.module';
 
 @Component({
   imports: [
     RouterModule,
     CommentsComponent,
-    HexagonImageComponent,
+    ImageLazyLoaderComponent,
     DecimalPipe,
     AsyncPipe,
     DatePipe,

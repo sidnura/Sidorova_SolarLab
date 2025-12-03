@@ -34,9 +34,11 @@
             <div class="card-image">
               @if (advertisement.imagesIds && advertisement.imagesIds.length > 0) {
                 <div>
-                  <app-hexagon-image
-                    [imageId]="advertisement.imagesIds[currentImageIndex]">
-                  </app-hexagon-image>
+                  <div class="image-container">
+                    <image-lazy-loader
+                      [url]="advertisement.imagesIds[currentImageIndex]">
+                    </image-lazy-loader>
+                  </div>
 
                   @if (advertisement.imagesIds.length > 1) {
                     <div class="image-navigation">
