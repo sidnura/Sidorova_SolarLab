@@ -46,13 +46,8 @@
     <app-category-selector (categorySelected)="onCategorySelect($event)">
     </app-category-selector>
 
-    <div class="header__search">
-      <app-search-input
-        [(ngModel)]="search"
-        (ngModelChange)="onSearchChange($event)"
-        (search)="onSearch()"
-        (clear)="clearSearch()"
-      />
+    <div class="header__search" [formGroup]="searchForm">
+      <app-search-input formControlName="searchQuery"/>
     </div>
   </div>
 </div>

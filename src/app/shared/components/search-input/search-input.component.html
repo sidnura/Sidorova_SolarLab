@@ -2,28 +2,16 @@
   <input
     type="text"
     (focus)="emitTouched()"
-    [ngModel]="value"
+    [ngModel]="store.value()"
     (ngModelChange)="onModelChanged($event)"
-    (keypress)="onKeyPress($event)"
     placeholder="Поиск объявлений..."
     class="search-input"
   />
 
-  @if (shouldShowClearIcon()) {
-    <button
-      class="icon close"
-      (click)="clearSearch()"
-      type="button"
-      title="Очистить поиск"
-    ></button>
-  }
+  <button
+    class="icon" [ngClass]="{ close: store.hasData(), search: !store.hasData() }"
+    type="button"
+    (click)="store.hasData() && onModelChanged(undefined)"
+  ></button>
 
-  @if (shouldShowSearchIcon()) {
-    <button
-      class="icon search"
-      (click)="executeSearch()"
-      type="button"
-      title="Найти"
-    ></button>
-  }
 </div>
