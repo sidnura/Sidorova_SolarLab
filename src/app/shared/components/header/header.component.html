@@ -47,36 +47,12 @@
     </app-category-selector>
 
     <div class="header__search">
-      <div>
-        <app-search-input [(ngModel)]="search" (ngModelChange)="onSearchChange($event)"/>
-      </div>
-      <!--<form
-        [formGroup]="searchForm"
-        (ngSubmit)="onSearch()"
-        class="search-form"
-      >
-        <div class="search-input-container">
-          <input
-            type="text"
-            formControlName="searchQuery"
-            placeholder="Поиск объявлений..."
-            class="header__search-input"
-            (keypress)="onSearchInputKeypress($event)"
-          />
-          &lt;!&ndash; Крестик для сброса поиска &ndash;&gt;
-          @if (hasSearchText()) {
-            <button
-              type="button"
-              class="clear-search-btn"
-              (click)="clearSearch()"
-              title="Очистить поиск"
-            >
-              ×
-            </button>
-          }
-        </div>
-        <button type="submit" class="header__search-btn">Найти</button>
-      </form>-->
+      <app-search-input
+        [(ngModel)]="search"
+        (ngModelChange)="onSearchChange($event)"
+        (search)="onSearch()"
+        (clear)="clearSearch()"
+      />
     </div>
   </div>
 </div>

@@ -24,7 +24,7 @@
   }
 
   <ul class="ads">
-    @for (ad of adList$ | async; track ad.id) {
+    @for (ad of sortedAdList$ | async; track ad.id) {
       <app-card-layout (click)="onClick(ad)">
         <!-- Кнопка удаления показывается только для авторизованного пользователя -->
         @if (isLoggedIn) {
@@ -52,7 +52,7 @@
 
   <!-- Сообщение когда нет объявлений -->
   @if (!isLoading) {
-    @if (apiAdvertisements.length === 0) {
+    @if ((sortedAdList$ | async)?.length === 0) {
       <div class="empty-state">
         <h2>Объявления не найдены!</h2>
 
@@ -62,7 +62,7 @@
           <p>Пока нет объявлений. Будьте первым!</p>
         }
 
-        <button class="btn-primary" routerLink="/add-ad">
+        <button class="btn-primary" routerLink="/ads/add-ad">
           Добавить объявление
         </button>
 

@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AdSharingService } from '../../../core/services/ad-sharing.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -24,7 +29,6 @@ export class HeaderComponent implements OnInit {
   userLogin: string | null = null;
   searchForm: FormGroup;
   selectedCategoryId: string = '';
-
   search: string = '';
 
   constructor(
@@ -53,7 +57,7 @@ export class HeaderComponent implements OnInit {
 
   onLogout(): void {
     this.authService.logout();
-    this.router.navigate(['/']);
+    this.router.navigate(['/ads']);
   }
 
   onCategorySelect(categoryId: string): void {
@@ -70,7 +74,7 @@ export class HeaderComponent implements OnInit {
 
     this.adSharingService.notifySearchParams(searchParams);
 
-    this.router.navigate(['/ads-page'], {
+    this.router.navigate(['/ads'], {
       queryParams: {
         category: categoryId,
         search: null,
@@ -80,22 +84,18 @@ export class HeaderComponent implements OnInit {
   }
 
   onSearch(): void {
-    const searchQuery = this.searchForm.get('searchQuery')?.value?.trim();
-
-    if (searchQuery) {
-      this.selectedCategoryId = '';
-    }
+    const searchQuery = this.search?.trim() || '';
 
     if (searchQuery || this.selectedCategoryId) {
       const searchParams = {
-        search: searchQuery || '',
+        search: searchQuery,
         category: this.selectedCategoryId || undefined,
         showNonActive: false,
       };
 
       this.adSharingService.notifySearchParams(searchParams);
 
-      this.router.navigate(['/ads-page'], {
+      this.router.navigate(['/ads'], {
         queryParams: {
           search: searchQuery || null,
           category: this.selectedCategoryId || null,
@@ -107,11 +107,12 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  clearSearch(): void {
-    this.searchForm.patchValue({
-      searchQuery: '',
-    });
+  onSearchChange(event: string): void {
+    this.search = event;
+  }
 
+  clearSearch(): void {
+    this.search = '';
     this.selectedCategoryId = '';
 
     this.adSharingService.notifySearchParams({
@@ -120,27 +121,14 @@ export class HeaderComponent implements OnInit {
       showNonActive: false,
     });
 
-    this.router.navigate(['/ads-page'], { queryParams: {} });
-  }
-
-  onSearchInputKeypress(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
-      this.onSearch();
-    }
+    this.router.navigate(['/ads'], { queryParams: {} });
   }
 
   hasSearchText(): boolean {
-    return (
-      !!this.searchForm.get('searchQuery')?.value?.trim() ||
-      !!this.selectedCategoryId
-    );
+    return !!this.search?.trim() || !!this.selectedCategoryId;
   }
 
   isAdmin(): boolean {
     return this.authService.isAdmin();
-  }
-
-  protected onSearchChange(event: any): void {
-    console.log(event);
   }
 }

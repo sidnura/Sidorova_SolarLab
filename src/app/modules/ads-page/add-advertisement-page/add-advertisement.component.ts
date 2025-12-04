@@ -282,20 +282,28 @@ export class AddAdvertisementPageComponent implements OnInit, OnDestroy {
 
           this.adSharingService.notifyNewAd(response);
 
-          this.adForm.reset();
+          this.adForm.reset({
+            name: '',
+            description: '',
+            cost: 0,
+            email: '',
+            phone: '',
+            location: '',
+            parentCategoryId: '',
+            categoryId: ''
+          });
           this.cleanupImageUrls();
           this.childCategories = [];
           this.selectedParentCategory = '';
-          setTimeout(() => {
-            this.router.navigate(['/ads']);
-          }, 2000);
+
+          this.router.navigate(['/ads']);
         },
         error: (error: any) => {
           this.isLoading = false;
 
           if (error.status === 401) {
             this.errorMessage = 'Необходимо авторизоваться. Переходим на страницу входа...';
-            setTimeout(() => this.router.navigate(['/login']), 2000);
+            setTimeout(() => this.router.navigate(['/auth/login']), 2000);
           } else if (error.status === 400) {
             this.errorMessage = 'Неверные данные. Проверьте заполнение полей.';
           } else if (error.status === 404) {

@@ -1,4 +1,4 @@
-import { Component, forwardRef } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Output } from '@angular/core';
 import {
   ControlValueAccessor,
   FormsModule,
@@ -12,7 +12,7 @@ import { isNil } from 'lodash';
     {
       multi: true,
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => SearchInputComponent)
+      useExisting: forwardRef(() => SearchInputComponent),
     },
   ],
   selector: 'app-search-input',
@@ -20,13 +20,17 @@ import { isNil } from 'lodash';
   templateUrl: './search-input.component.html',
 })
 export class SearchInputComponent implements ControlValueAccessor {
-  protected value: string;
+  @Output() search = new EventEmitter<string>();
+  @Output() clear = new EventEmitter<void>();
+
+  protected value: string = '';
   private onChange: (...attr) => void;
   private onTouch: (...attr) => void;
 
+  private searchExecuted: boolean = false;
+
   public writeValue(obj: string): void {
     this.value = obj;
-
     if (isNil(obj)) {
       this.emitChanges();
     }
@@ -35,6 +39,7 @@ export class SearchInputComponent implements ControlValueAccessor {
   public registerOnChange(fn: (...attr) => void): void {
     this.onChange = fn;
   }
+
   public registerOnTouched(fn: (...attr) => void): void {
     this.onTouch = fn;
   }
@@ -43,10 +48,36 @@ export class SearchInputComponent implements ControlValueAccessor {
     this.onTouch && this.onTouch();
   }
 
-  protected onModelChnaged(event: string): void {
+  protected onModelChanged(event: string): void {
     this.value = event;
-
+    this.searchExecuted = false;
     this.emitChanges();
+  }
+
+  protected onKeyPress(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      this.executeSearch();
+    }
+  }
+
+  protected executeSearch(): void {
+    this.searchExecuted = true;
+    this.search.emit(this.value);
+  }
+
+  protected clearSearch(): void {
+    this.value = '';
+    this.searchExecuted = false;
+    this.emitChanges();
+    this.clear.emit();
+  }
+
+  protected shouldShowClearIcon(): boolean {
+    return this.value.trim().length > 0 && this.searchExecuted;
+  }
+
+  protected shouldShowSearchIcon(): boolean {
+    return this.value.trim().length === 0 || !this.searchExecuted;
   }
 
   private emitChanges(): void {
