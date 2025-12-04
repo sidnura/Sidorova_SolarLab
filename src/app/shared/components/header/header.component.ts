@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, effect, OnInit, Signal } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -10,6 +10,9 @@ import { AdSharingService } from '../../../core/services/ad-sharing.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CategorySelectorComponent } from '../category-selector/category-selector.component';
 import { SearchInputComponent } from '../search-input/search-input.component';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { debounceTime } from 'rxjs';
+import { isEmpty } from 'lodash';
 
 @Component({
   imports: [
@@ -31,6 +34,8 @@ export class HeaderComponent implements OnInit {
   selectedCategoryId: string = '';
   search: string = '';
 
+  private formChanges: Signal<any>;
+
   constructor(
     private router: Router,
     private authService: AuthService,
@@ -39,6 +44,17 @@ export class HeaderComponent implements OnInit {
   ) {
     this.searchForm = this.fb.group({
       searchQuery: [''],
+    });
+
+    this.formChanges = toSignal(
+      this.searchForm.valueChanges.pipe(debounceTime(500))
+    );
+
+    effect(() => {
+
+      const changes = this.formChanges();
+
+      this.onSearch();
     });
   }
 
@@ -84,9 +100,9 @@ export class HeaderComponent implements OnInit {
   }
 
   onSearch(): void {
-    const searchQuery = this.search?.trim() || '';
+    const searchQuery = this.searchForm.get('searchQuery')?.value?.trim() ?? '';
 
-    if (searchQuery || this.selectedCategoryId) {
+    if (isEmpty(searchQuery) || this.selectedCategoryId) {
       const searchParams = {
         search: searchQuery,
         category: this.selectedCategoryId || undefined,
@@ -109,10 +125,11 @@ export class HeaderComponent implements OnInit {
 
   onSearchChange(event: string): void {
     this.search = event;
+
+    this.onSearch();
   }
 
   clearSearch(): void {
-    this.search = '';
     this.selectedCategoryId = '';
 
     this.adSharingService.notifySearchParams({

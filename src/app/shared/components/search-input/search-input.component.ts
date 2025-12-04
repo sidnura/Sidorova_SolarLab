@@ -1,27 +1,29 @@
-import { Component, EventEmitter, forwardRef, Output } from '@angular/core';
+import { Component, effect, forwardRef, inject } from '@angular/core';
 import {
   ControlValueAccessor,
   FormsModule,
   NG_VALUE_ACCESSOR,
 } from '@angular/forms';
 import { isNil } from 'lodash';
+import { SEARCH_INPUT_STORE } from './search-input.model';
+import { NgClass } from '@angular/common';
 
 @Component({
-  imports: [FormsModule],
+  imports: [FormsModule, NgClass],
   providers: [
     {
       multi: true,
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => SearchInputComponent),
     },
+    SEARCH_INPUT_STORE,
   ],
   selector: 'app-search-input',
   styleUrl: './search-input.component.scss',
   templateUrl: './search-input.component.html',
 })
 export class SearchInputComponent implements ControlValueAccessor {
-  @Output() search = new EventEmitter<string>();
-  @Output() clear = new EventEmitter<void>();
+  public store = inject(SEARCH_INPUT_STORE);
 
   protected value: string = '';
   private onChange: (...attr) => void;
@@ -29,10 +31,20 @@ export class SearchInputComponent implements ControlValueAccessor {
 
   private searchExecuted: boolean = false;
 
+  constructor() {
+
+    effect(() => {
+
+      this.emitChanges(this.store.value());
+    });
+
+  }
+
   public writeValue(obj: string): void {
     this.value = obj;
+
     if (isNil(obj)) {
-      this.emitChanges();
+      this.emitChanges(undefined);
     }
   }
 
@@ -49,27 +61,18 @@ export class SearchInputComponent implements ControlValueAccessor {
   }
 
   protected onModelChanged(event: string): void {
-    this.value = event;
-    this.searchExecuted = false;
-    this.emitChanges();
+    this.store.patch({ value: event });
   }
 
-  protected onKeyPress(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
-      this.executeSearch();
-    }
-  }
 
   protected executeSearch(): void {
     this.searchExecuted = true;
-    this.search.emit(this.value);
   }
 
   protected clearSearch(): void {
     this.value = '';
     this.searchExecuted = false;
-    this.emitChanges();
-    this.clear.emit();
+    //this.emitChanges();
   }
 
   protected shouldShowClearIcon(): boolean {
@@ -80,7 +83,7 @@ export class SearchInputComponent implements ControlValueAccessor {
     return this.value.trim().length === 0 || !this.searchExecuted;
   }
 
-  private emitChanges(): void {
-    this.onChange && this.onChange(this.value);
+  private emitChanges(value): void {
+    this.onChange && this.onChange(value);
   }
 }

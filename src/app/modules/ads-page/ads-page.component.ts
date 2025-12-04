@@ -70,7 +70,7 @@ export class AdvertisementsListPageComponent implements OnInit, OnDestroy {
     this.setupSearchListener();
     this.setupRouteListener();
 
-    this.adListFacade.load({ sortBy: 'createdAt', sortOrder: 'desc' });
+    this.adListFacade.load({ sortBy: 'createdAt', sortOrder: 'asc' });
   }
 
   ngOnDestroy(): void {
