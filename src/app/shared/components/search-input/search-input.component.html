@@ -1,0 +1,29 @@
+<div class="search-wrapper">
+  <input
+    type="text"
+    (focus)="emitTouched()"
+    [ngModel]="value"
+    (ngModelChange)="onModelChanged($event)"
+    (keypress)="onKeyPress($event)"
+    placeholder="Поиск объявлений..."
+    class="search-input"
+  />
+
+  @if (shouldShowClearIcon()) {
+    <button
+      class="icon close"
+      (click)="clearSearch()"
+      type="button"
+      title="Очистить поиск"
+    ></button>
+  }
+
+  @if (shouldShowSearchIcon()) {
+    <button
+      class="icon search"
+      (click)="executeSearch()"
+      type="button"
+      title="Найти"
+    ></button>
+  }
+</div>

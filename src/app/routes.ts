@@ -58,31 +58,31 @@ export default [
             path: 'users',
           },
           {
-            canActivate: [AdminGuard],
-            loadChildren: () => import('./modules/users/user-profile/routes'),
-            path: 'users/:id',
-          },
-          {
             canActivate: [AuthGuard],
             loadChildren: () => import('./modules/users/user-profile/routes'),
             path: 'profile',
           },
           {
+            canActivate: [AdminGuard],
+            loadChildren: () => import('./modules/users/user-profile/routes'),
+            path: 'users/:id',
+          },
+          {
             path: '**',
-            redirectTo: ''
-          }
+            redirectTo: '',
+          },
         ],
         component: BaseLayoutComponent,
-        path: 'ads-page',
+        path: 'ads',
       },
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'ads-page',
+        redirectTo: 'ads',
       },
       {
         path: '**',
-        redirectTo: 'ads-page',
+        redirectTo: 'ads',
       },
     ],
     path: '',

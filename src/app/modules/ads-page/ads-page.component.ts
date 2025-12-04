@@ -6,7 +6,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Observable, ReplaySubject, Subscription, takeUntil } from 'rxjs';
+import { map, Observable, ReplaySubject, Subscription, takeUntil } from 'rxjs';
 import { AdModel } from '@models/ad.model';
 import { AdService } from '../../core/services/ad.service';
 import {
@@ -39,8 +39,9 @@ export class AdvertisementsListPageComponent implements OnInit, OnDestroy {
   public loading$: Observable<Record<string, boolean>> =
     this.adListFacade.loading$;
 
-  apiAdvertisements: AdModel[] = [];
-  filteredAdvertisements: AdModel[] = [];
+  public sortedAdList$: Observable<AdModel[]> = this.adList$.pipe(
+    map((ads) => this.sortAdsByDate(ads))
+  );
 
   isLoading = true;
   errorMessage = '';
@@ -93,30 +94,6 @@ export class AdvertisementsListPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadAdvertisements(): void {
-    this.isLoading = true;
-    this.errorMessage = '';
-
-    this.adService
-      .getAds()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        error: () => {
-          this.isLoading = false;
-          this.errorMessage = 'Ошибка загрузки объявлений';
-          this.apiAdvertisements = [];
-          this.filteredAdvertisements = [];
-        },
-        next: (ads: AdModel[]) => {
-          this.isLoading = false;
-          const sortedAds = this.sortAdsByDate(ads);
-
-          this.apiAdvertisements = sortedAds;
-          this.filteredAdvertisements = sortedAds;
-        },
-      });
-  }
-
   hasActiveFilters(): boolean {
     return this.hasActiveCategory || this.hasActiveSearch;
   }
@@ -124,7 +101,7 @@ export class AdvertisementsListPageComponent implements OnInit, OnDestroy {
   resetAllFilters(): void {
     this.hasActiveCategory = false;
     this.hasActiveSearch = false;
-    this.loadAdvertisements();
+    this.adListFacade.load({ sortBy: 'createdAt', sortOrder: 'desc' });
     this.router.navigate(['/ads'], { queryParams: {} });
   }
 
@@ -148,35 +125,10 @@ export class AdvertisementsListPageComponent implements OnInit, OnDestroy {
           }
         },
         next: () => {
-          this.apiAdvertisements = this.apiAdvertisements.filter(
-            (ad) => ad.id !== adId
-          );
-          this.filteredAdvertisements = this.filteredAdvertisements.filter(
-            (ad) => ad.id !== adId
-          );
+          this.adListFacade.load({ sortBy: 'createdAt', sortOrder: 'desc' });
         },
       });
     }
-  }
-
-  getAllAds(): any[] {
-    const adsToShow = this.apiAdvertisements;
-
-    const apiAdsFormatted = adsToShow.map((ad) => ({
-      cost: ad.cost,
-      date: this.formatDate(ad.createdAt),
-      hasImage: this.hasImage(ad),
-      id: ad.id,
-      image: this.getImageUrl(ad),
-      location: ad.location,
-      name: ad.name,
-    }));
-
-    return apiAdsFormatted;
-  }
-
-  getImageUrl(ad: AdModel): string | null {
-    return this.adService.getFirstImageUrl(ad);
   }
 
   formatDate(dateString: string): string {
@@ -196,27 +148,8 @@ export class AdvertisementsListPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  onImageError(event: any): void {
-    event.target.style.display = 'none';
-
-    const parent = event.target.parentElement;
-
-    if (parent && !parent.querySelector('.no-image-placeholder')) {
-      const placeholder = document.createElement('div');
-
-      placeholder.className = 'no-image-placeholder';
-      placeholder.innerHTML = `
-        <div class="placeholder-content">
-          <span class="placeholder-icon">📷</span>
-          <span class="placeholder-text">Нет фото</span>
-        </div>
-      `;
-      parent.appendChild(placeholder);
-    }
-  }
-
   protected onClick(ad: AdModel): void {
-    this.router.navigate(['ad', ad.id], { relativeTo: this.route });
+    this.router.navigate(['/ads/ad', ad.id], { relativeTo: this.route });
   }
 
   private setupAuthListener(): void {
@@ -232,8 +165,8 @@ export class AdvertisementsListPageComponent implements OnInit, OnDestroy {
   private setupNewAdListener(): void {
     this.newAdSubscription = this.adSharingService.newAd$.subscribe((newAd) => {
       if (newAd) {
+        this.adListFacade.load({ sortBy: 'createdAt', sortOrder: 'desc' });
         this.adSharingService.clearNewAd();
-        this.loadAdvertisements();
       }
     });
   }
@@ -268,7 +201,7 @@ export class AdvertisementsListPageComponent implements OnInit, OnDestroy {
       } else {
         this.hasActiveCategory = false;
         this.hasActiveSearch = false;
-        this.loadAdvertisements();
+        this.adListFacade.load({ sortBy: 'createdAt', sortOrder: 'desc' });
       }
     });
   }
@@ -278,36 +211,43 @@ export class AdvertisementsListPageComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     if (searchParams.search || searchParams.category) {
-      this.adService.searchAds(searchParams).subscribe({
-        error: () => {
-          this.isLoading = false;
-          this.errorMessage = 'Ошибка поиска объявлений';
-          this.apiAdvertisements = [];
-          this.filteredAdvertisements = [];
-        },
-        next: (ads: AdModel[]) => {
-          this.isLoading = false;
-          const sortedAds = this.sortAdsByDate(ads);
-
-          this.apiAdvertisements = sortedAds;
-          this.filteredAdvertisements = sortedAds;
-        },
+      this.adListFacade.load({
+        search: searchParams.search || undefined,
+        category: searchParams.category || undefined,
+        showNonActive: false,
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
       });
     } else {
-      this.loadAdvertisements();
+      this.adListFacade.load({ sortBy: 'createdAt', sortOrder: 'desc' });
     }
-  }
 
-  private sortAdsByDate(ads: AdModel[]): AdModel[] {
-    return ads.sort((a, b) => {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-
-      return dateB - dateA;
+    this.loading$.pipe(takeUntil(this.destroy$)).subscribe((loadingState) => {
+      this.isLoading = loadingState['list'] || false;
+      if (!this.isLoading) {
+        this.errorMessage = '';
+      }
     });
   }
 
-  private hasImage(ad: AdModel): boolean {
-    return !!(ad.imagesIds && ad.imagesIds.length > 0);
+  private sortAdsByDate(ads: AdModel[]): AdModel[] {
+    if (!ads || ads.length === 0) return [];
+
+    return [...ads].sort((a, b) => {
+      try {
+        const dateAStr = a.createdAt || a.created || '';
+        const dateBStr = b.createdAt || b.created || '';
+
+        if (!dateAStr || !dateBStr) return 0;
+
+        const dateA = new Date(dateAStr).getTime();
+        const dateB = new Date(dateBStr).getTime();
+
+        return dateB - dateA;
+      } catch (error) {
+        console.error('Error sorting ads:', error, a, b);
+        return 0;
+      }
+    });
   }
 }

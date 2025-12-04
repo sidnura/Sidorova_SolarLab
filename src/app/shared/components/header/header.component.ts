@@ -1,23 +1,35 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
-import { CategorySelectorComponent } from '../category-selector/category-selector.component';
-import { AuthService } from '../../../core/services/auth.service';
 import { AdSharingService } from '../../../core/services/ad-sharing.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { CategorySelectorComponent } from '../category-selector/category-selector.component';
+import { SearchInputComponent } from '../search-input/search-input.component';
 
 @Component({
+  imports: [
+    RouterModule,
+    CategorySelectorComponent,
+    ReactiveFormsModule,
+    FormsModule,
+    SearchInputComponent,
+  ],
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, CategorySelectorComponent, ReactiveFormsModule],
+  styleUrl: './header.component.scss',
   templateUrl: './header.component.html',
-  styleUrl: './header.component.scss'
 })
 export class HeaderComponent implements OnInit {
   isLoggedIn = false;
   userLogin: string | null = null;
   searchForm: FormGroup;
   selectedCategoryId: string = '';
+  search: string = '';
 
   constructor(
     private router: Router,
@@ -26,13 +38,13 @@ export class HeaderComponent implements OnInit {
     private fb: FormBuilder
   ) {
     this.searchForm = this.fb.group({
-      searchQuery: ['']
+      searchQuery: [''],
     });
   }
 
   ngOnInit(): void {
     this.checkAuthStatus();
-    this.authService.isAuthenticated$.subscribe(isAuthenticated => {
+    this.authService.isAuthenticated$.subscribe((isAuthenticated) => {
       this.isLoggedIn = isAuthenticated;
       this.userLogin = this.authService.getUserLogin();
     });
@@ -45,7 +57,7 @@ export class HeaderComponent implements OnInit {
 
   onLogout(): void {
     this.authService.logout();
-    this.router.navigate(['/']);
+    this.router.navigate(['/ads']);
   }
 
   onCategorySelect(categoryId: string): void {
@@ -57,72 +69,63 @@ export class HeaderComponent implements OnInit {
     const searchParams = {
       search: '',
       category: categoryId,
-      showNonActive: false
+      showNonActive: false,
     };
 
     this.adSharingService.notifySearchParams(searchParams);
 
-    this.router.navigate(['/ads-page'], {
+    this.router.navigate(['/ads'], {
       queryParams: {
         category: categoryId,
-        search: null
+        search: null,
       },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 
   onSearch(): void {
-    const searchQuery = this.searchForm.get('searchQuery')?.value?.trim();
-
-    if (searchQuery) {
-      this.selectedCategoryId = '';
-    }
+    const searchQuery = this.search?.trim() || '';
 
     if (searchQuery || this.selectedCategoryId) {
       const searchParams = {
-        search: searchQuery || '',
+        search: searchQuery,
         category: this.selectedCategoryId || undefined,
-        showNonActive: false
+        showNonActive: false,
       };
 
       this.adSharingService.notifySearchParams(searchParams);
 
-      this.router.navigate(['/ads-page'], {
+      this.router.navigate(['/ads'], {
         queryParams: {
           search: searchQuery || null,
-          category: this.selectedCategoryId || null
+          category: this.selectedCategoryId || null,
         },
-        queryParamsHandling: 'merge'
+        queryParamsHandling: 'merge',
       });
     } else {
       this.clearSearch();
     }
   }
 
-  clearSearch(): void {
-    this.searchForm.patchValue({
-      searchQuery: ''
-    });
+  onSearchChange(event: string): void {
+    this.search = event;
+  }
 
+  clearSearch(): void {
+    this.search = '';
     this.selectedCategoryId = '';
 
     this.adSharingService.notifySearchParams({
       search: '',
       category: undefined,
-      showNonActive: false
+      showNonActive: false,
     });
 
-    this.router.navigate(['/ads-page'], { queryParams: {} });
-  }
-
-  onSearchInputKeypress(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
-      this.onSearch();
-    }
+    this.router.navigate(['/ads'], { queryParams: {} });
   }
 
   hasSearchText(): boolean {
-    return !!this.searchForm.get('searchQuery')?.value?.trim() || !!this.selectedCategoryId;
+    return !!this.search?.trim() || !!this.selectedCategoryId;
   }
 
   isAdmin(): boolean {

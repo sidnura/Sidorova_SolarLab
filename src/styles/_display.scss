@@ -7,3 +7,39 @@
   display: flex;
   box-sizing: border-box;
 }
+
+.position-absolute {
+  position: absolute;
+}
+
+.pos-t {
+  @for $i from 1 through 100 {
+    &-#{$i} {
+      top: #{$i}px;
+    }
+  }
+}
+
+.pos-r {
+  @for $i from 1 through 100 {
+    &-#{$i} {
+      right: #{$i}px;
+    }
+  }
+}
+
+.pos-l {
+  @for $i from 1 through 100 {
+    &-#{$i} {
+      left: #{$i}px;
+    }
+  }
+}
+
+.pos-b {
+  @for $i from 1 through 100 {
+    &-#{$i} {
+      bottom: #{$i}px;
+    }
+  }
+}

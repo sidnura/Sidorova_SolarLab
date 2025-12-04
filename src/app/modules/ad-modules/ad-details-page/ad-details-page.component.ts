@@ -3,10 +3,10 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { AdModel } from '@models/ad.model';
-import { AdService } from '../../../core/services/ad.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommentsComponent } from '../../../shared/components/comments/comments.component';
-import { ImageLazyLoaderComponent } from '../../../shared/components/image-lazy-loader/image-lazy-loader.component';import { AdDetailsFacade } from '../../../store/ad-list-common-state/ad-details-state/ad-details.facade';
+import { ImageLazyLoaderComponent } from '../../../shared/components/image-lazy-loader/image-lazy-loader.component';
+import { AdDetailsFacade } from '../../../store/ad-list-common-state/ad-details-state/ad-details.facade';
 import { AdListCommonStateModule } from '../../../store/ad-list-common-state/ad-list-common-state.module';
 
 @Component({
@@ -40,7 +40,6 @@ export class AdDetailsPageComponent implements OnInit, OnDestroy {
   constructor(
     public route: ActivatedRoute,
     private router: Router,
-    private adService: AdService,
     private authService: AuthService,
     private readonly adDetailsFacade: AdDetailsFacade
   ) {}
@@ -74,7 +73,7 @@ export class AdDetailsPageComponent implements OnInit, OnDestroy {
   onEdit(): void {
     this.element$.pipe(takeUntil(this.destroy$)).subscribe((ad) => {
       if (ad) {
-        this.router.navigate(['/edit-ad', ad.id]);
+        this.router.navigate(['/ads/edit-ad', ad.id]);
       }
     });
   }
