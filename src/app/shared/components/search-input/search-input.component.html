@@ -2,16 +2,17 @@
   <input
     type="text"
     (focus)="emitTouched()"
-    [ngModel]="store.value()"
+    [ngModel]="value"
     (ngModelChange)="onModelChanged($event)"
     placeholder="Поиск объявлений..."
     class="search-input"
   />
 
   <button
-    class="icon" [ngClass]="{ close: store.hasData(), search: !store.hasData() }"
+    class="icon"
+    [ngClass]="{ close: store.hasData(), search: !store.hasData() }"
     type="button"
-    (click)="store.hasData() && onModelChanged(undefined)"
-  ></button>
-
+    (click)="store.hasData() && resetSearch()"
+  >
+  </button>
 </div>

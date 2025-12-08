@@ -1,25 +1,17 @@
-import { Component, effect, OnInit, Signal } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { Component, effect, inject, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AdSharingService } from '../../../core/services/ad-sharing.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CategorySelectorComponent } from '../category-selector/category-selector.component';
 import { SearchInputComponent } from '../search-input/search-input.component';
+import { SEARCH_INPUT_STORE } from '../search-input/search-input.model';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { debounceTime } from 'rxjs';
-import { isEmpty } from 'lodash';
+import { debounceTime, Subject } from 'rxjs';
 
 @Component({
   imports: [
     RouterModule,
     CategorySelectorComponent,
-    ReactiveFormsModule,
-    FormsModule,
     SearchInputComponent,
   ],
   selector: 'app-header',
@@ -30,31 +22,49 @@ import { isEmpty } from 'lodash';
 export class HeaderComponent implements OnInit {
   isLoggedIn = false;
   userLogin: string | null = null;
-  searchForm: FormGroup;
-  selectedCategoryId: string = '';
-  search: string = '';
+  selectedCategoryId = '';
 
-  private formChanges: Signal<any>;
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private adSharingService = inject(AdSharingService);
+  private searchStore = inject(SEARCH_INPUT_STORE);
 
-  constructor(
-    private router: Router,
-    private authService: AuthService,
-    private adSharingService: AdSharingService,
-    private fb: FormBuilder
-  ) {
-    this.searchForm = this.fb.group({
-      searchQuery: [''],
-    });
+  private searchSubject = new Subject<string>();
 
-    this.formChanges = toSignal(
-      this.searchForm.valueChanges.pipe(debounceTime(500))
+  constructor() {
+    const debouncedSearch = toSignal(
+      this.searchSubject.pipe(debounceTime(500)),
+      { initialValue: undefined }
     );
 
     effect(() => {
+      const searchValue = debouncedSearch();
+      if (searchValue !== undefined) {
+        this.performSearch(searchValue, this.selectedCategoryId);
+      }
+    });
 
-      const changes = this.formChanges();
+    effect(() => {
+      const searchValue = this.searchStore.value();
+      if (searchValue !== undefined) {
+        this.searchSubject.next(searchValue);
+      }
+    });
 
-      this.onSearch();
+    effect(() => {
+      const searchValue = this.searchStore.value();
+      if (searchValue === undefined) {
+        this.performFullReset();
+      }
+    });
+
+    effect(() => {
+      const subscription = this.adSharingService.resetFilters$
+        .subscribe(() => {
+          this.clearSearch();
+        });
+
+      return () => subscription.unsubscribe();
     });
   }
 
@@ -78,7 +88,13 @@ export class HeaderComponent implements OnInit {
 
   onCategorySelect(categoryId: string): void {
     this.selectedCategoryId = categoryId;
-    this.performCategorySearch(categoryId);
+
+    const currentSearch = this.searchStore.value();
+    if (currentSearch !== undefined) {
+      this.performSearch(currentSearch, categoryId);
+    } else {
+      this.performCategorySearch(categoryId);
+    }
   }
 
   performCategorySearch(categoryId: string): void {
@@ -99,37 +115,30 @@ export class HeaderComponent implements OnInit {
     });
   }
 
-  onSearch(): void {
-    const searchQuery = this.searchForm.get('searchQuery')?.value?.trim() ?? '';
+  private performSearch(searchQuery?: string, categoryId?: string): void {
+    const searchParams = {
+      search: searchQuery?.trim() || '',
+      category: categoryId || undefined,
+      showNonActive: false,
+    };
 
-    if (isEmpty(searchQuery) || this.selectedCategoryId) {
-      const searchParams = {
-        search: searchQuery,
-        category: this.selectedCategoryId || undefined,
-        showNonActive: false,
-      };
+    this.adSharingService.notifySearchParams(searchParams);
 
-      this.adSharingService.notifySearchParams(searchParams);
-
-      this.router.navigate(['/ads'], {
-        queryParams: {
-          search: searchQuery || null,
-          category: this.selectedCategoryId || null,
-        },
-        queryParamsHandling: 'merge',
-      });
-    } else {
-      this.clearSearch();
-    }
-  }
-
-  onSearchChange(event: string): void {
-    this.search = event;
-
-    this.onSearch();
+    this.router.navigate(['/ads'], {
+      queryParams: {
+        search: searchQuery?.trim() || null,
+        category: categoryId || null,
+      },
+      queryParamsHandling: 'merge',
+    });
   }
 
   clearSearch(): void {
+    this.selectedCategoryId = '';
+    this.searchStore.reset();
+  }
+
+  private performFullReset(): void {
     this.selectedCategoryId = '';
 
     this.adSharingService.notifySearchParams({
@@ -139,10 +148,6 @@ export class HeaderComponent implements OnInit {
     });
 
     this.router.navigate(['/ads'], { queryParams: {} });
-  }
-
-  hasSearchText(): boolean {
-    return !!this.search?.trim() || !!this.selectedCategoryId;
   }
 
   isAdmin(): boolean {

@@ -4,11 +4,12 @@ import {
   FormsModule,
   NG_VALUE_ACCESSOR,
 } from '@angular/forms';
-import { isNil } from 'lodash';
 import { SEARCH_INPUT_STORE } from './search-input.model';
 import { NgClass } from '@angular/common';
 
 @Component({
+  selector: 'app-search-input',
+  standalone: true,
   imports: [FormsModule, NgClass],
   providers: [
     {
@@ -16,11 +17,9 @@ import { NgClass } from '@angular/common';
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => SearchInputComponent),
     },
-    SEARCH_INPUT_STORE,
   ],
-  selector: 'app-search-input',
-  styleUrl: './search-input.component.scss',
   templateUrl: './search-input.component.html',
+  styleUrls: ['./search-input.component.scss']
 })
 export class SearchInputComponent implements ControlValueAccessor {
   public store = inject(SEARCH_INPUT_STORE);
@@ -29,22 +28,25 @@ export class SearchInputComponent implements ControlValueAccessor {
   private onChange: (...attr) => void;
   private onTouch: (...attr) => void;
 
-  private searchExecuted: boolean = false;
-
   constructor() {
-
     effect(() => {
+      const storeValue = this.store.value();
+      const newValue = storeValue || '';
 
-      this.emitChanges(this.store.value());
+      if (newValue !== this.value) {
+        this.value = newValue;
+        if (this.onChange) {
+          this.onChange(this.value);
+        }
+      }
     });
-
   }
 
   public writeValue(obj: string): void {
-    this.value = obj;
-
-    if (isNil(obj)) {
-      this.emitChanges(undefined);
+    const newValue = obj || '';
+    if (newValue !== this.value) {
+      this.value = newValue;
+      this.store.patch({ value: obj || undefined });
     }
   }
 
@@ -57,33 +59,14 @@ export class SearchInputComponent implements ControlValueAccessor {
   }
 
   protected emitTouched(): void {
-    this.onTouch && this.onTouch();
+    this.onTouch?.();
   }
 
   protected onModelChanged(event: string): void {
-    this.store.patch({ value: event });
+    this.store.patch({ value: event || undefined });
   }
 
-
-  protected executeSearch(): void {
-    this.searchExecuted = true;
-  }
-
-  protected clearSearch(): void {
-    this.value = '';
-    this.searchExecuted = false;
-    //this.emitChanges();
-  }
-
-  protected shouldShowClearIcon(): boolean {
-    return this.value.trim().length > 0 && this.searchExecuted;
-  }
-
-  protected shouldShowSearchIcon(): boolean {
-    return this.value.trim().length === 0 || !this.searchExecuted;
-  }
-
-  private emitChanges(value): void {
-    this.onChange && this.onChange(value);
+  protected resetSearch(): void {
+    this.store.reset();
   }
 }
