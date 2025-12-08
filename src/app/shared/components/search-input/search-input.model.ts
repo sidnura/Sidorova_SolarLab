@@ -17,18 +17,19 @@ export const initialState: SearchInputStateModel = {
 };
 
 export const SEARCH_INPUT_STORE = signalStore(
+  { providedIn: 'root' },
   withState<SearchInputStateModel>(initialState),
   withMethods((state) => ({
     patch(patchObj: Partial<SearchInputStateModel>): void {
       patchState(state, patchObj);
     },
+    reset(): void {
+      patchState(state, { value: undefined });
+    },
   })),
   withComputed((state) => ({
-
     hasData: computed(() => {
-
       return !isNil(state.value());
     }),
-
   }))
 );

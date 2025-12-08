@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { AdModel } from '../models/ad.model';
 
 export interface SearchParamsModel {
@@ -13,9 +13,13 @@ export interface SearchParamsModel {
 })
 export class AdSharingService {
   private newAdSubject = new BehaviorSubject<AdModel | null>(null);
-  private searchParamsSubject = new BehaviorSubject<SearchParamsModel | null>(null);
+  private searchParamsSubject = new BehaviorSubject<SearchParamsModel | null>(
+    null
+  );
   public searchParams$: Observable<SearchParamsModel | null> =
     this.searchParamsSubject.asObservable();
+  private resetFiltersSubject = new Subject<void>();
+  public resetFilters$ = this.resetFiltersSubject.asObservable();
 
   public get newAd$(): Observable<AdModel | null> {
     return this.newAdSubject.asObservable();
@@ -27,6 +31,10 @@ export class AdSharingService {
 
   notifySearchParams(params: SearchParamsModel): void {
     this.searchParamsSubject.next(params);
+  }
+
+  notifyResetFilters(): void {
+    this.resetFiltersSubject.next();
   }
 
   clearNewAd(): void {

@@ -103,6 +103,7 @@ export class AdvertisementsListPageComponent implements OnInit, OnDestroy {
     this.hasActiveSearch = false;
     this.adListFacade.load({ sortBy: 'createdAt', sortOrder: 'desc' });
     this.router.navigate(['/ads'], { queryParams: {} });
+    this.adSharingService.notifyResetFilters();
   }
 
   deleteAd(adId: string, event?: Event): void {
